@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accueil | Portfolio | Sarbach-Fischer Théo</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="animations.css">
+
+    <link rel="icon" href="src/logo.ico" type="image/x-icon">
+
+    <link href="https://fonts.googleapis.com/css2?family=Faustina:ital,wght@0,300..800;1,300..800&family=Lexend+Tera:wght@100..900&family=Lexend:wght@100..900&family=Preahvihear&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css">
+</head>
+
+<body>
+
+     <header class="top-bar">
+        <button class="menu-toggle" id="menuToggle">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <span class="logo"><span class="name"></span> <span class="first-name"></span> | Portfolio</span>
+    </header>
+
+    <nav class="side-bar" id="sidebar">
+        <ul>
+            <li><a href="index.html"><i class="fa-solid fa-house"></i> Accueil</a></li>
+            <li><a href="about.html"><i class="fa-solid fa-user"></i> À propos</a></li>
+            <li><a href="projects.html"><i class="fa-solid fa-bars-progress"></i> Projets</a></li>
+            <li><a href="career.html"><i class="fa-solid fa-briefcase"></i> Experiences</a></li>
+            <li><a href="skills.html"><i class="fa-solid fa-clipboard-list"></i> Compétences</a></li>
+            <li><a href="techno.html"><i class="fa-solid fa-microchip"></i> Veille Technologique</a></li>
+        </ul>
+
+        <div class="copyright">
+            <p>Copyright 2026 © <span class="name">SARBACH-FISCHER Théo</span></p>
+        </div>
+    </nav>
+
+    <main>
+        <div class="content">
+            <section class="presentation">
+                <div class="text">
+                    <h3>Je m'appelle</h3>
+                    <h1><span class="first-name"></span> <span class="name"></span></h1>
+                    <h2 class="typing"></h2>
+
+                    <div class="util-personnal-infos">
+                        <span class="current-studies-text"><i class="fa-solid fa-graduation-cap"></i> <span class="studies-license"></span> | <span class="studies-level"></span> | <span class="licenses-level"></span></span>
+                        <span class="location-text"><i class="fa-solid fa-location-dot"></i> <span class="school-country"></span> | <span class="school-location"></span> | <span class="school"></span></span>
+                    </div>
+
+                    <div class="socials-medias">
+                        <button onclick="window.open('https://www.linkedin.com/in/th%C3%A9o-sarbach-fischer-46573532b/', '_blank')"><i class="devicon-linkedin-plain"></i></button>
+                        <button onclick="window.open('https://github.com/TheoSrb', '_blank')"><i class="devicon-github-original"></i></button>
+                    </div>
+                </div>
+
+                <div class="profil-picture">
+                    <img src="src/profil-picture.png" alt="Profil" onclick="window.location.href='about.html'">
+                </div>
+
+            </section>
+        </div>
+        
+        <div class="foot-content">
+            <button onclick="downloadCV()" class="download"><i class="fa-solid fa-download"></i> <span>Télécharger mon CV</span></button>
+            <button onclick="copyContact()" class="contact"><i class="fa-solid fa-envelope"></i> <span>Me contacter</span></button>
+        </div>
+
+    </main>
+
+    <script src="script/globals.js"></script>
+    <script src="script/theme-manager.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelectorAll(".name").forEach(el => {
+                el.textContent = NAME;
+            });
+
+            document.querySelectorAll(".first-name").forEach(el => {
+                el.textContent = FIRST_NAME;
+            });
+            
+            document.querySelectorAll(".school").forEach(el => {
+                el.textContent = SCHOOL;
+            });
+
+            document.querySelectorAll(".school-location").forEach(el => {
+                el.textContent = SCHOOL_LOCATION;
+            });
+
+            document.querySelectorAll(".school-country").forEach(el => {
+                el.textContent = SCHOOL_COUNTRY;
+            });
+
+            document.querySelectorAll(".licenses-level").forEach(el => {
+                el.textContent = LICENSES_LEVEL;
+            });
+
+            document.querySelectorAll(".studies-level").forEach(el => {
+                el.textContent = STUDIES_LEVEL;
+            });
+
+            document.querySelectorAll(".studies-license").forEach(el => {
+                el.textContent = STUDIES_LICENSE;
+            });
+        });
+    </script>
+
+    <script src="script/script-code-text.js"></script>
+
+    <script>
+        startCodeTextAnimation();
+
+        function downloadCV() {
+            const link = document.createElement('a');
+            link.href = 'src/CV-Sarbach-Fischer-Théo.pdf';
+            link.download = 'CV-Theo-Sarbach-Fischer.pdf';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        let copyCooldown = false;
+
+        function copyContact() {
+            if (copyCooldown) return; 
+            copyCooldown = true;
+
+            const email = "theo.sarbachfischer@gmail.com"; 
+
+            navigator.clipboard.writeText(email).then(() => {
+                let notification = document.createElement("div");
+                notification.id = "copy-notification";
+                notification.innerHTML = 'Email copié <i class="fa-solid fa-check"></i>';
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.style.right = "30px";
+                }, 100);
+
+                setTimeout(() => {
+                    notification.style.right = "-300px";
+                    setTimeout(() => {
+                        notification.remove();
+                        copyCooldown = false; 
+                    }, 500);
+                }, 3000);
+            }).catch(err => {
+                console.error("Impossible de copier l'email:", err);
+                copyCooldown = false; 
+            });
+        }
+
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+                sidebar.classList.remove('active');
+            }
+        });
+    </script>
+
+</body>
+</html>

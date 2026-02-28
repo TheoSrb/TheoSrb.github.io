@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projets | Portfolio | Sarbach-Fischer Théo</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="animations.css">
+
+    <link rel="icon" href="src/logo.ico">
+
+    <link href="https://fonts.googleapis.com/css2?family=Faustina:ital,wght@0,300..800;1,300..800&family=Lexend+Tera:wght@100..900&family=Lexend:wght@100..900&family=Preahvihear&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css">
+</head>
+
+<body>
+
+<header class="top-bar">
+    <button class="menu-toggle" id="menuToggle">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+    <span class="logo">SARBACH-FISCHER Théo | Portfolio</span>
+</header>
+
+<nav class="side-bar" id="sidebar">
+    <ul>
+        <li><a href="index.html"><i class="fa-solid fa-house"></i> Accueil</a></li>
+        <li><a href="about.html"><i class="fa-solid fa-user"></i> À propos</a></li>
+        <li><a href="projects.html"><i class="fa-solid fa-bars-progress"></i> Projets</a></li>
+        <li><a href="career.html"><i class="fa-solid fa-briefcase"></i> Experiences</a></li>
+        <li><a href="skills.html"><i class="fa-solid fa-clipboard-list"></i> Compétences</a></li>
+        <li><a href="techno.html"><i class="fa-solid fa-microchip"></i> Veille Technologique</a></li>
+    </ul>
+
+    <div class="copyright">
+            <p>Copyright 2026 © <span class="name">SARBACH-FISCHER Théo</span></p>
+    </div>
+</nav>
+
+<main>
+    <div class="content">
+        <div class="projects">
+
+            <h1>Mes projets</h1>
+
+            <div id="projects-list">
+
+                <br><br><br><br><br>
+
+                <h2 class="pro-projects-title">Projets Professionnels</h2>
+
+                <div class="pro-projects">
+
+                    <div class="project">
+                        <div class="project-header">
+                            <img src="src/logo.ico" class="project-logo">
+                            <div class="project-text">
+                                <h3>Portfolio</h3>
+                            </div>
+                        </div>
+                        <div class="project-footer">
+                            <p>° Conception et développement de mon site web professionnel destiné à présenter mon profil, mes compétences et mes projets.</p>
+                            <button class="show-project" onclick="showProject('portfolio')">Voir le projet</button>
+                        </div>
+                    </div>
+
+                    <div class="project">
+                        <div class="project-header">
+                            <img src="src/java-logo.png" class="project-logo">
+                            <div class="project-text">
+                                <h3>Logiciels d'analyse de fichiers</h3>
+                            </div>
+                        </div>
+                        <div class="project-footer">
+                            <p>° Création de scripts en Java permettant de lister les permissions des utilisateurs pouvant consulter des dossiers et fichiers potentiellement sensibles.</p>
+                            <button class="show-project" onclick="showProject('java')">Voir le projet</button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <br><br><br>
+
+                <h2 class="pers-projects-title">Projets Personnels</h2>
+
+                <div class="pers-projects">
+
+                    <div class="project">
+                        <div class="project-header">
+                            <img src="src/logo-project-pers-0.png" class="project-logo">
+                            <div class="project-text">
+                                <h3>Add-on pour jeu vidéo</h3>
+                            </div>
+                        </div>
+                        <div class="project-footer">
+                            <p>° Développement d'un add-on en Java, visant à apporter du contenu à un jeu-vidéo.</p>
+                            <button class="show-project" onclick="showProject('addon')">Voir le projet</button>
+                        </div>
+                    </div>
+
+                    <div class="project">
+                        <div class="project-header">
+                            <img src="src/logo.ico" class="project-logo">
+                            <div class="project-text">
+                                <h3>Contenu à venir...</h3>
+                            </div>
+                        </div>
+                        <div class="project-footer">
+                            <p>° Contenu à venir...</p>
+                            <!--<button class="show-project" onclick="showProject('future')">Voir le projet</button>-->
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <div id="project-details" style="display:none;">
+
+                <div class="project-detail" id="detail-portfolio">
+                    <div class="header">
+                        <button onclick="backToProjects()" class="back-button"><i class="fa-solid fa-arrow-rotate-left"></i></button>
+                        <h2>Portfolio</h2>
+
+                        <div class="logo">
+                            <img src="src/logo.ico">
+                        </div>
+                    </div>
+
+                    <div class="project-detail-content">
+                        <div class="project-detail-description">
+
+                            <h2>Description</h2>
+
+
+                            <p>
+                            
+                                J’ai développé mon site professionnel (<b>Portfolio</b>), dont l’objectif est de <b>présenter</b> mon parcours, mes <b>compétences</b> et mes <b>projets</b>. Il permet aux visiteurs d’en <b>apprendre</b> davantage sur moi, 
+                                de découvrir les <b>technologies</b> que je <b>maîtrise</b>, ainsi que les différents <b>travaux</b> que j’ai réalisés au cours de ma <b>formation</b> et de mes <b>expériences professionnelles</b>. Ce site sert 
+                                également de <b>vitrine professionnelle</b> et facilite la <b>prise de contact</b>.
+                            
+                            </p>
+                        </div>
+
+
+                        <div class="image-carousel-container">
+                            <button class="carousel-btn prev" onclick="changeImage(-1)"><i class="fa-solid fa-caret-left"></i></button>
+                            <div class="image-carousel">
+                                <div class="image-carousel-item active">
+                                    <span class="image-alt">Vitrine du Portfolio</span>
+                                    <img src="src/projects-details/project-0-0.png" alt="Image 1">
+                                </div>
+                            </div>
+                            <button class="carousel-btn next" onclick="changeImage(1)"><i class="fa-solid fa-caret-right"></i></button>
+                        </div>
+
+                    </div>
+
+                    <div class="source-code-btn" onclick="window.open('https://github.com/TheoSrb/Portfolio', '_blank')">
+                        <button >Voir le code source</button>
+                    </div>
+                </div> 
+
+
+
+
+
+                <div class="project-detail" id="detail-java">
+                    <div class="header">
+                        <button onclick="backToProjects()" class="back-button"><i class="fa-solid fa-arrow-rotate-left"></i></button>
+                        <h2>Logiciels d'analyse de fichiers</h2>
+
+                        <div class="logo">
+                            <img src="src/java-logo.png">
+                        </div>
+                    </div>
+
+                    <div class="project-detail-content">
+                        <div class="project-detail-description">
+
+                            <h2>Description</h2>
+
+
+                            <p>Durant mon <a href="career.html">stage</a> de <b>première année</b> de <b>BTS SIO</b> chez <b>Bongard</b> à <b>Holtzheim</b>, j’ai développé deux logiciels en <b>Java</b>.
+
+                                <br>
+                                <br>
+
+                                Le premier permet de <b>lister</b>, dans un fichier <b>Excel</b>, l’ensemble des <b>fichiers</b> contenus dans un <b>dossier principal</b>, ainsi que d’afficher les <b>utilisateurs</b> et les <b>permissions associées</b> 
+                                à chaque fichier. Cet outil permet d’analyser si certains utilisateurs disposent de droits <b>trop élevés</b> ou, au contraire, insuffisants sur des fichiers <b>sensibles</b> ou non.
+                            
+                        
+                                <br>
+                                <br>
+
+                               Le second logiciel permet également de scanner un <b>dossier principal</b>, d’en lister le contenu, puis d’identifier les <b>autorisations de partage</b> pour chaque <b>utilisateur</b>. Il permet ainsi de 
+                               visualiser <b>avec quels utilisateurs</b> un dossier ou un fichier est <b>partagé</b>.
+                            
+                            </p>
+                        </div>
+
+
+                        <div class="image-carousel-container">
+                            <button class="carousel-btn prev" onclick="changeImage(-1)"><i class="fa-solid fa-caret-left"></i></button>
+                            <div class="image-carousel">
+                                <div class="image-carousel-item active">
+                                    <span class="image-alt">I. Choisir les emplacements des fichiers</span>
+                                    <img src="src/projects-details/project-1-0.png" alt="Image 1">
+                                </div>
+                                <div class="image-carousel-item">
+                                    <span class="image-alt">II. Résultat du logiciel de permissions</span>
+                                    <img src="src/projects-details/project-1-1.png" alt="Image 2">
+                                </div>
+                                <div class="image-carousel-item">
+                                    <span class="image-alt">III. Résultat du logiciel de partage</span>
+                                    <img src="src/projects-details/project-1-2.png" alt="Image 3">
+                                </div>
+                                <div class="image-carousel-item">
+                                    <span class="image-alt">IV. Code du logiciel de permissions</span>
+                                    <img src="src/projects-details/project-1-3.png" alt="Image 4">
+                                </div>
+                            </div>
+                            <button class="carousel-btn next" onclick="changeImage(1)"><i class="fa-solid fa-caret-right"></i></button>
+                        </div>
+
+                    </div>
+
+                    <div class="source-code-btn" onclick="window.open('https://github.com/TheoSrb/Logiciels-Fichiers', '_blank')">
+                        <button >Voir le code source</button>
+                    </div>
+                </div> 
+
+
+
+
+
+
+
+                <div class="project-detail" id="detail-addon">
+                    <div class="header">
+                        <button onclick="backToProjects()" class="back-button"><i class="fa-solid fa-arrow-rotate-left"></i></button>
+                        <h2>Add-on de jeu vidéo</h2>
+
+                        <div class="logo">
+                            <img src="src/logo-project-pers-0.png">
+                        </div>
+                    </div>
+
+                    <div class="project-detail-content">
+                        <div class="project-detail-description">
+
+                            <h2>Description</h2>
+
+
+                            <p>Depuis <b>trois ans</b>, je développe un <b>add-on</b> pour un jeu vidéo dont l’objectif est d’enrichir le contenu existant, notamment en y ajoutant de nouveaux <b>animaux</b>. Chaque créature est entièrement conçue par mes 
+                                soins. Je réalise leurs <b>modèles 3D</b>, leurs <b>textures</b>, ainsi que leurs <b>animations</b>. Une fois l’aspect visuel terminé, je développe également leur <b>intelligence artificielle</b> en <b>Java</b> afin de leur 
+                                donner un <b>comportement crédible</b> et les intégrer pleinement dans le jeu.
+                            
+                            
+                                <br>
+                                <br>
+
+                                Ce projet, composé de plusieurs <b>centaines de classes</b> et plusieurs <b>milliers de lignes de code</b> m’a énormément <b>appris</b> sur le monde de l’informatique, en particulier sur la <b>programmation</b>. Il m’a permis de me 
+                                perfectionner en <b>Java</b>, devenu au fil du temps le langage que je maîtrise le mieux. C’est avant tout une <b>passion</b>, à la fois <b>ludique</b> et <b>formatrice</b>, qui m’a permis de me <b>professionnaliser</b> 
+                                tout en prenant <b>plaisir à créer</b>.
+                            
+                            </p>
+                        </div>
+
+
+                        <div class="image-carousel-container">
+                            <button class="carousel-btn prev" onclick="changeImage(-1)"><i class="fa-solid fa-caret-left"></i></button>
+                            <div class="image-carousel">
+                                <div class="image-carousel-item active">
+                                    <span class="image-alt">I. Créer le modèle 3D</span>
+                                    <img src="src/projects-details/project-2-0.png" alt="Image 1">
+                                </div>
+                                <div class="image-carousel-item">
+                                    <span class="image-alt">II. Appliquer la couleur</span>
+                                    <img src="src/projects-details/project-2-1.png" alt="Image 2">
+                                </div>
+                                <div class="image-carousel-item">
+                                    <span class="image-alt">III. Animer le modèle</span>
+                                    <img src="src/projects-details/project-2-2.png" alt="Image 3">
+                                </div>
+                                <div class="image-carousel-item">
+                                    <span class="image-alt">IV. Coder l'IA</span>
+                                    <img src="src/projects-details/project-2-3.png" alt="Image 4">
+                                </div>
+                            </div>
+                            <button class="carousel-btn next" onclick="changeImage(1)"><i class="fa-solid fa-caret-right"></i></button>
+                        </div>
+
+                    </div>
+                </div> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                <div class="project-detail" id="detail-future">
+                    <button onclick="backToProjects()">← Retour aux projets</button>
+                    <h2>Projet à venir</h2>
+                    <p>Contenu à venir.</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="script/theme-manager.js"></script>
+
+<script>
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.getElementById('sidebar');
+
+    menuToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('active');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+            sidebar.classList.remove('active');
+        }
+    });
+
+    function showProject(id) {
+        document.getElementById('projects-list').style.display = 'none';
+        document.getElementById('project-details').style.display = 'block';
+
+        document.querySelectorAll('.project-detail').forEach(detail => {
+            detail.style.display = 'none';
+        });
+
+        document.getElementById('detail-' + id).style.display = 'block';
+    }
+
+    function backToProjects() {
+        document.getElementById('project-details').style.display = 'none';
+        document.getElementById('projects-list').style.display = 'block';
+    }
+</script>
+
+<script>
+    let currentImageIndex = 0;
+
+    function changeImage(direction) {
+        const carousel = event.target.closest('.image-carousel-container');
+        const items = carousel.querySelectorAll('.image-carousel-item');
+
+        let currentIndex = [...items].findIndex(item =>
+            item.classList.contains('active')
+        );
+
+        if (currentIndex === -1) currentIndex = 0;
+
+        const currentItem = items[currentIndex];
+
+        currentItem.classList.remove('active');
+        currentItem.classList.add(direction === 1 ? 'slide-prev' : 'slide-next');
+
+        const nextIndex = (currentIndex + direction + items.length) % items.length;
+        const nextItem = items[nextIndex];
+
+        nextItem.classList.remove('slide-prev', 'slide-next');
+
+        setTimeout(() => {
+            nextItem.classList.add('active');
+        }, 20);
+
+        setTimeout(() => {
+            items.forEach(item => {
+                if (!item.classList.contains('active')) {
+                    item.classList.remove('slide-prev', 'slide-next');
+                }
+            });
+        }, 500);
+    }
+</script>
+
+
+</body>
+</html>
