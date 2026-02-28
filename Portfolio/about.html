@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>À Propos | Portfolio | Sarbach-Fischer Théo</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="animations.css">
+
+    <link rel="icon" href="src/logo.ico" type="image/x-icon">
+
+    <link href="https://fonts.googleapis.com/css2?family=Faustina:ital,wght@0,300..800;1,300..800&family=Lexend+Tera:wght@100..900&family=Lexend:wght@100..900&family=Preahvihear&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css">
+</head>
+
+<body>
+
+    <header class="top-bar">
+        <button class="menu-toggle" id="menuToggle">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <span class="logo">SARBACH-FISCHER Théo | Portfolio</span>
+    </header>
+
+    <nav class="side-bar" id="sidebar">
+        <ul>
+            <li><a href="index.html"><i class="fa-solid fa-house"></i> Accueil</a></li>
+            <li><a href="about.html"><i class="fa-solid fa-user"></i> À propos</a></li>
+            <li><a href="projects.html"><i class="fa-solid fa-bars-progress"></i> Projets</a></li>
+            <li><a href="career.html"><i class="fa-solid fa-briefcase"></i> Experiences</a></li>
+            <li><a href="skills.html"><i class="fa-solid fa-clipboard-list"></i> Compétences</a></li>
+            <li><a href="techno.html"><i class="fa-solid fa-microchip"></i> Veille Technologique</a></li>
+        </ul>
+
+        <div class="copyright">
+            <p>Copyright 2026 © <span class="name">SARBACH-FISCHER Théo</span></p>
+        </div>
+    </nav>
+
+    <main>
+        <div class="content">
+            <div class="about">
+                <h1>À propos de moi</h1>
+
+                <div class="about-me">
+                    <div class="about-text">
+                        <h4>Qui suis-je ?</h4>
+
+                        <p id="about-text"></p>
+                    </div>
+
+                    <div class="profil-picture-mini">
+                        <img src="src/profil-picture.png" alt="Profil">
+                    </div>
+                </div>
+
+                <section class="passions">
+                    <h2 class="passion-title">Mes Passions</h2>
+
+                    <div class="passion-list">
+                    
+                        <div class="passion-1">
+                            <div class="passion-icon"><i class="fa-solid fa-code"></i></div>
+                                <div class="passion-text">
+                                    <h3>Programmation</h3>
+                                    <p>J'aime programmer et coder des projets pour qu'ils puissent prendre forme.</p>
+                                </div>
+                        </div>
+
+                        <div class="passion-2">
+                            <div class="passion-icon"><i class="fa-solid fa-cube"></i></div>
+                                <div class="passion-text">
+                                    <h3>Modélisation 3D</h3>
+                                    <p>J'aime réaliser des modèles 3D. Cela me permet de développer ma créativité.</p>
+                                </div>
+                        </div>
+
+                        <div class="passion-3">
+                            <div class="passion-icon"><i class="fa-solid fa-music"></i></div>
+                                <div class="passion-text">
+                                    <h3>Musique</h3>
+                                    <p>J'aime écouter de la musique, mais je préfère surtout en créer virtuellement sur des logiciels.</p>
+                                </div>
+                        </div>
+
+                        <div class="passion-4">
+                            <div class="passion-icon"><i class="fa-solid fa-earth-africa"></i></div>
+                                <div class="passion-text">
+                                    <h3>Culture</h3>
+                                    <p>J'aime apprendre, quel que soit le domaine, et enrichir ma culture.</p>
+                                </div>
+                        </div>
+
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+
+
+    <script src="script/globals.js"></script>
+    <script src="script/theme-manager.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("about-text").innerHTML = ABOUT_TEXT;
+            document.getElementById("age").textContent = AGE;
+        });
+    </script>
+
+
+
+    <script>
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+                sidebar.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>

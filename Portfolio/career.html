@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Experiences | Portfolio | Sarbach-Fischer Théo</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="animations.css">
+
+    <link rel="icon" href="src/logo.ico" type="image/x-icon">
+
+    <link href="https://fonts.googleapis.com/css2?family=Faustina:ital,wght@0,300..800;1,300..800&family=Lexend+Tera:wght@100..900&family=Lexend:wght@100..900&family=Preahvihear&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css">
+</head>
+
+<body>
+
+     <header class="top-bar">
+        <button class="menu-toggle" id="menuToggle">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <span class="logo">SARBACH-FISCHER Théo | Portfolio</span>
+    </header>
+
+    <nav class="side-bar" id="sidebar">
+        <ul>
+            <li><a href="index.html"><i class="fa-solid fa-house"></i> Accueil</a></li>
+            <li><a href="about.html"><i class="fa-solid fa-user"></i> À propos</a></li>
+            <li><a href="projects.html"><i class="fa-solid fa-bars-progress"></i> Projets</a></li>
+            <li><a href="career.html"><i class="fa-solid fa-briefcase"></i> Experiences</a></li>
+            <li><a href="skills.html"><i class="fa-solid fa-clipboard-list"></i> Compétences</a></li>
+            <li><a href="techno.html"><i class="fa-solid fa-microchip"></i> Veille Technologique</a></li>
+        </ul>
+        <div class="copyright">
+            <p>Copyright 2026 © <span class="name">SARBACH-FISCHER Théo</span></p>
+        </div>
+    </nav>
+
+    
+
+    <main>
+        <div class="content">
+            <div class="career">
+                <h1>Mes Experiences</h1>
+
+                <div class="carousel-container">
+                    <button class="carousel-btn prev"><i class="fa-solid fa-caret-left"></i></button>
+
+                    <div class="carousel">
+                        <div class="carousel-item active" data-content="stage1">
+                            <i class="fa-solid fa-briefcase"></i>
+                            <p class="exp-title">Stage</p>
+                            <p class="stage-d">BTS SIO</p>
+                            <br>
+                            <p class="stage-">1<sup>ère</sup> année</p>
+                        </div>
+
+                        <div class="carousel-item" data-content="stage2">
+                            <i class="fa-solid fa-briefcase"></i>
+                            <p class="exp-title">Stage</p>
+                            <p class="stage-d">BTS SIO</p>
+                            <br>
+                            <p class="stage-">2<sup>ème</sup> année</p>
+                        </div>
+                    </div>
+
+                    <button class="carousel-btn next"><i class="fa-solid fa-caret-right"></i></button>
+                </div>
+
+            </div>
+
+            <div class="carousel-content">
+                <img id="stage-logo" src="">
+                <h2 id="stage-title">Stage 1ère année</h2>
+                <br>
+                <p class="stage-company"><i class="fa-solid fa-building"></i> <strong>Entreprise :</strong> <span id="stage-company">Nom de l'entreprise</span></p>
+                <br>
+                <p class="stage-missions"><i class="fa-solid fa-clipboard-list"></i> <strong>Missions Principales :</strong> <br> - <br> - </p>
+                <br>
+                <p class="stage-missions-2"><i class="fa-solid fa-list"></i><strong>Réalisations Annexes :</strong> <br> - <br> - </p>
+                <br>
+                <p><i class="fa-solid fa-check-double"></i><strong>Compétences :</strong> <span id="stage-skills">Compétences acquises</span></p>
+                <br>
+                <p class="stage-tools"><i class="fa-solid fa-screwdriver-wrench"></i><strong>Outils utilisés :</strong> <span id="stage-tools">Outils utilisés</span></p>
+                <br>
+
+                <p><i class="fa-solid fa-clock"></i><strong>Durée :</strong> <span id="stage-duration">Durée du stage</span></p>
+
+                <br>
+
+                <div class="stage-details">
+                    <p id="stage-period"></p>
+                    <p id="stage-location"></p>
+                    <p></p>
+                    <div class="stage-work-code-btn" id="stage-work-code-btn">
+                        <button >Voir le travail effectué</button>
+                    </div>
+                </div>
+            </div>
+            
+            </div>
+        </div>
+    
+    </main>
+
+
+    <script src="script/theme-manager.js"></script>
+
+    <script>
+        const items = document.querySelectorAll('.carousel-item');
+        let currentIndex = 0;
+
+        const stages = {
+            stage1: {
+                title: "Stage 1ère année - BTS SIO",
+                company: "Bongard SAS",
+                missions: [
+                    "Développement de logiciels en Java permettant de lister les utilisateurs ayant des permissions sur des fichiers potentiellement sensibles.",
+                    "Installation et configuration complète des ordinateurs pour certains employés, afin qu’ils puissent se connecter à l’intranet."
+                ],
+                missions_2: [
+                    "Approfondissement de certains chapitres du langage Java durant mon temps libre.",
+                    "Présentation et prise en main des bases de DocuWare, réalisée de manière encadrée."
+                ],
+                skills: "Java, Windows",
+                tools: "IntelliJ, CMD, Docuware",
+                duration: "5 semaines",
+                logo: "src/bongard-logo.jpg",
+                period: "02/06/2025 – 04/07/2025",
+                location: "Holtzheim, France",
+                link: "https://www.bongard.fr/",
+                work_link: "https://github.com/TheoSrb/Logiciels-Fichiers"
+            },
+            stage2: {
+                title: "Stage 2ème année - BTS SIO",
+                company: "Bongard SAS",
+                missions: [
+                    "Refonte et création d'un site web permettant de lister des plans de machine depuis l'ERP.",
+                    "Création d'un logiciel permettant de mettre à jour une base de données grâce à l'ERP, de suivre son état, et de créer des fichiers logs."
+                ],
+                missions_2: [
+                    "Lire et stocker les informations d'un fichier PDF en Java.",
+                    "Créer des zones cliquables sur un PDF en gardant l'original intacte."
+                ],
+                skills: "Java, HTML, CSS, JavaScript, Node.js, SQL",
+                tools: "IntelliJ, VS Code, SQL Server, Access",
+                duration: "5 semaines",
+                logo: "src/bongard-logo.jpg",
+                period: "12/01/2026 – 13/02/2026",
+                location: "Holtzheim, France",
+                link: "https://www.bongard.fr/",
+                work_link: "https://github.com/TheoSrb/-CAO-Plans-Website-Software"
+            }
+        };
+
+        function updateCarousel(direction) {
+            const prevIndex = Array.from(items).findIndex(item =>
+                item.classList.contains('active')
+            );
+
+            const nextIndex = currentIndex;
+
+            if (prevIndex === nextIndex) {
+                showStage(nextIndex);
+                return;
+            }
+
+            const prevItem = items[prevIndex];
+            const nextItem = items[nextIndex];
+
+            nextItem.style.transition = 'none';
+            nextItem.style.transform =
+                direction === 'next' ? 'translateX(300px)' : 'translateX(-300px)';
+            nextItem.style.opacity = '0';
+
+            nextItem.offsetHeight;
+
+            prevItem.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
+            nextItem.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
+
+            prevItem.style.transform =
+                direction === 'next' ? 'translateX(-300px)' : 'translateX(300px)';
+            prevItem.style.opacity = '0';
+
+            nextItem.style.transform = 'translateX(0)';
+            nextItem.style.opacity = '1';
+
+            prevItem.classList.remove('active');
+            nextItem.classList.add('active');
+
+            showStage(nextIndex);
+        }
+
+        function showStage(index) {
+            const stage = stages[items[index].dataset.content];
+            const content = document.querySelector('.carousel-content');
+            const logo = document.getElementById('stage-logo');
+            const work = document.getElementById('stage-work-code-btn');
+
+            content.classList.add('fade-out');
+            content.classList.remove('fade-in');
+
+            setTimeout(() => {
+                document.getElementById('stage-title').textContent = stage.title;
+                document.getElementById('stage-company').textContent = stage.company;
+
+                let missionsHtml = '<i class="fa-solid fa-clipboard-list"></i> <strong>Missions Principales :</strong><br>';
+                stage.missions.forEach(mission => {
+                    missionsHtml += "- " + mission + "<br>";
+                });
+                document.querySelector('.stage-missions').innerHTML = missionsHtml;
+
+                let missions2Html = '<i class="fa-solid fa-list"></i><strong>Réalisations Annexes :</strong><br>';
+                stage.missions_2.forEach(mission_2 => {
+                    missions2Html += "- " + mission_2 + "<br>";
+                });
+                document.querySelector('.stage-missions-2').innerHTML = missions2Html;
+
+                document.getElementById('stage-skills').textContent = stage.skills;
+                document.getElementById('stage-tools').textContent = stage.tools;
+                document.getElementById('stage-duration').textContent = stage.duration;
+
+                logo.src = stage.logo;
+                logo.style.cursor = stage.link ? 'pointer' : 'default';
+
+                logo.onclick = null;
+                if (stage.link) {
+                    logo.onclick = () => {
+                        window.open(stage.link, '_blank');
+                    };
+                }
+
+                work.onclick = null;
+                if (stage.work_link) {
+                    work.onclick = () => {
+                        window.open(stage.work_link, '_blank');
+                    };
+                }
+
+                document.getElementById('stage-period').innerHTML =
+                    stage.period
+                        ? stage.period + ' <i class="fa-solid fa-hourglass"></i>'
+                        : '';
+
+                document.getElementById('stage-location').innerHTML =
+                    stage.location
+                        ? stage.location + ' <i class="fa-solid fa-location-crosshairs"></i>'
+                        : '';
+
+                content.classList.remove('fade-out');
+                content.classList.add('fade-in');
+            }, 300);
+        }
+
+
+        document.querySelector('.prev').addEventListener('click', () => {
+            currentIndex = (currentIndex - 1 + items.length) % items.length;
+            updateCarousel('prev');
+        });
+
+        document.querySelector('.next').addEventListener('click', () => {
+            currentIndex = (currentIndex + 1) % items.length;
+            updateCarousel('next');
+        });
+
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+                sidebar.classList.remove('active');
+            }
+        });
+
+        showStage(currentIndex);
+    </script>
+
+
+</body>
+</html>
