@@ -1,0 +1,99 @@
+/* Biomes page. */
+
+.biomes-hero {
+  min-height: 66vh;
+  align-items: flex-end;
+}
+.biomes-hero .hero-media { animation: ow-pan 40s ease-in-out infinite alternate; }
+
+.biomes-hero-inner {
+  position: relative;
+  width: 100%;
+  padding-top: 140px;
+  padding-bottom: 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ---- biome cards ----------------------------------------------------------- */
+
+.biome-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 2px solid var(--border-strong);
+  box-shadow: var(--shadow-block);
+  overflow: hidden;
+}
+.biome-card:hover { box-shadow: 0 10px 0 var(--shadow-ink), 0 0 30px rgba(58, 107, 85, .35); }
+
+.biome-banner {
+  position: relative;
+  min-height: 196px;
+  background-size: cover;
+  background-position: center;
+}
+.biome-banner-plain {
+  background: radial-gradient(90% 70% at 50% 30%, var(--raised-hi) 0%, var(--panel) 70%);
+}
+.biome-banner-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(5, 6, 4, .35) 0%, rgba(12, 26, 20, .1) 45%, var(--panel) 100%);
+}
+.biome-banner-plain .biome-banner-scrim { background: none; }
+
+.resident-head {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.biome-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  background: var(--inset);
+  border: 1px solid var(--rule);
+  font-family: var(--font-condensed);
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.biome-tag.is-mod {
+  background: var(--raised-hi);
+  color: var(--text-bright);
+}
+
+/* ---- structures -------------------------------------------------------------- */
+
+.structure-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr);
+  background: var(--raised);
+  border: 2px solid var(--border-strong);
+  box-shadow: var(--shadow-block), var(--bevel);
+  overflow: hidden;
+}
+.structure-card:hover { box-shadow: 0 10px 0 var(--shadow-ink), 0 0 34px rgba(0, 160, 200, .22); }
+
+.structure-image {
+  min-height: 420px;
+  background-color: var(--inset);
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+@media (max-width: 860px) {
+  .structure-card { grid-template-columns: 1fr; }
+  .structure-image { min-height: 260px; }
+}

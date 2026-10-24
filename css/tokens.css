@@ -1,0 +1,195 @@
+/* Les fleches du site, en cases : une mini-police limitee aux fleches
+   (→ ← ↑ ↓ ‹ › ▸ ▾ ▴), placee en tete de chaque famille. Tout le reste du
+   texte retombe sur la police d'origine ; le texte lui-meme n'est pas touche. */
+@font-face {
+  font-family: PxArrows;
+  src: url('https://theosrb.github.io/Operation-W.I.L.D-Wiki-Assets/fonts/px-arrows.ttf') format('truetype');
+  unicode-range: U+2190-2193, U+2039-203A, U+25B4, U+25B8, U+25BE;
+  font-display: block;
+}
+
+/* Operation W.I.L.D wiki — jetons de design.
+
+   Toute couleur du site passe par une de ces variables. Le theme sombre est la
+   reference : ses valeurs sont celles contre lesquelles les pages ont ete
+   dessinees. Le theme clair redefinit les memes roles sur un parchemin, si bien
+   que changer de theme est un echange de variables et jamais une reecriture
+   element par element.
+
+   Une regle tient tout : si une couleur apparait en dur dans un autre fichier,
+   c'est un bug de theme en puissance. Elle a sa place ici. */
+
+:root {
+  color-scheme: dark;
+
+  /* ---- surfaces ---------------------------------------------------------- */
+  --canvas: #171A16;          /* fond de page */
+  --panel: #1B2A22;           /* cartes, corps de liste */
+  --raised: #22362B;          /* panneaux souleves, lignes survolees */
+  --raised-hi: #2C4A3B;       /* survol d'une surface deja soulevee */
+  --inset: #0E120E;           /* puits, en-tetes de table, cases d'icone */
+  --inset-deep: #050604;      /* le fond le plus sombre */
+
+  /* Carte parchemin — le carnet de l'aventurier. Claire dans les deux themes. */
+  --parchment: #F1EDE2;
+  --parchment-ink: #26221F;
+  /* La carte parchemin reste claire dans les deux themes : son gris discret
+     doit donc etre sombre dans les deux. A #8A817C il tombait a 3.3:1 sur le
+     papier, alors qu il numerote les pages du manuel d apprivoisement. */
+  --parchment-muted: #6E6660;
+
+  /* ---- bordures et filets -------------------------------------------------- */
+  --border-strong: #0E120E;   /* le contour voxel de 2px */
+  --rule: #2E3128;            /* separateurs pleins de 1px, chrome des champs */
+  --hairline: rgba(241, 237, 226, .12);
+  --border-soft: rgba(241, 237, 226, .22);
+  --bevel-top: rgba(255, 255, 255, .10);
+
+  /* ---- texte --------------------------------------------------------------- */
+  --text-strong: #F7F4EC;
+  --text-bright: #F1EDE2;
+  --text-soft: #E6E1D4;
+  --text-body: #D5D0BF;
+  /* Les trois paliers discrets ont ete releves.
+
+     Ils tombaient a 3.9, 3.4 et 1.8:1 sur --panel — or ils ne decorent pas :
+     ils portent les cles de statistiques, les touches de clavier, les notes de
+     bas de carte, le libelle BIENTOT. Un audit sur les neuf fiches de creature
+     relevait 540 textes sous le seuil.
+
+     Chaque palier est calibre sur le fond le plus clair ou on le rencontre :
+     --muted jusqu au survol d une surface deja soulevee, --faint sur les
+     panneaux souleves, --dim sur les cartes. Ils restent distincts les uns des
+     autres, sans quoi la hierarchie disparaitrait au profit du contraste. */
+  --text-muted: #BAAEA7;
+  --text-faint: #A19791;
+  --text-dim: #958B86;
+
+  /* ---- accent ------------------------------------------------------------- */
+  --accent: #F2A32C;
+  --accent-hover: #FFB94A;
+  --accent-soft: #FFD489;
+  --on-accent: #171A16;
+  --link: #FFB94A;
+  --link-hover: #FFD489;
+  /* L'ambre en aplat et l'ambre en texte : identiques sur un fond presque noir,
+     mais sur la creme l'aplat doit rester vif quand le texte doit foncer. */
+  --accent-text: #F2A32C;
+
+  /* ---- etats et domaines --------------------------------------------------- */
+  --moss: #8A9A2E;
+  --blood: #B84A38;
+  --abyss: #00658B;
+  --abyss-bright: #00A0C8;
+  --bark: #906334;
+  --forest: #3A6B55;
+  --ember: #D17948;
+  /* Le vert de la marque, tel qu'il apparait dans le logo du mod. Plus vif que
+     --moss, qui est un vert de terrain et disparaitrait sur la canopee. */
+  --leaf: #9BC53D;
+
+  /* ---- ombres -------------------------------------------------------------- */
+  --shadow-ink: rgba(5, 6, 4, .6);
+  --shadow-ink-strong: rgba(5, 6, 4, .9);
+  --shadow-block-sm: 0 2px 0 var(--shadow-ink);
+  --shadow-block: 0 4px 0 var(--shadow-ink);
+  --shadow-block-lg: 0 6px 0 var(--shadow-ink);
+  --shadow-lift: 0 24px 64px rgba(0, 0, 0, .7);
+  --bevel: inset 0 1px 0 var(--bevel-top);
+
+  /* ---- chrome -------------------------------------------------------------- */
+  --header-bg: rgba(5, 6, 4, .94);
+  --header-bg-overlay: rgba(5, 6, 4, .45);
+  --scrim: rgba(5, 6, 4, .82);
+  --scrim-deep: rgba(5, 6, 4, .86);
+
+  /* Verre : le cadre du hero et les surcouches posees sur une image. */
+  --glass: rgba(12, 20, 15, .52);
+  --glass-edge: rgba(255, 255, 255, .14);
+
+  /* Voile pose sur un rendu sombre, du haut vers le bas. Le hero, les bannieres
+     de creature et les entetes de page partagent ces trois arrets, pour que le
+     degrade soit le meme partout sans etre recopie. */
+  --media-veil-top: rgba(5, 6, 4, .72);
+  --media-veil-mid: rgba(5, 6, 4, .16);
+  --media-veil-low: rgba(5, 6, 4, .88);
+
+  /* ---- type ---------------------------------------------------------------- */
+  --font-display: PxArrows, Anton, 'Arial Narrow', sans-serif;
+  --font-condensed: PxArrows, 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --font-body: PxArrows, Barlow, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-pixel: PxArrows, Silkscreen, 'Courier New', monospace;
+
+  /* ---- mouvement ------------------------------------------------------------ */
+  --ease-out: cubic-bezier(.2, .8, .2, 1);
+  --ease-reveal: cubic-bezier(.18, .86, .2, 1);
+  /* Rebond franc, pour les elements qui doivent claquer : chips, bascules. */
+  --ease-snap: cubic-bezier(.34, 1.56, .64, 1);
+  --dur-1: 90ms;
+  --dur-2: 140ms;
+  --dur-3: 240ms;
+
+  /* ---- mise en page ---------------------------------------------------------- */
+  --container: 1280px;
+  --container-narrow: 1200px;
+  --gutter: 24px;
+  --header-h: 64px;
+  /* Rayon du cadre du hero et des grandes tuiles. Le reste du site reste a
+     angles vifs : c'est ce contraste qui fait exister le cadre. */
+  --radius-frame: 26px;
+  --radius-tile: 18px;
+
+  /* ---- libelles poses en CSS (content:) ------------------------------------
+     js/i18n.js les remplace par leur traduction dans une autre langue. */
+  --label-on-stage: 'EN SCÈNE';
+}
+
+/* ---------------------------------------------------------------------------
+   Theme clair : voir css/theme-light.css, charge en dernier sur chaque page.
+   Il redefinit ces memes roles, plus les palettes de jour des biomes et les
+   composants qui portent des couleurs en dur.
+   --------------------------------------------------------------------------- */
+
+/* ---------------------------------------------------------------------------
+   Portee « media ».
+
+   Les bandeaux de hero et les entetes de carte de creature reposent sur des
+   rendus sombres. Le texte y reste clair dans les deux themes : l'inverser
+   reviendrait a se battre contre l'image. L'image garde donc son contraste, et
+   seul le fondu du bas suit le theme, pour atterrir proprement sur le fond de
+   page quel qu'il soit.
+   --------------------------------------------------------------------------- */
+
+.on-media {
+  --panel: #1B2A22;
+  --raised: #22362B;
+  --raised-hi: #2C4A3B;
+  --inset: #0E120E;
+  --inset-deep: #050604;
+  --border-strong: #0E120E;
+  --rule: #2E3128;
+  --hairline: rgba(241, 237, 226, .12);
+  --border-soft: rgba(241, 237, 226, .22);
+  --bevel-top: rgba(255, 255, 255, .10);
+  --text-strong: #F7F4EC;
+  --text-bright: #F1EDE2;
+  --text-soft: #E6E1D4;
+  --text-body: #D5D0BF;
+  --text-muted: #BAAEA7;
+  --text-faint: #A19791;
+  --text-dim: #958B86;
+  --accent: #F2A32C;
+  --accent-hover: #FFB94A;
+  --accent-soft: #FFD489;
+  --accent-text: #F2A32C;
+  --link: #FFB94A;
+  --link-hover: #FFD489;
+  --on-accent: #171A16;
+  --shadow-ink: rgba(5, 6, 4, .6);
+  --shadow-ink-strong: rgba(5, 6, 4, .9);
+  --moss: #8A9A2E;
+  --blood: #B84A38;
+  --abyss-bright: #00A0C8;
+  --glass: rgba(12, 20, 15, .52);
+  --glass-edge: rgba(255, 255, 255, .14);
+}

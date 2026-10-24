@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="fr" data-theme="dark" data-booting>
+
+<head>
+  <meta charset="utf-8">
+  <!-- En local, les assets viennent du depot GitHub (js/remote-assets.js) : en premier. -->
+  <script src="js/remote-assets.js?v=20261001l"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Le wiki n'a pas d'etape de construction : les fichiers sont servis tels
+     quels. Sans ces en-tetes, un navigateur garde volontiers l'ancien CSS
+     apres une modification, et la page semble ne pas avoir bouge. -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Communauté - Operation W.I.L.D</title>
+  <meta name="description"
+    content="Les avis des joueurs d'Operation W.I.L.D et leurs créations : captures, constructions, vidéos et fan arts.">
+  <link rel="icon" href="assets/logo.png" type="image/png">
+  <meta name="theme-color" content="#0B0F0C">
+  <link rel="apple-touch-icon" href="assets/logo.png">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Operation W.I.L.D">
+  <meta property="og:title" content="Communauté - Operation W.I.L.D">
+  <meta property="og:description"
+    content="Les avis des joueurs d'Operation W.I.L.D et leurs créations : captures, constructions, vidéos et fan arts.">
+  <meta property="og:image" content="https://operation-wild-wiki.netlify.app/assets/og/site.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://operation-wild-wiki.netlify.app/assets/og/site.png">
+  <script>
+    /* Theme, effets et langue avant le premier rendu : ni flash de fond, ni flash de texte.
+       La traduction elle-meme (js/i18n.js) leve le voile des qu'elle est prete. */
+    try {
+      var t = localStorage.getItem('ow-theme');
+      if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      var p = localStorage.getItem('ow-perf');
+      if (p === 'full' || p === 'lite') document.documentElement.setAttribute('data-perf', p);
+    } catch (e) { }
+    (function () {
+      var codes = ['fr', 'en', 'es', 'pt', 'ru'], l = null;
+      try { l = localStorage.getItem('ow-lang'); } catch (e) { }
+      if (codes.indexOf(l) < 0) {
+        l = 'en';
+        var list = navigator.languages || [navigator.language || 'en'];
+        for (var i = 0; i < list.length; i++) {
+          var k = String(list[i] || '').slice(0, 2).toLowerCase();
+          if (codes.indexOf(k) >= 0) { l = k; break; }
+        }
+      }
+      document.documentElement.lang = l;
+      if (l !== 'fr') {
+        document.documentElement.setAttribute('data-i18n-pending', '');
+        setTimeout(function () { document.documentElement.removeAttribute('data-i18n-pending'); }, 1800);
+      }
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=Barlow+Condensed:wght@600;700&family=Silkscreen&display=swap">
+  <link rel="stylesheet" href="css/tokens.css?v=20261001l">
+  <link rel="stylesheet" href="css/base.css?v=20261021c">
+  <link rel="stylesheet" href="css/motion.css?v=20261001l">
+  <link rel="stylesheet" href="css/components.css?v=20261001l">
+  <link rel="stylesheet" href="css/icons.css?v=20261001l">
+  <link rel="stylesheet" href="css/search.css?v=20261001l">
+  <link rel="stylesheet" href="css/pages.css?v=20261001l">
+  <link rel="stylesheet" href="css/biome-world.css?v=20261021g">
+  <link rel="stylesheet" href="css/wild.css?v=20261024b">
+  <link rel="stylesheet" href="css/community.css?v=20261001l">
+  <link rel="stylesheet" href="css/contact.css?v=20261001l">
+  <link rel="stylesheet" href="css/ux.css?v=20261022a">
+  <link rel="stylesheet" href="css/billy.css?v=20261020e">
+  <link rel="stylesheet" href="css/theme-light.css?v=20261024b">
+  <script src="js/loader.js?v=20261021c"></script>
+  <!-- Apres les feuilles de style, jamais avant : un script lent a arriver ne doit
+       pas laisser la page s'afficher sans elles (sans @view-transition, css/ux.css,
+       la transition entre pages est abandonnee). Le decor de biome est ici, dans
+       l'en-tete : il se pose avant la premiere image, pour que la transition ait
+       toujours de quoi glisser. -->
+  <script src="js/biome-config.js?v=20261010x"></script>
+  <script src="js/biome-world.js?v=20261024b"></script>
+</head>
+
+<body data-page="community">
+
+  <div data-site-header></div>
+
+  <main class="page">
+    <section class="page-hero cm-hero">
+      <div class="page-hero-glow" aria-hidden="true"></div>
+      <div class="wrap stack" style="position:relative;gap:18px">
+        <span class="t-pixel t-accent">COMMUNAUTÉ</span>
+        <h1 class="t-display t-h1 anim-slide-left">La communauté</h1>
+        <p class="t-lead" style="max-width:62ch">Ce que les joueurs pensent du mod, et ce qu’ils en font.</p>
+        <span data-cm-signs hidden></span>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap stack" style="gap:28px">
+        <div class="section-head">
+          <span class="t-pixel t-accent">01 · AVIS</span>
+          <h2 class="t-section">Ce qu’ils en pensent</h2>
+          <span class="fill"></span>
+        </div>
+        <div data-cm-summary></div>
+        <div data-cm-reviews></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap stack" style="gap:28px">
+        <div class="section-head">
+          <span class="t-pixel t-accent">02 · CRÉATIONS</span>
+          <h2 class="t-section">Ce qu’ils en font</h2>
+          <span class="fill"></span>
+        </div>
+        <div data-cm-works></div>
+      </div>
+    </section>
+
+    <section class="section" id="contact">
+      <div class="wrap stack" style="gap:28px">
+        <div class="section-head">
+          <span class="t-pixel t-accent">03 · CONTACT</span>
+          <h2 class="t-section">Écrire à l’équipe</h2>
+          <span class="fill"></span>
+        </div>
+
+        <div class="ct" data-contact>
+          <!-- La boite aux lettres : la pancarte, la bete facteur, l'enveloppe qui s'envole -->
+          <aside class="ct-post" aria-hidden="true">
+            <div class="ct-sign">
+              <span class="ct-sign-chains"></span>
+              <span class="ct-sign-board"><b>Boîte aux lettres</b><small>Réponse sous quelques jours</small></span>
+            </div>
+            <div class="ct-box">
+              <span class="ct-box-flag" data-ct-flag></span>
+              <span class="ct-box-slot"></span>
+              <span class="ct-letter" data-ct-letter></span>
+            </div>
+            <!-- Le facteur : le kangourou, sa casquette et la lettre du jour -->
+            <span class="ct-carrier">
+              <span class="ct-carrier-shadow"></span>
+              <span class="ct-carrier-body">
+                <img class="crisp" src="assets/heads/kangaroo.png" alt="" width="76" height="101" loading="lazy" decoding="async">
+                <span class="ct-carrier-cap"></span>
+                <span class="ct-carrier-mail"></span>
+              </span>
+            </span>
+          </aside>
+
+          <!-- Netlify Forms : le formulaire doit etre present dans le HTML statique.
+               Les messages arrivent dans le tableau de bord Netlify (Forms), et par mail
+               si une notification est reglee vers operationwteam@gmail.com. -->
+          <form class="ct-form" name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field"
+                data-ct-form novalidate>
+            <input type="hidden" name="form-name" value="contact">
+            <p class="ct-trap" aria-hidden="true"><label>Ne pas remplir <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
+
+            <div class="ct-row">
+              <label class="ct-field">
+                <span class="ct-label">Adresse mail <em>obligatoire</em></span>
+                <input type="email" name="email" required autocomplete="email" placeholder="nom@exemple.com" data-ct-input>
+                <span class="ct-error" data-ct-error>Une adresse mail valide est nécessaire pour recevoir la réponse.</span>
+              </label>
+              <label class="ct-field">
+                <span class="ct-label">Pseudo <em>facultatif</em></span>
+                <input type="text" name="pseudo" maxlength="40" autocomplete="nickname" placeholder="Steve, Alex…" data-ct-input>
+              </label>
+            </div>
+
+            <fieldset class="ct-field ct-topics">
+              <legend class="ct-label">Sujet</legend>
+              <div class="ct-chips" role="radiogroup">
+                <label class="ct-chip"><input type="radio" name="sujet" value="Bug" checked><span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 2h4v2H6zM4 4h8v2H4zM3 6h10v6H3zM5 12h6v2H5zM1 7h2v1H1zM13 7h2v1h-2zM1 10h2v1H1zM13 10h2v1h-2zM7 6h2v6H7z"/></svg>Bug</span></label>
+                <label class="ct-chip"><input type="radio" name="sujet" value="Idée"><span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 1h6v2H5zM3 3h2v6H3zM11 3h2v6h-2zM5 9h2v2H5zM9 9h2v2H9zM6 11h4v2H6zM6 14h4v1H6z"/></svg>Idée</span></label>
+                <label class="ct-chip"><input type="radio" name="sujet" value="Avis"><span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1h2v3H7zM6 4h4v2H6zM1 6h14v2H1zM3 8h10v2H3zM4 10h8v2H4zM3 12h3v2H3zM10 12h3v2h-3z"/></svg>Avis</span></label>
+                <label class="ct-chip"><input type="radio" name="sujet" value="Partenariat"><span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 5h4v2H1zM11 5h4v2h-4zM4 7h2v2H4zM10 7h2v2h-2zM6 8h4v2H6zM5 10h2v2H5zM9 10h2v2H9zM7 12h2v2H7z"/></svg>Partenariat</span></label>
+                <label class="ct-chip"><input type="radio" name="sujet" value="Autre"><span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 2h6v2H5zM11 4h2v4h-2zM8 8h3v2H8zM7 10h2v2H7zM7 13h2v2H7z"/></svg>Autre</span></label>
+              </div>
+            </fieldset>
+
+            <label class="ct-field">
+              <span class="ct-label">Objet <em>obligatoire</em></span>
+              <input type="text" name="objet" required maxlength="90" placeholder="En quelques mots" data-ct-input>
+              <span class="ct-error" data-ct-error>Un objet aide à orienter le message.</span>
+            </label>
+
+            <label class="ct-field">
+              <span class="ct-label">Message <em>obligatoire</em></span>
+              <textarea name="message" required rows="6" maxlength="3000" placeholder="Décrire le bug, l’idée ou la remarque…" data-ct-input data-ct-message></textarea>
+              <span class="ct-error" data-ct-error>Le message doit compter au moins 20 caractères.</span>
+            </label>
+
+            <!-- La jauge d'apprivoisement : elle se remplit a mesure que le message s'etoffe -->
+            <div class="ct-tame" aria-hidden="true">
+              <img class="crisp" src="assets/ui/taming_exp.png" alt="" width="22" height="22">
+              <span class="ct-tame-bar"><i data-ct-tame></i></span>
+              <span class="ct-tame-label t-pixel" data-ct-tame-label>SAUVAGE</span>
+            </div>
+
+            <div class="ct-foot">
+              <button type="submit" class="ct-send" data-ct-send>
+                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 3h14v10H1zM3 5v6h10V5zM3 5h2v1H3zM5 6h2v1H5zM7 7h2v1H7zM9 6h2v1H9zM11 5h2v1h-2z"/></svg>
+                <span data-ct-send-label>Envoyer le message</span>
+              </button>
+              <p class="ct-note">Les messages sont lus par l’équipe d’Operation W.I.L.D. L’adresse mail sert uniquement à la réponse.</p>
+            </div>
+            <p class="ct-fail" data-ct-fail hidden>L’envoi a échoué. Réessayer dans un instant, ou écrire directement à
+              <a href="mailto:operationwteam@gmail.com">operationwteam@gmail.com</a>.</p>
+          </form>
+
+          <!-- Le recu : il remplace le formulaire une fois le message parti -->
+          <div class="ct-done" data-ct-done hidden>
+            <span class="ct-stamp">Reçu</span>
+            <b>Message bien envoyé</b>
+            <p>L’équipe répondra à l’adresse indiquée, en général sous quelques jours.</p>
+            <button type="button" class="btn" data-ct-again>Écrire un autre message</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div data-site-footer></div>
+
+  <script src="js/attack-profiles.js?v=20261010x"></script>
+  <script src="js/wiki-data.js?v=20261020a"></script>
+  <script src="js/asset-list.js?v=20261023a"></script>
+  <script src="js/site.js?v=20261024a"></script>
+  <script src="js/block-icons.js?v=20261009a"></script>
+  <script src="js/site-config.js?v=20261010x"></script>
+  <script src="js/assets-config.js?v=20261001l"></script>
+  <script src="js/ux.js?v=20261024d"></script>
+  <script src="js/player.js?v=20261001l"></script>
+  <script src="js/theme.js?v=20261001l"></script>
+  <script src="js/perf.js?v=20261001l"></script>
+  <script src="js/i18n.js?v=20261001l"></script>
+  <script src="js/favorites.js?v=20261001l"></script>
+  <script src="js/reveal.js?v=20261022a"></script>
+  <script src="js/interactions.js?v=20261001l"></script>
+  <script src="js/footer.js?v=20261001l"></script>
+  <script src="js/search.js?v=20261024a"></script>
+  <script src="js/header.js?v=20261001l"></script>
+  <script src="js/billy.js?v=20261024a"></script>
+  <script src="js/swing.js?v=20261021f"></script>
+  <script src="js/wild.js?v=20261001l"></script>
+  <script src="js/community.js?v=20261001l"></script>
+  <script src="js/contact.js?v=20261001l"></script>
+</body>
+
+</html>

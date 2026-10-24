@@ -1,0 +1,320 @@
+/* La carte d'une creature : le vitrail de biome.
+
+   Le biome vivant en fond, le rendu solo de la bete qui flotte au-dessus, et
+   une plaque de verre en bas pour ses chiffres. Servie par js/creature-card.js
+   au bestiaire et au tri de l'accueil. */
+
+.cc {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: #0B100C;
+  border: 2px solid var(--border-strong);
+  box-shadow: 0 8px 0 rgba(5, 6, 4, .55), 0 18px 34px rgba(0, 0, 0, .3);
+  text-decoration: none;
+  transition: translate 260ms var(--ease-snap), box-shadow 260ms ease-out;
+}
+.cc:hover {
+  translate: 0 -6px;
+  box-shadow: 0 14px 0 rgba(5, 6, 4, .55), 0 0 44px color-mix(in srgb, var(--c) 30%, transparent);
+}
+.cc:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+/* Le biome, dessine par biome-world.js. */
+.cc-scene { position: absolute; inset: 0; }
+.cc-scene > * { position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important; }
+/* Le soleil du decor est regle sur l'ECRAN (min(30vh, 26vw), css/pages.css) :
+   dans une carte, il en prenait presque toute la largeur, halo compris, et
+   noyait le terrain. Ici il se regle sur la carte, halo a la meme echelle. */
+.cc-scene .bw-scene.is-mini :is(.hb-sun, .hb-sun-halo) { width: 30%; }
+.cc-scene .bw-scene.is-mini .hb-sun-halo {
+  box-shadow: 0 0 0 5px rgba(var(--sun-glow), .2), 0 0 0 11px rgba(var(--sun-glow), .1), 0 0 36px 10px rgba(var(--sun-glow), .28);
+}
+.cc-veil {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(70% 46% at 50% 40%, color-mix(in srgb, var(--c) 20%, transparent), transparent 72%),
+    linear-gradient(180deg, rgba(8, 11, 9, .12) 0%, rgba(8, 11, 9, .28) 46%, rgba(8, 11, 9, .86) 100%);
+  transition: opacity 260ms ease-out;
+}
+.cc:hover .cc-veil { opacity: .84; }
+
+/* La scene de la bete : son rendu solo et sa tete, l'un ou l'autre. */
+.cc-stage { position: absolute; inset: 0; }
+
+/* Le rendu solo : il flotte, et avance au survol. En attendant son
+   chargement, la vignette de la bete tient la place.
+
+   Centre par la marge (la moitie de sa largeur), jamais par un
+   `translate: -50%` dans le flottement : la carte graphique fige ce
+   pourcentage en pixels au depart de l'animation. Quand la case changeait
+   ensuite de largeur (la vignette qui cede au rendu solo, la carte qui
+   s'elargit), la bete restait decalee vers la droite jusqu'au rechargement. */
+.cc-art {
+  position: absolute;
+  /* --ox : la distance entre la bete et le milieu de son image, mesuree au
+     chargement (js/creature-card.js). Sans elle, rien ne bouge. */
+  left: calc(50% + var(--ox, 0) * 100%);
+  top: 4%;
+  width: 52%;
+  margin-left: -26%;
+  aspect-ratio: 1;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: drop-shadow(0 12px 14px rgba(0, 0, 0, .6));
+  animation: cc-float 4.6s ease-in-out infinite;
+  transition: scale 300ms var(--ease-snap), filter 300ms ease-out;
+}
+/* Le rendu solo : l'image telle quelle, sur toute la largeur de la carte,
+   centree. Aucun calcul, aucune mesure : le rendu est deja compose. */
+.cc-art.is-solo {
+  left: 50%;
+  top: 8%;
+  width: 112%;
+  margin-left: -56%;
+  aspect-ratio: 16 / 9;
+  transform-origin: 50% 90%;
+}
+@keyframes cc-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -9px; } }
+.cc:hover .cc-art { scale: 1.07; filter: drop-shadow(0 16px 18px rgba(0, 0, 0, .7)); }
+
+/* La tete, en grand : elle prend la place du rendu toutes les cinq secondes.
+   Les deux images se croisent — l'une recule et s'efface, l'autre avance. */
+.cc-face {
+  position: absolute;
+  left: calc(50% + var(--ox, 0) * 100%);
+  top: 8%;
+  width: 62%;
+  margin-left: -31%;
+  aspect-ratio: 1;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: drop-shadow(0 12px 14px rgba(0, 0, 0, .6));
+  animation: cc-float 4.6s ease-in-out infinite;
+  opacity: 0;
+  scale: .82;
+  transition: opacity 420ms var(--ease-reveal), scale 520ms var(--ease-snap), rotate 520ms var(--ease-snap);
+  rotate: -6deg;
+}
+.cc-art { transition: opacity 420ms var(--ease-reveal), scale 520ms var(--ease-snap), filter 300ms ease-out; }
+.cc.is-face .cc-art { opacity: 0; scale: .86; }
+.cc.is-face .cc-face { opacity: 1; scale: 1; rotate: 0deg; }
+.cc.is-face:hover .cc-face { scale: 1.08; }
+
+/* La plaque de verre : nom, archetype, chiffres, palier. */
+.cc-plate {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin: 11px;
+  padding: 13px 14px;
+  background: rgba(10, 16, 12, .74);
+  -webkit-backdrop-filter: blur(10px) saturate(1.15);
+  backdrop-filter: blur(10px) saturate(1.15);
+  border: 2px solid var(--border-strong);
+  border-bottom: 4px solid var(--c);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 5px 0 rgba(5, 6, 4, .5);
+  transition: border-color 220ms ease-out, background 220ms ease-out;
+}
+.cc:hover .cc-plate { background: rgba(10, 16, 12, .82); }
+.cc-line { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.cc-name {
+  /* Une ligne aussi : un nom long s'abrege plutot que de grandir la plaque.
+     Le retrait du haut garde la place des accents (« ÉLÉPHANT »). */
+  padding-top: 3px;
+  margin-top: -3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: var(--font-display);
+  font-size: clamp(24px, 2.1vw, 30px);
+  /* Pas de rognage ici : avec line-height 1 et overflow hidden, l'accent de
+     « ÉLÉPHANT » se faisait couper. */
+  line-height: 1.08;
+  text-transform: uppercase;
+  color: #FFFFFF;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, .5);
+  min-width: 0;
+}
+.cc-arch {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, .5));
+  transition: rotate 280ms var(--ease-snap), scale 280ms var(--ease-snap);
+}
+.cc:hover .cc-arch { rotate: 10deg; scale: 1.14; }
+
+/* La vitesse (« 12.5 b/s ») est la plus large : sa colonne a un peu plus de
+   place, et aucun chiffre ne passe a la ligne (la plaque grandissait). */
+.cc-stats { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.3fr); gap: 8px; }
+.cc-stat b { white-space: nowrap; }
+.cc-unit { font-style: normal; font-size: .72em; letter-spacing: .02em; }
+.cc-stat { display: flex; flex-direction: column; gap: 2px; }
+.cc-stat b {
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 21px;
+  line-height: 1;
+  color: #FFFFFF;
+}
+.cc-stat small {
+  font-family: var(--font-condensed);
+  font-weight: 600;
+  font-size: 11.5px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+/* Une seule ligne, quelle que soit la bete : un pied qui passait a la ligne
+   (« Apprivoisable · Semi-aquatique » + « Fiche → ») rendait la plaque plus
+   haute que ses voisines. Le lien « Fiche → » flotte donc par-dessus, sans
+   reserver de place, et un texte trop long s'abrege. */
+.cc-foot {
+  position: relative;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  min-width: 0;
+  gap: 4px 8px;
+  padding-top: 9px;
+  border-top: 1px solid rgba(255, 255, 255, .12);
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 13.5px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+.cc-tier { color: var(--c); }
+.cc-family { color: #D9D3C7; }
+.cc-tier, .cc-family { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cc-tier { flex: 0 1 auto; }
+/* Une carte etroite resserre son pied plutot que de l'abreger. */
+.cc { container-type: inline-size; }
+@container (max-width: 270px) {
+  .cc-foot { gap: 4px 6px; font-size: 12px; letter-spacing: .02em; }
+}
+.cc-family { flex: 0 1 auto; }
+.cc-dot { width: 5px; height: 5px; flex: 0 0 auto; background: rgba(255, 255, 255, .35); }
+.cc-go {
+  position: absolute;
+  right: 0;
+  bottom: -2px;
+  padding: 2px 0 2px 26px;
+  white-space: nowrap;
+  background: linear-gradient(90deg, transparent, rgba(10, 16, 12, .96) 22px);
+  color: #FFFFFF;
+  opacity: 0;
+  translate: -6px 0;
+  transition: opacity 200ms ease-out, translate 200ms var(--ease-snap);
+}
+.cc:hover .cc-go { opacity: 1; translate: 0 0; }
+
+/* ---- la bete a venir --------------------------------------------------------- */
+
+.cc-mystery { cursor: var(--cur-default); }
+.cc-mystery .cc-art { filter: brightness(0) drop-shadow(0 0 2px rgba(255, 255, 255, .6)) drop-shadow(0 0 16px rgba(190, 205, 255, .35)); }
+.cc-mystery-light {
+  position: absolute;
+  left: 50%;
+  top: 6%;
+  width: 62%;
+  aspect-ratio: 1;
+  translate: -50% 0;
+  background: radial-gradient(closest-side, rgba(255, 255, 255, .24), rgba(170, 190, 255, .07) 60%, transparent);
+  animation: mystery-glow 3.2s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+.cc-mystery-mark {
+  position: absolute;
+  left: 50%;
+  top: 22%;
+  translate: -50% 0;
+  font-family: var(--font-display);
+  font-size: 76px;
+  line-height: 1;
+  color: #FFFFFF;
+  text-shadow: 3px 3px 0 #000, 0 0 22px rgba(255, 255, 255, .7);
+  animation: mystery-beat 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+.cc-mystery:hover .cc-art { animation: cc-float 4.6s ease-in-out infinite, mystery-shiver 360ms steps(3) 2; }
+.cc-mystery .cc-name { letter-spacing: .1em; color: #CFC8BC; }
+
+@media (max-width: 560px) {
+  .cc-name { font-size: 24px; }
+  .cc-stat b { font-size: 19px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cc-art, .cc-face, .cc-mystery-light, .cc-mystery-mark { animation: none !important; }
+  .cc-art, .cc-face { transition: none !important; }
+}
+
+/* ===========================================================================
+   La nouveaute : l'etoile « Nouveau ! » de l'accueil (css/news.css), collee
+   sur le coin haut droit de sa carte (js/creature-card.js, markNew). Elle
+   deborde de la carte : la carte laisse deborder, ses couches se rognent
+   elles-memes. Le bouton favori passe a gauche pour lui laisser le coin.
+   =========================================================================== */
+
+.cc.is-new { overflow: visible; }
+.cc.is-new > :is(.cc-scene, .cc-veil, .cc-stage) { overflow: hidden; }
+.cc.is-new .fav-star { right: auto; left: 10px; }
+.cc-new {
+  position: absolute;
+  right: -18px;
+  top: -20px;
+  z-index: 7;
+  width: 82px;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  rotate: 10deg;
+  pointer-events: none;
+  transition: scale 300ms cubic-bezier(.34, 1.56, .64, 1);
+  animation: cc-new-pop 700ms cubic-bezier(.34, 1.56, .64, 1) backwards;
+}
+@keyframes cc-new-pop { from { transform: scale(.55) rotate(-40deg); } }
+.cc.is-new:hover .cc-new { scale: 1.12; }
+.cc-new .hb-news-star {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  animation: cc-new-spin 24s linear infinite;
+}
+/* En `transform` : sur un <svg>, `rotate` seul reste hors de la carte graphique. */
+@keyframes cc-new-spin { to { transform: rotate(360deg); } }
+.cc-new .hb-news-star-back { fill: #171A16; transform: translate(6px, 7px); }
+.cc-new .hb-news-star-front { fill: #FFE14D; stroke: #171A16; stroke-width: 6; stroke-linejoin: miter; }
+.cc-new-text {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 1px;
+  font-family: var(--font-display);
+  font-size: 14px;
+  line-height: 1;
+  text-transform: uppercase;
+  color: #B84A38;
+  text-shadow: 1px 1px 0 #171A16;
+  animation: cc-new-throb 1.6s ease-in-out 1s infinite;
+}
+.cc-new-text i { font-style: normal; font-size: 1.2em; color: #171A16; text-shadow: none; }
+@keyframes cc-new-throb { 50% { scale: 1.08; } }
+@media (prefers-reduced-motion: reduce) {
+  .cc-new, .cc-new .hb-news-star, .cc-new-text { animation: none !important; }
+}
+html[data-perf='lite'] .cc-new .hb-news-star { animation: none; }

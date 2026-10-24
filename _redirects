@@ -1,0 +1,18 @@
+# Netlify : le dossier tools/ (outils, liste des secrets, images a l'abri) n'est jamais servi.
+/tools/*  /404.html  404!
+
+# Les pages d'apercu de partage s'appelaient c/<bete>.html : elles vivent
+# maintenant dans partage/. Les liens deja postes (Discord...) y menent.
+/c/*  /partage/:splat  301!
+
+# Les assets (images, sons, modeles...) vivent dans le depot GitHub
+# TheoSrb/Operation-W.I.L.D-Wiki-Assets, publie par GitHub Pages. Le site les
+# demande toujours a /assets/... : Netlify va les chercher la-bas et les sert
+# comme s'ils etaient ici (meme adresse, donc rien a changer dans le code).
+# Le « ! » l'impose meme si un dossier assets/ traine dans le depot du site.
+# Le depot doit etre PUBLIC, avec GitHub Pages active (branche main, racine).
+/assets/*  https://theosrb.github.io/Operation-W.I.L.D-Wiki-Assets/:splat  200!
+
+# Le relais de Billy (fonctions/) tourne sur le serveur : son code n est pas servi.
+/fonctions/*  /404.html  404!
+/.claude/*  /404.html  404!

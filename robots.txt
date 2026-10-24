@@ -1,0 +1,6 @@
+# Le banc d'essai (lab.html) et les outils ne sont pas des pages du wiki.
+User-agent: *
+Disallow: /lab.html
+Disallow: /tools/
+
+Sitemap: https://operation-wild-wiki.netlify.app/sitemap.xml

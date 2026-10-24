@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="fr" data-theme="dark" data-booting>
+<head>
+<meta charset="utf-8">
+<!-- En local, les assets viennent du depot GitHub (js/remote-assets.js) : en premier. -->
+<script src="js/remote-assets.js?v=20261001l"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Le wiki n'a pas d'etape de construction : les fichiers sont servis tels
+     quels. Sans ces en-tetes, un navigateur garde volontiers l'ancien CSS
+     apres une modification, et la page semble ne pas avoir bouge. -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Fiche créature - Operation W.I.L.D</title>
+<meta name="description" content="Fiche complète d'une créature d'Operation W.I.L.D : statistiques, capacités montées, apprivoisement, apparition, butin et Piste Sauvage.">
+<link rel="icon" href="assets/logo.png" type="image/png">
+<meta name="theme-color" content="#0B0F0C">
+<link rel="apple-touch-icon" href="assets/logo.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Operation W.I.L.D">
+<meta property="og:title" content="Fiche créature - Operation W.I.L.D">
+<meta property="og:description" content="Fiche complète d'une créature d'Operation W.I.L.D : statistiques, capacités montées, apprivoisement, apparition, butin et Piste Sauvage.">
+<meta property="og:image" content="https://operation-wild-wiki.netlify.app/assets/og/site.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://operation-wild-wiki.netlify.app/assets/og/site.png">
+<script>
+  /* Theme, effets et langue avant le premier rendu : ni flash de fond, ni flash de texte.
+     La traduction elle-meme (js/i18n.js) leve le voile des qu'elle est prete. */
+  try {
+    var t = localStorage.getItem('ow-theme');
+    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+    var p = localStorage.getItem('ow-perf');
+    if (p === 'full' || p === 'lite') document.documentElement.setAttribute('data-perf', p);
+  } catch (e) {}
+  (function () {
+    var codes = ['fr', 'en', 'es', 'pt', 'ru'], l = null;
+    try { l = localStorage.getItem('ow-lang'); } catch (e) {}
+    if (codes.indexOf(l) < 0) {
+      l = 'en';
+      var list = navigator.languages || [navigator.language || 'en'];
+      for (var i = 0; i < list.length; i++) {
+        var k = String(list[i] || '').slice(0, 2).toLowerCase();
+        if (codes.indexOf(k) >= 0) { l = k; break; }
+      }
+    }
+    document.documentElement.lang = l;
+    if (l !== 'fr') {
+      document.documentElement.setAttribute('data-i18n-pending', '');
+      setTimeout(function () { document.documentElement.removeAttribute('data-i18n-pending'); }, 1800);
+    }
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=Barlow+Condensed:wght@600;700&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="css/tokens.css?v=20261001l">
+<link rel="stylesheet" href="css/base.css?v=20261021c">
+<link rel="stylesheet" href="css/motion.css?v=20261001l">
+<link rel="stylesheet" href="css/components.css?v=20261001l">
+<link rel="stylesheet" href="css/icons.css?v=20261001l">
+<link rel="stylesheet" href="css/search.css?v=20261001l">
+<link rel="stylesheet" href="css/pages.css?v=20261001l">
+<link rel="stylesheet" href="css/animal.css?v=20261021g">
+<link rel="stylesheet" href="css/deck-styles.css?v=20261010b">
+<link rel="stylesheet" href="css/field-notes.css?v=20261012e">
+<link rel="stylesheet" href="css/wild-trail.css?v=20261001l">
+<link rel="stylesheet" href="css/biome-world.css?v=20261021g">
+<link rel="stylesheet" href="css/wild.css?v=20261024b">
+<link rel="stylesheet" href="css/ux.css?v=20261022a">
+<link rel="stylesheet" href="css/billy.css?v=20261020e">
+<link rel="stylesheet" href="css/theme-light.css?v=20261024b">
+<script src="js/loader.js?v=20261021c"></script>
+<!-- Apres les feuilles de style, jamais avant : un script lent a arriver ne doit
+     pas laisser la page s'afficher sans elles (sans @view-transition, css/ux.css,
+     la transition entre pages est abandonnee). Le decor de biome est ici, dans
+     l'en-tete : il se pose avant la premiere image, pour que la transition ait
+     toujours de quoi glisser. -->
+<script src="js/biome-config.js?v=20261010x"></script>
+<script src="js/biome-world.js?v=20261024b"></script>
+</head>
+<body data-page="creatures" data-header-overlay>
+
+<div data-site-header></div>
+
+<main class="fiche">
+  <canvas class="ambient-canvas" data-embers aria-hidden="true"></canvas>
+
+  <!-- ===================================================================
+       1 · IDENTITE — plein ecran : le decor de la bete, son rendu solo
+       =================================================================== -->
+  <section class="ident on-media" id="identity">
+    <!-- Le decor : le wallpaper de l'espece tient tout le fond, la scene
+         vivante du biome passe par-dessus en transparence. -->
+    <div class="ident-media" aria-hidden="true">
+      <div class="hero-media" data-wallpaper></div>
+      <div class="ident-biome" data-biome></div>
+      <div class="ident-veil"></div>
+      <div class="ident-tint" data-tint></div>
+      <div class="hero-scanlines"></div>
+    </div>
+
+    <div class="ident-art">
+      <span class="ident-art-glow" aria-hidden="true"></span>
+      <img class="crisp ident-solo" data-art alt="" loading="eager" decoding="async">
+    </div>
+    <div class="ident-ground" aria-hidden="true"></div>
+
+    <div class="wrap ident-inner">
+      <!-- Le panneau de l'enclos : grave, visse, pose devant le decor. -->
+      <div class="ident-sign">
+        <span class="ident-screw ident-screw-a" aria-hidden="true"></span>
+        <span class="ident-screw ident-screw-b" aria-hidden="true"></span>
+        <span class="ident-id" data-entity-id></span>
+        <h1 class="ident-name" data-name></h1>
+        <p class="ident-tagline" data-tagline></p>
+        <div class="ident-traits" data-idcard></div>
+        <div class="ident-cta">
+          <a class="btn btn-accent" href="#stats">Descendre dans la fiche ↓</a>
+          <a class="btn" data-sim-link href="simulator.html">Comparer dans l'arène →</a>
+        </div>
+      </div>
+    </div>
+
+
+  </section>
+
+  <!-- Les constantes vitales : un bandeau a part, sous l'en-tete. A l'interieur
+       de la section, la mise en page en colonne pouvait l'ecraser et le
+       debordement cache coupait son contenu. -->
+  <div class="wrap ident-vitals" data-vitals></div>
+
+  <!-- ===================================================================
+       Le rail de chapitres, et les chapitres
+       =================================================================== -->
+  <div class="shell">
+    <div class="rail" data-rail>
+      <a class="rail-beast" data-rail-beast href="#identity"></a>
+
+      <!-- Sous 1240 pixels le sommaire ne tient plus en ligne : il se replie
+           derriere ce bouton, qui affiche le chapitre en cours. -->
+      <button type="button" class="rail-burger" data-rail-toggle
+              aria-expanded="false" aria-controls="rail-nav">
+        <span class="rail-burger-bars" aria-hidden="true"></span>
+        <span class="rail-burger-text">
+          <small>Chapitre</small>
+          <b data-rail-current>Statistiques</b>
+        </span>
+      </button>
+
+      <nav class="rail-nav" id="rail-nav" data-toc aria-label="Chapitres de la fiche">
+        <a href="#stats" data-toc-link="stats"><b>01</b><span>Statistiques</span></a>
+        <a href="#abilities" data-toc-link="abilities"><b>02</b><span>Capacités</span></a>
+        <a href="#taming" data-toc-link="taming"><b>03</b><span>Apprivoisement</span></a>
+        <a href="#field" data-toc-link="field"><b>04</b><span>Sur le terrain</span></a>
+        <a href="#spawn" data-toc-link="spawn"><b>05</b><span>Apparition</span></a>
+        <a href="#journal" data-toc-link="journal"><b>06</b><span>Journal</span></a>
+        <a href="#variants" data-toc-link="variants"><b>07</b><span>Variantes</span></a>
+        <a href="#loot" data-toc-link="loot"><b>08</b><span>Butin</span></a>
+        <a href="#trail" data-toc-link="trail"><b>09</b><span>Piste Sauvage</span></a>
+        <a href="#cosmetics" data-toc-link="cosmetics"><b>10</b><span>Skins</span></a>
+        <a href="#sounds" data-toc-link="sounds"><b>11</b><span>Sons</span></a>
+        <a href="#animations" data-toc-link="animations"><b>12</b><span>Animations</span></a>
+      </nav>
+      <div class="rail-switch" data-switcher></div>
+    </div>
+
+    <div class="chapters">
+
+      <!-- 01 · STATISTIQUES — la fiche technique -->
+      <section class="chap chap-tech" id="stats">
+        <header class="chap-head">
+          <span class="chap-num">01</span>
+          <h2 class="chap-title">Statistiques</h2>
+        </header>
+        <div class="prof" data-profile></div>
+      </section>
+
+      <!-- 02 · CAPACITES — la barre du HUD -->
+      <section class="chap chap-hud" id="abilities">
+        <header class="chap-head">
+          <span class="chap-num">02</span>
+          <h2 class="chap-title">Capacités montées</h2>
+        </header>
+        <p class="chap-lead">
+          Le jeu n'a que trois emplacements : le combo, la secondaire, l'ultime. Les deux cartes
+          secondaires se partagent le même — la molette passe de l'une à l'autre. Un clic sur une carte
+          l’amène au premier plan ; un second clic la retourne et affiche ses réglages.
+        </p>
+        <div class="deck" data-abilities data-deck-style="affiche"></div>
+        <div class="hud-passives" id="passives">
+          <span class="chap-label">Toujours actif</span>
+          <div class="aura-list" data-passives></div>
+        </div>
+      </section>
+
+      <!-- 03 · APPRIVOISEMENT — la page de carnet -->
+      <section class="chap chap-paper" id="taming">
+        <header class="chap-head">
+          <span class="chap-num">03</span>
+          <h2 class="chap-title">Apprivoisement</h2>
+        </header>
+        <!-- Des rangees regulieres, jamais deux colonnes de hauteurs
+             differentes : chaque paire a la meme taille (le contenu trop long
+             defile dans sa carte), les bandeaux prennent toute la largeur. -->
+        <div class="paper">
+          <!-- La difficulte et le succes que l'apprivoisement debloque. -->
+          <div class="paper-pair is-top" id="taming-difficulty">
+            <div class="paper-stamp" data-difficulty></div>
+            <div class="paper-adv" data-advancement></div>
+          </div>
+          <!-- Ce qu'il faut lui donner, et la selle a fabriquer. -->
+          <!-- En planches de bois clouees (css/animal.css, .food-pair). -->
+          <div class="paper-pair food-pair">
+            <div class="paper-card paper-food" id="taming-food">
+              <span class="paper-label">Nourriture acceptée</span>
+              <div class="sack paper-body" data-foods></div>
+            </div>
+            <div class="paper-card" id="saddle" data-saddle-panel></div>
+          </div>
+          <!-- Les bandeaux, en fenetre de coffre comme le Butin
+               (css/animal.css, .chest-zone). -->
+          <div class="chest-zone">
+          <!-- La barre de somnolence : son plafond et le temps qu'elle met a
+               retomber, endormie ou non (taming.somnolence). En bandeau. -->
+          <div class="paper-card paper-band paper-somno" id="somnolence" data-somnolence hidden></div>
+          <!-- Les repas, une fois endormie : combien, l'attente entre deux, et
+               le temps que tout cela prend (taming.feeding). En bandeau. -->
+          <div class="paper-card paper-band paper-feed" id="meals" data-feeding hidden></div>
+          </div>
+          <div class="fn-stack" data-fn-taming hidden></div>
+          <!-- Le manuel, relie en livre (js/animal.js, mountBook) : toute la
+               largeur du chapitre, pour deux vraies pages cote a cote. -->
+          <div class="paper-book" id="taming-guide">
+            <!-- Le fond : le wallpaper de la bete, flou et assombri
+                 (js/animal.js, mountBookWall ; css/animal.css, .book-card). -->
+            <div class="paper-card book-card" data-book-card>
+              <div class="book-bg" aria-hidden="true"><i class="book-wall" data-book-wall></i></div>
+              <span class="paper-label">Le guide d'apprivoisement</span>
+              <div class="paper-steps" data-taming-manual></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="chap fn-chap" id="field" hidden>
+        <header class="chap-head">
+          <span class="chap-num">04</span>
+          <h2 class="chap-title">Sur le terrain</h2>
+        </header>
+        <p class="chap-lead">
+          Ce qu'il faut savoir avant de l'enfermer : les blocs qu'elle casse, et l'enclos qui la retient.
+        </p>
+        <div class="fn-stack" data-fn-field hidden></div>
+      </section>
+
+      <!-- 04 · APPARITION — la carte bord a bord -->
+      <section class="chap chap-atlas" id="spawn">
+        <header class="chap-head">
+          <span class="chap-num">05</span>
+          <h2 class="chap-title">Territoires</h2>
+        </header>
+        <div class="atlas">
+          <div class="atlas-map">
+            <canvas data-map></canvas>
+            <div class="atlas-labels" data-map-labels></div>
+            <span class="atlas-tip" data-map-tip hidden></span>
+            <span class="atlas-corners" aria-hidden="true"></span>
+            <span class="atlas-caption">Les zones éclairées sont les biomes où la bête apparaît.</span>
+          </div>
+          <div class="atlas-cards">
+            <div class="atlas-card" id="spawn-biomes">
+              <span class="chap-label">Biomes d'apparition</span>
+              <div class="biome-chips" data-spawn-biomes></div>
+              <p class="t-small" data-spawn-note></p>
+            </div>
+            <div class="atlas-card" id="spawn-rules">
+              <span class="chap-label">Paramètres</span>
+              <dl class="rows" data-spawn-rows></dl>
+            </div>
+            <div class="atlas-card" id="wild">
+              <span class="chap-label">Comportements sauvages</span>
+              <div class="wild-list" data-behaviors></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 05 · JOURNAL — la double page -->
+      <section class="chap chap-book" id="journal">
+        <header class="chap-head">
+          <span class="chap-num">06</span>
+          <h2 class="chap-title">Journal de l'aventurier</h2>
+        </header>
+        <div data-journal></div>
+      </section>
+
+      <!-- 06 · VARIANTES — la tringle -->
+      <section class="chap chap-rack" id="variants">
+        <header class="chap-head">
+          <span class="chap-num">07</span>
+          <h2 class="chap-title">Variantes naturelles</h2>
+        </header>
+        <p class="chap-lead">
+          Tirées au sort à l'apparition de la bête. Elles ne s'achètent pas — les apparences
+          payantes sont plus bas, dans les skins.
+        </p>
+        <div data-variants></div>
+      </section>
+
+      <!-- 07 · BUTIN — le coffre -->
+      <section class="chap chap-chest" id="loot">
+        <header class="chap-head">
+          <span class="chap-num">08</span>
+          <h2 class="chap-title">Butin</h2>
+        </header>
+        <div class="chest">
+          <div class="chest-window">
+            <span class="chest-title">Table de butin</span>
+            <div class="chest-grid" data-loot></div>
+          </div>
+          <div class="chest-side">
+            <span class="chap-label">Ce qu'on en fait</span>
+            <div class="craft-list" data-uses></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 08 · PISTE SAUVAGE — le plateau -->
+      <section class="chap chap-board" id="trail">
+        <header class="chap-head">
+          <span class="chap-num">09</span>
+          <h2 class="chap-title">Piste Sauvage</h2>
+        </header>
+        <div data-trail></div>
+      </section>
+
+      <!-- 09 · SKINS -->
+      <section class="chap chap-skins" id="cosmetics">
+        <header class="chap-head">
+          <span class="chap-num">10</span>
+          <h2 class="chap-title">Skins</h2>
+        </header>
+        <div class="skin-rack" data-cosmetics></div>
+        <p class="t-small chap-note" data-texture-note></p>
+      </section>
+
+      <!-- Galerie — masquee si aucune capture -->
+      <section class="chap chap-shots" id="gallery" data-gallery-section hidden>
+        <header class="chap-head">
+          <span class="chap-num"><svg class="px-ico" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M7 1h2v2H7zM6 3h4v2H6zM1 5h14v2H1zM3 7h10v2H3zM4 9h8v2H4zM3 11h4v2H3zM9 11h4v2H9zM2 13h3v2H2zM11 13h3v2h-3z"/></svg></span>
+          <h2 class="chap-title">En jeu</h2>
+        </header>
+        <div class="shot-grid" data-gallery></div>
+      </section>
+
+      <!-- 10 · SONS — la table de mixage -->
+      <section class="chap chap-mixer" id="sounds">
+        <header class="chap-head">
+          <span class="chap-num">11</span>
+          <h2 class="chap-title">Sons</h2>
+        </header>
+        <div data-sounds></div>
+        <p class="t-small chap-note" data-sound-note></p>
+      </section>
+
+      <!-- 11 · ANIMATIONS — la bande de film -->
+      <section class="chap chap-film" id="animations">
+        <header class="chap-head">
+          <span class="chap-num">12</span>
+          <h2 class="chap-title">Animations</h2>
+        </header>
+        <!-- Le modele 3D, en fenetre de coffre (css/animal.css, 11 · La scene 3D). -->
+        <div data-stage3d></div>
+        <div class="film" data-clips></div>
+        <div data-video></div>
+      </section>
+    </div>
+  </div>
+
+  <!-- L'echelle de difficulte -->
+  <!-- L'echelle de difficulte : huit visages sur une echelle. On en designe un,
+       il monte en scene ; les fleches du clavier montent et descendent. -->
+  <div class="modal dif" data-difficulty-modal hidden>
+    <button type="button" class="modal-scrim" data-modal-close aria-label="Fermer"></button>
+    <div class="dif-card" role="dialog" aria-modal="true" aria-labelledby="difficulty-title">
+      <header class="dif-head">
+        <span class="t-pixel dif-kicker">Échelle de difficulté</span>
+        <h3 class="dif-title" id="difficulty-title">Huit paliers</h3>
+        <button type="button" class="btn-close" data-modal-close aria-label="Fermer"><svg class="px-ico" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 3h2v2H3zM11 3h2v2h-2zM5 5h2v2H5zM9 5h2v2H9zM7 7h2v2H7zM5 9h2v2H5zM9 9h2v2H9zM3 11h2v2H3zM11 11h2v2h-2z"/></svg></button>
+      </header>
+
+      <!-- Le palier designe, en grand. -->
+      <div class="dif-stage" data-dif-stage></div>
+
+      <!-- L'echelle : un barreau par palier. -->
+      <div class="dif-ladder" data-dif-ladder role="tablist" aria-label="Paliers de difficulté"></div>
+    </div>
+  </div>
+
+  <!-- L'agrandissement des images -->
+  <div class="modal lightbox" data-lightbox hidden>
+    <button type="button" class="modal-scrim" data-lightbox-close aria-label="Fermer"></button>
+    <div class="lightbox-inner" role="dialog" aria-modal="true" aria-label="Aperçu">
+      <img data-lightbox-image alt="" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==">
+      <div class="lightbox-bar">
+        <span class="t-pixel" data-lightbox-label></span>
+        <div style="display:flex;gap:8px">
+          <button type="button" class="btn-close" data-lightbox-prev aria-label="Précédent">←</button>
+          <button type="button" class="btn-close" data-lightbox-next aria-label="Suivant">→</button>
+          <button type="button" class="btn-close" data-lightbox-close aria-label="Fermer"><svg class="px-ico" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 3h2v2H3zM11 3h2v2h-2zM5 5h2v2H5zM9 5h2v2H9zM7 7h2v2H7zM5 9h2v2H5zM9 9h2v2H9zM3 11h2v2H3zM11 11h2v2h-2z"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div data-site-footer></div>
+
+<script src="js/attack-profiles.js?v=20261010x"></script>
+<script src="js/wiki-data.js?v=20261020a"></script>
+<script src="js/hero-config.js?v=20261010x"></script>
+<script src="js/asset-list.js?v=20261023a"></script>
+<script src="js/site.js?v=20261024a"></script>
+<script src="js/block-icons.js?v=20261009a"></script>
+<script src="js/site-config.js?v=20261012a"></script>
+<script src="js/assets-config.js?v=20261001l"></script>
+<script src="js/ux.js?v=20261024d"></script>
+<script src="js/gyro.js?v=20261001l"></script>
+<script src="js/player.js?v=20261001l"></script>
+<script src="js/theme.js?v=20261001l"></script>
+<script src="js/perf.js?v=20261001l"></script>
+<script src="js/i18n.js?v=20261001l"></script>
+<script src="js/favorites.js?v=20261001l"></script>
+<script src="js/reveal.js?v=20261022a"></script>
+<script src="js/interactions.js?v=20261001l"></script>
+<script src="js/footer.js?v=20261001l"></script>
+<script src="js/search.js?v=20261024a"></script>
+<script src="js/header.js?v=20261001l"></script>
+<script src="js/billy.js?v=20261024a"></script>
+<script src="js/embers.js?v=20261021f"></script>
+<script src="js/spawn-map.js?v=20261010h"></script>
+<script src="js/skin-data.js?v=20261001l"></script>
+<script src="js/skins.js?v=20261001l"></script>
+<script src="js/swing.js?v=20261021f"></script>
+<script src="js/wild.js?v=20261001l"></script>
+<script src="js/wild-trail.js?v=20261001l"></script>
+<script src="js/soundboard.js?v=20261001l"></script>
+<script src="js/model-viewer.js?v=20261001l"></script>
+<script src="js/creature-3d.js?v=20261001l"></script>
+<script src="js/creature-stage.js?v=20261019a"></script>
+<script src="js/taming-guides.js?v=20261012a"></script>
+<script src="js/field-notes.js?v=20261012e"></script>
+<script src="js/animal.js?v=20261024a"></script>
+</body>
+</html>

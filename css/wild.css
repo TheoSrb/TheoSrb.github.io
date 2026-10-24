@@ -1,0 +1,384 @@
+/* Operation W.I.L.D — le style de l'accueil, porte a toutes les pages.
+
+   L'accueil a fixe un langage : le monde des biomes derriere tout, des
+   surfaces de verre (le vert translucide des panneaux, flou, cerne d'un trait
+   d'encre, un reflet clair en haut, l'ombre en bloc dessous), des panneaux de
+   bois suspendus pour les chiffres, du blanc cerne d'encre pour les grands
+   titres, des boutons qui reagissent. Cette feuille l'applique aux composants
+   des autres pages, sans toucher a leur contenu : elle se charge apres les
+   feuilles de chaque page. */
+
+/* ===========================================================================
+   Les titres
+   =========================================================================== */
+
+/* Le grand titre de page : blanc, cerne d'encre, comme « 9 CREATURES ». */
+/* (!important : deux pages fixent la taille de leur titre dans le HTML.)
+   Musiques (.mz-stage) et Telecharger (.dl-hero) ont un en-tete a eux : sans
+   eux dans la liste, leur titre gardait la taille de base, plus petite. */
+body:not([data-page='home']) :is(.page-hero, .hero, .animal-hero, .mz-stage, .dl-hero) h1 {
+  font-size: clamp(64px, 9vw, 138px) !important;
+  line-height: .88;
+  color: #FFFFFF;
+  text-shadow: 4px 4px 0 #0B120C, 0 12px 34px rgba(5, 6, 4, .45);
+}
+body:not([data-page='home']) :is(.page-hero, .hero, .mz-stage, .dl-hero) .t-pixel:first-child {
+  display: inline-block;
+  width: fit-content;
+  padding: 6px 10px;
+  background: rgba(8, 12, 9, .6);
+  border: 2px solid var(--border-strong);
+  color: #FFE14D !important;
+  text-shadow: none;
+}
+body:not([data-page='home']) :is(.page-hero, .hero) .t-lead {
+  max-width: 62ch;
+  color: #F1EDE2 !important;
+}
+
+/* Le titre de page au meme endroit partout : le sur-titre a 120 px du haut,
+   le titre 18 px dessous. Chaque page avait son ecart (de 14 a 22 px) et son
+   depart : Mecaniques calait son texte en bas de l'en-tete, si bien que le
+   titre montait ou descendait selon la longueur du texte de chaque onglet ;
+   Musiques partait a 108 px, Biomes a 140, Telecharger centrait son texte
+   sur sa caisse (et, sur telephone, le mettait sous elle). La page des Boss,
+   ouverte en plein ecran, garde sa mise en scene. */
+/* (!important : plusieurs pages fixent cet ecart dans leur HTML.) */
+body:not([data-page='home']) :is(.page-hero, .hero, .mz-stage, .dl-hero) :has(> h1) { row-gap: 18px !important; }
+body.bw-on .page-hero { justify-content: flex-start; }
+/* Les Mecaniques : l'en-tete se resserre sur son texte (sa hauteur minimale,
+   58 % de l'ecran, laissait un grand vide au-dessus des onglets sur un grand
+   ecran) et la barre d'onglets suit le texte. Le texte d'un onglet tient en
+   une a trois lignes : on lui en reserve trois, pour que la barre ne saute pas
+   quand on change d'onglet. */
+body.bw-on .simulator-hero { min-height: 0; }
+/* Le Guide, les Biomes, les Objets, les Cosmetiques et la Communaute : meme
+   vide, sous leurs pancartes cette fois. Plus l'ecran etait haut, plus le
+   contenu partait loin sous le titre (58 % de l'ecran, 66 % pour les Biomes).
+   Comme les Mecaniques et les Musiques, l'en-tete s'arrete a son texte. */
+body.bw-on :is(.gd-hero, .biomes-hero, .items-hero, .cosmetics-hero, .cm-hero) { min-height: 0; }
+/* Les Creatures : les cartes se rangent sous les filtres, a la distance qui
+   separe les filtres du texte (26 px, au lieu des 44 de la section). Les
+   filtres ne bougent pas ; l'en-tete s'arrete a eux, sinon un grand ecran
+   rouvrait le vide entre les deux. 26 px laissent encore la place a
+   l'etoile « Nouveau ! », qui deborde de 20 px au-dessus de sa carte. */
+body.bw-on[data-page='creatures'] .page-hero { min-height: 0; }
+body[data-page='creatures'] .page-hero + .section-tight { padding-top: 26px; }
+/* Mecaniques : la hauteur de l'en-tete est tenue par js/simulator.js
+   (stabiliseHero), les onglets par css/simulator.css. */
+body .biomes-hero { align-items: flex-start; }
+body .biomes-hero-inner { padding-top: 120px; }
+body .mz-stage { padding-top: 120px; }
+body .dl-hero { padding-top: 120px; }
+body .dl-hero-text { align-self: start; }
+@media (max-width: 980px) {
+  body .dl-sign { order: 0; }
+}
+
+/* Les titres de section, blancs sur le monde. */
+.bw-on main :is(.t-section, .t-h2):not(.panel *):not(.table *) {
+  color: #FFFFFF;
+  text-shadow: 3px 3px 0 #0B120C, 0 8px 24px rgba(5, 6, 4, .4);
+}
+
+/* ===========================================================================
+   Le verre
+   ===========================================================================
+
+   Les jetons de surface sont deja translucides sous .bw-on (biome-world.css).
+   On ajoute ici ce qui fait le verre du lecteur : le trait d'encre, le reflet
+   en haut, l'ombre en bloc. Le flou ne va qu'aux grandes surfaces, peu
+   nombreuses ; les petites cartes par dizaines gardent un verre plus dense a
+   la place, sans flou, pour que la page reste fluide. */
+
+/* :where() garde la specificite basse : les contours colores et les survols
+   propres a chaque carte (la rarete d'un skin, la couleur d'une capacite)
+   passent devant. */
+:where(.bw-on main) :is(
+  .panel, .panel-raised, .table, .featured-tile, .recipe-cell, .craft-card, .saddle-card,
+  .channel-card, .track, .sfx-cell, .biome-card, .structure-card, .upcoming-tile, .fighter,
+  .ability-card, .passive-card, .idcard, .taming-page, .variant-tile, .media-tile, .skin-card,
+  .food-item, .need-row, .rank-row, .dps-row, .archetype-row
+) {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1), 0 4px 0 rgba(5, 6, 4, .6);
+}
+
+.bw-on main :is(.panel, .panel-raised, .table, .craft-card, .channel-card, .track, .biome-card, .idcard, .fighter, .toc) {
+  -webkit-backdrop-filter: blur(8px) saturate(1.15);
+  backdrop-filter: blur(8px) saturate(1.15);
+}
+
+/* Les cartes qu'on survole se soulevent et luisent de l'ambre du site. */
+:where(.bw-on main) .card-lift:hover {
+  transform: translateY(-5px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 9px 0 rgba(5, 6, 4, .6),
+              0 0 26px color-mix(in srgb, var(--accent-line, var(--accent)) 40%, transparent);
+}
+
+/* ===========================================================================
+   Les tableaux
+   =========================================================================== */
+
+.bw-on main .table-head {
+  background: rgba(8, 12, 9, .72);
+  border-bottom: 2px solid var(--border-strong);
+}
+.bw-on main .table-head span { color: #FFE14D; }
+.bw-on main .table-row { position: relative; }
+.bw-on main .table-row::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--accent);
+  transform: scaleY(0);
+  transition: transform 220ms var(--ease-out);
+}
+.bw-on main .table-row:hover { background: rgba(255, 255, 255, .06); }
+.bw-on main .table-row:hover::before { transform: scaleY(1); }
+
+/* ===========================================================================
+   Les cases d'objet : les emplacements d'inventaire de Minecraft
+   =========================================================================== */
+
+.bw-on main :is(.slot, .featured-slot, .craft-slot, .slot-40) {
+  background-color: rgba(139, 139, 139, .26);
+  border: 2px solid;
+  border-color: #2B2B2B rgba(255, 255, 255, .3) rgba(255, 255, 255, .3) #2B2B2B;
+}
+
+/* ===========================================================================
+   Les jauges : segmentees, comme la barre d'experience
+   =========================================================================== */
+
+.bw-on main .bar-track {
+  position: relative;
+  background: rgba(0, 0, 0, .42);
+  border: 2px solid var(--border-strong);
+}
+.bw-on main .bar-track::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(90deg, transparent 0 calc(10% - 2px), rgba(5, 6, 4, .75) calc(10% - 2px) 10%);
+  pointer-events: none;
+}
+
+/* ===========================================================================
+   Les boutons
+   =========================================================================== */
+
+/* Le bouton ordinaire : du verre fonce. */
+.bw-on main .btn:not(.btn-accent):not([aria-pressed='true']) {
+  background: rgba(12, 20, 15, .55);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  color: #F1EDE2;
+}
+.bw-on main .btn:not(.btn-accent):not([aria-pressed='true']):hover { background: rgba(34, 54, 43, .8); color: #FFFFFF; }
+
+/* Les filtres se soulevent au survol ; celui qui est actif reste ambre. */
+.bw-on main .btn-toggle {
+  transition: transform 220ms var(--ease-snap), background 180ms ease, box-shadow 220ms ease;
+}
+.bw-on main .btn-toggle:hover { transform: translateY(-3px); box-shadow: 0 7px 0 rgba(5, 6, 4, .6); }
+
+/* Le bouton ambre se dandine au survol, comme « Decouvrir » sur l'accueil. */
+/* (« Decouvrir », dans le carrousel, a deja sa propre animation.) */
+.bw-on main .btn-accent:not(.ring-cta) { transition: scale 220ms var(--ease-out), background 180ms ease; }
+.bw-on main .btn-accent:not(.ring-cta):hover:not([aria-disabled='true']) {
+  scale: 1.04;
+  animation: wild-wobble 620ms var(--ease-out);
+}
+@keyframes wild-wobble {
+  0% { rotate: 0deg; scale: 1; }
+  20% { rotate: -2.5deg; scale: 1.07; }
+  40% { rotate: 2deg; }
+  60% { rotate: -1.2deg; }
+  80% { rotate: .6deg; }
+  100% { rotate: 0deg; scale: 1.04; }
+}
+
+/* Les liens flechés poussent leur fleche. */
+.bw-on main .link-arrow:hover span { display: inline-block; animation: wild-nudge 700ms ease-in-out infinite; }
+@keyframes wild-nudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(6px); } }
+
+/* ===========================================================================
+   Les barres de filtres : une bande de verre posee de travers
+   =========================================================================== */
+
+.bw-on main .filter-group:not(:empty) {
+  width: fit-content;
+  max-width: 100%;
+  padding: 10px;
+  background: rgba(27, 42, 34, .58);
+  -webkit-backdrop-filter: blur(8px) saturate(1.15);
+  backdrop-filter: blur(8px) saturate(1.15);
+  border: 2px solid var(--border-strong);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 10px 22px rgba(0, 0, 0, .3);
+  rotate: -1deg;
+}
+/* Dans la barre des creatures, les deux groupes gardent chacun leur verre. */
+.bw-on main .filter-bar { gap: 14px; }
+
+/* Les deux barres de la page Objets suivent la meme regle que celle des blocs
+   (.filter-group) : une bande de verre posee de travers. Ce sont les memes
+   filtres, ils doivent se ressembler. Le sens de l'inclinaison alterne d'une
+   barre a l'autre — deux plaques posees a la main, pas deux copies. */
+.bw-on main .inv-tabs,
+.bw-on main .inv-filters {
+  background: rgba(27, 42, 34, .58);
+  -webkit-backdrop-filter: blur(8px) saturate(1.15);
+  backdrop-filter: blur(8px) saturate(1.15);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 10px 22px rgba(0, 0, 0, .3);
+}
+.bw-on main .inv-tabs { rotate: -1deg; }
+.bw-on main .inv-filters { rotate: .6deg; }
+/* Une plaque penchee deborde de quelques pixels de sa boite : la barre de
+   recherche et la grille qui suivent se tiennent un peu plus loin, pour que
+   rien ne passe par-dessus. */
+.bw-on main .inv-tabs + .inv-search-bar { margin-top: 20px; margin-bottom: 18px; }
+.bw-on main .inv-filters { margin-bottom: 14px; }
+
+/* ===========================================================================
+   Les compteurs : des panneaux de bois suspendus, comme sur l'accueil
+   =========================================================================== */
+
+.bw-on main .counters {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 50px clamp(10px, 1.5vw, 22px);
+  padding-top: 46px;
+  background: none;
+  border: 0;
+}
+.bw-on main .counter {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 132px;
+  padding: 16px 14px 14px;
+  text-align: center;
+  background:
+    repeating-linear-gradient(180deg, transparent 0 24px, rgba(30, 16, 5, .5) 24px 26px),
+    linear-gradient(90deg, rgba(0, 0, 0, .07) 0 12%, transparent 12% 40%, rgba(0, 0, 0, .05) 40% 55%, transparent 55%),
+    #775530;
+  border: 4px solid #33210F;
+  box-shadow: inset 0 0 0 2px #93703F, inset 0 -5px 0 rgba(0, 0, 0, .16), 0 16px 30px rgba(0, 0, 0, .38);
+  transform-origin: 50% -42px;
+  will-change: transform;
+}
+.bw-on main .counter:hover { background-color: #775530; }
+/* Les deux chaines, accrochees hors champ. */
+.bw-on main .counter::before {
+  content: '';
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  top: -46px;
+  height: 46px;
+  background:
+    repeating-linear-gradient(180deg, #8A8A8A 0 6px, #3A3A3A 6px 8px, transparent 8px 10px) left / 4px 100% no-repeat,
+    repeating-linear-gradient(180deg, #8A8A8A 0 6px, #3A3A3A 6px 8px, transparent 8px 10px) right / 4px 100% no-repeat;
+}
+.bw-on main .counter .value {
+  font-family: var(--font-display) !important;
+  font-size: clamp(40px, 3.6vw, 56px) !important;
+  line-height: 1;
+  color: #FFFFFF !important;
+  text-shadow:
+    3px 0 0 #2A1708, -3px 0 0 #2A1708, 0 3px 0 #2A1708, 0 -3px 0 #2A1708,
+    3px 3px 0 #2A1708, -3px 3px 0 #2A1708, 3px -3px 0 #2A1708, -3px -3px 0 #2A1708,
+    0 6px 0 rgba(42, 23, 8, .45);
+}
+.bw-on main .counter .key {
+  margin-top: 10px;
+  font-family: var(--font-condensed);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  color: #FFFFFF;
+  text-shadow: 0 2px 0 #1E0F04;
+}
+
+/* Sous une intro de page, les panneaux se posent un peu plus bas. */
+.bw-on main .hero-signs { margin-top: 6px; }
+
+/* ===========================================================================
+   Les onglets (simulateur) et le sommaire (fiche creature)
+   =========================================================================== */
+
+.bw-on main .tabs {
+  background: rgba(27, 42, 34, .58);
+  -webkit-backdrop-filter: blur(8px) saturate(1.15);
+  backdrop-filter: blur(8px) saturate(1.15);
+  border: 2px solid var(--border-strong);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 4px 0 rgba(5, 6, 4, .6);
+}
+.bw-on main .tab { transition: transform 220ms var(--ease-snap), background 180ms ease, color 180ms ease; }
+.bw-on main .tab:hover { transform: translateY(-2px); }
+
+.bw-on main .toc {
+  background: rgba(8, 12, 9, .62);
+  border: 2px solid var(--border-strong);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1), 0 4px 0 rgba(5, 6, 4, .6);
+}
+
+/* ===========================================================================
+   Les pastilles
+   =========================================================================== */
+
+.bw-on main :is(.chip-tier, .rarity-chip, .biome-tag, .skin-tag, .language-chip, .const-chip, .food-tag, .sound-chip, .mult-chip, .weight-chip, .biome-chip) {
+  box-shadow: 0 2px 0 rgba(5, 6, 4, .55);
+}
+
+/* ===========================================================================
+   Les pages une a une
+   =========================================================================== */
+
+/* Objets : les objets mis en avant sont des emplacements d'inventaire poses
+   sur du verre ; leur sprite bondit au survol. */
+.bw-on .featured-tile:hover .featured-sprite { transform: translateY(-6px) rotate(-8deg) scale(1.12); }
+
+/* Musiques : chaque piste est un lecteur de verre, comme celui de l'accueil. */
+.bw-on .track.is-playing {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 4px 0 rgba(5, 6, 4, .6),
+              0 0 30px color-mix(in srgb, var(--track-color, var(--accent)) 45%, transparent);
+}
+
+/* Telecharger : le canal mis en avant luit d'ambre. */
+.bw-on .channel-card.is-featured {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 4px 0 rgba(5, 6, 4, .6),
+              0 0 34px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+/* Fiche creature : la carte d'identite et ses cases en verre. */
+.bw-on .idcard-cell { background: rgba(8, 12, 9, .35); }
+/* La barre des autres creatures : la bande de verre inclinee de l'accueil. */
+.bw-on .animal-switcher-bar {
+  margin: 10px -3% 0;
+  padding: 0 3%;
+  background: rgba(27, 42, 34, .58);
+  -webkit-backdrop-filter: blur(8px) saturate(1.15);
+  backdrop-filter: blur(8px) saturate(1.15);
+  border-top: 2px solid var(--border-strong);
+  border-bottom: 2px solid var(--border-strong);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 14px 26px rgba(0, 0, 0, .35);
+  rotate: -1.5deg;
+}
+
+@media (max-width: 720px) {
+  body:not([data-page='home']) :is(.page-hero, .hero, .animal-hero, .mz-stage, .dl-hero) h1 { font-size: clamp(48px, 14vw, 72px) !important; }
+  .bw-on main .counter { min-width: 42vw; }
+  .bw-on main .filter-group:not(:empty),
+  .bw-on main .inv-tabs,
+  .bw-on main .inv-filters { rotate: 0deg; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bw-on main .btn-accent:hover, .bw-on main .link-arrow:hover span { animation: none; }
+}

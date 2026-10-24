@@ -1,0 +1,867 @@
+/* Le confort de lecture et le mouvement, communs a toutes les pages.
+
+   1. Les icones pixel (OW.icon, js/ux.js)
+   2. La typographie : titres equilibres, paragraphes sans mot orphelin
+   3. Les transitions entre pages (View Transitions)
+   4. Les apparitions au defilement, en CSS (animation-timeline)
+   5. La parallaxe des en-tetes
+   6. Le menu du telephone
+
+   Tout ce qui bouge se coupe avec prefers-reduced-motion et avec le mode
+   allege des effets (html[data-perf='lite']). Tout ce qui depend du
+   defilement ne depend jamais du temps : une page ouverte dans un onglet en
+   arriere-plan s'affiche entiere. */
+
+/* ===========================================================================
+   1. Les icones pixel
+   =========================================================================== */
+
+.px-ico {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  flex: 0 0 auto;
+  fill: currentColor;
+  shape-rendering: crispEdges;
+  vertical-align: -.14em;
+}
+
+/* ===========================================================================
+   2. La typographie
+   =========================================================================== */
+
+h1, h2, h3, .t-display, .t-section, .t-h1, .t-h2, .sim-step-title, .tb-title {
+  text-wrap: balance;
+}
+p, .t-lead, .t-body, .t-small, li {
+  text-wrap: pretty;
+}
+
+/* ===========================================================================
+   3. Les transitions entre pages
+
+   Le navigateur fond l'ancienne page dans la nouvelle. La nouvelle arrive
+   sous le voile de chargement (js/loader.js) : l'ancienne page s'efface donc
+   dans le noir du voile, qui se leve ensuite sur le contenu.
+   =========================================================================== */
+
+@view-transition { navigation: auto; }
+
+::view-transition-old(root) {
+  animation: ow-vt-out 240ms cubic-bezier(.4, 0, 1, 1) both;
+}
+::view-transition-new(root) {
+  animation: ow-vt-in 420ms cubic-bezier(.22, 1, .36, 1) both;
+}
+@keyframes ow-vt-out {
+  to { opacity: 0; transform: scale(.985) translateY(-6px); }
+}
+@keyframes ow-vt-in {
+  from { opacity: 0; transform: translateY(10px); }
+}
+
+/* Le decor de biome ne repart plus de zero : il glisse d'une page a
+   l'autre, comme la camera qui passe au biome suivant — l'ancien file vers la
+   gauche, le nouveau arrive par la droite. L'en-tete ne bouge pas ; seul le
+   contenu fond. Chaque couche porte son nom pour rester a sa place dans
+   l'empilement (le decor sous le contenu) — seulement le temps de la
+   transition (html.vt-on, js/ux.js) : un element nomme isolerait le flou
+   des panneaux de verre. */
+html.vt-on .bw { view-transition-name: bw-world; }
+html.vt-on .site-header { view-transition-name: site-header; }
+html.vt-on main { view-transition-name: page-main; }
+html.vt-on .site-footer { view-transition-name: page-footer; }
+::view-transition-group(bw-world) { animation-duration: 620ms; }
+::view-transition-old(bw-world) { animation: ow-vt-world-out 620ms cubic-bezier(.55, 0, .35, 1) both; }
+::view-transition-new(bw-world) { animation: ow-vt-world-in 620ms cubic-bezier(.55, 0, .35, 1) both; }
+@keyframes ow-vt-world-out { to { transform: translateX(-24%) scale(1.04); opacity: 0; } }
+@keyframes ow-vt-world-in { from { transform: translateX(24%) scale(1.04); opacity: 0; } }
+/* Vers une page plus a gauche dans le menu (html.vt-back, js/biome-world.js) :
+   le meme glissement, en miroir — l'ancien file vers la droite, le nouveau
+   arrive par la gauche. */
+html.vt-back::view-transition-old(bw-world) { animation-name: ow-vt-world-out-back; }
+html.vt-back::view-transition-new(bw-world) { animation-name: ow-vt-world-in-back; }
+@keyframes ow-vt-world-out-back { to { transform: translateX(24%) scale(1.04); opacity: 0; } }
+@keyframes ow-vt-world-in-back { from { transform: translateX(-24%) scale(1.04); opacity: 0; } }
+/* La bete qui passe de sa carte a sa fiche (js/biome-world.js, beast-art) :
+   elle vole d'une place a l'autre au rythme du decor, au-dessus du contenu
+   qui fond. */
+::view-transition-group(beast-art) { animation-duration: 620ms; animation-timing-function: cubic-bezier(.55, 0, .35, 1); z-index: 5; }
+::view-transition-old(beast-art), ::view-transition-new(beast-art) { height: 100%; object-fit: contain; }
+::view-transition-old(beast-art) { animation: ow-vt-beast-out 320ms ease-in both; }
+::view-transition-new(beast-art) { animation: ow-vt-beast-in 420ms ease-out 140ms both; }
+@keyframes ow-vt-beast-out { to { opacity: 0; } }
+@keyframes ow-vt-beast-in { from { opacity: 0; } }
+html.vt-beast .ident-solo { animation: ident-breathe 5.4s ease-in-out 1s infinite; }
+::view-transition-old(site-header), ::view-transition-new(site-header) { animation: none; }
+::view-transition-old(site-header) { opacity: 0; }
+::view-transition-group(page-main), ::view-transition-group(page-footer) { animation: none; }
+::view-transition-old(page-main), ::view-transition-old(page-footer) { animation: ow-vt-out 240ms cubic-bezier(.4, 0, 1, 1) both; }
+::view-transition-new(page-main), ::view-transition-new(page-footer) { animation: ow-vt-in 420ms cubic-bezier(.22, 1, .36, 1) 120ms both; }
+
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) { animation: none !important; }
+}
+html[data-perf='lite']::view-transition-old(root),
+html[data-perf='lite']::view-transition-new(root) { animation-duration: 1ms; }
+
+/* ===========================================================================
+   4. Les apparitions au defilement
+
+   reveal.js confie a CSS tout ce qui arrive plus bas dans la page
+   (.is-scroll) : l'apparition suit le defilement lui-meme, et se rejoue a
+   l'envers si l'on remonte. Ce qui est deja a l'ecran au chargement garde son
+   entree en cascade. Sans animation-timeline (Firefox, anciens Safari), rien
+   de tout cela ne s'applique : reveal.js fait comme avant.
+   =========================================================================== */
+
+@supports (animation-timeline: view()) {
+  html.sd-ok [data-reveal].is-scroll {
+    opacity: 1;
+    translate: none;
+    scale: none;
+    filter: none;
+    transition: none;
+    will-change: auto;
+    animation: ow-scroll-rise linear both;
+    animation-timeline: view();
+    /* D'abord une plage simple, puis la meme decalee dans une grille : si le
+       navigateur refuse le calcul, la premiere reste. */
+    animation-range: entry 0% entry 85%;
+    animation-range: entry calc(var(--reveal-rank, 0) * 5%) entry calc(78% + var(--reveal-rank, 0) * 5%);
+  }
+  html.sd-ok [data-reveal='blur'].is-scroll { animation-name: ow-scroll-blur; }
+  html.sd-ok [data-reveal='bar'].is-scroll { animation-name: ow-scroll-bar; transform-origin: left center; }
+
+  @keyframes ow-scroll-rise {
+    from {
+      opacity: 0;
+      translate: var(--reveal-x, 0) var(--reveal-y, 30px);
+      scale: var(--reveal-scale, .97);
+    }
+    to { opacity: 1; translate: 0 0; scale: 1; }
+  }
+  @keyframes ow-scroll-blur {
+    from { opacity: 0; translate: 0 18px; filter: blur(10px); }
+    to { opacity: 1; translate: 0 0; filter: blur(0); }
+  }
+  @keyframes ow-scroll-bar {
+    from { scale: 0 1; }
+    to { scale: 1 1; }
+  }
+
+  /* Les grands titres de section se devoilent de gauche a droite, comme une
+     banniere qu'on deroule ; leur surtitre pixel glisse avant eux. Le cadre
+     deborde du titre pour ne pas rogner l'ombre portee des lettres. */
+  html.sd-ok:not([data-perf='lite']) main :is(.section-head, .tb-section-head) :is(.t-h2, .t-section) {
+    animation: ow-title-wipe linear both;
+    animation-timeline: view();
+    animation-range: entry 5% cover 32%;
+  }
+  html.sd-ok:not([data-perf='lite']) main :is(.section-head, .tb-section-head) .t-pixel {
+    animation: ow-kicker-in linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 25%;
+  }
+  /* Une fois deroule, le titre le reste (js/reveal.js) : il ne se re-enroule
+     plus quand on remonte et qu'il repasse en bas de l'ecran. */
+  html.sd-ok:not([data-perf='lite']) main :is(.section-head, .tb-section-head) :is(.t-h2, .t-section, .t-pixel).is-seen {
+    animation: none;
+  }
+  @keyframes ow-title-wipe {
+    from { clip-path: inset(-30% 100% -30% -4%); translate: -14px 0; }
+    to { clip-path: inset(-30% -4% -30% -4%); translate: 0 0; }
+  }
+  @keyframes ow-kicker-in {
+    from { opacity: 0; translate: -18px 0; }
+    to { opacity: 1; translate: 0 0; }
+  }
+}
+
+/* ===========================================================================
+   5. La parallaxe des en-tetes
+
+   En descendant, le decor d'un en-tete recule (il defile moins vite que la
+   page) et son premier plan avance a peine : la profondeur de la scene. Au
+   repos, rien ne bouge — la page s'ouvre exactement comme avant.
+   =========================================================================== */
+
+@supports (animation-timeline: scroll()) {
+  /* Fiche creature : le wallpaper et le biome reculent, la bete reste. */
+  html:not([data-perf='lite']) .ident-media .hero-media,
+  html:not([data-perf='lite']) .ident-biome {
+    animation: ow-par-back linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0 100vh;
+  }
+  html:not([data-perf='lite']) .ident-art {
+    animation: ow-par-front linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0 100vh;
+  }
+  /* Pages a en-tete de texte : le titre s'attarde un peu et s'estompe.
+     Pas quand l'en-tete porte des commandes (onglets des Mecaniques, filtres
+     des Creatures) ou des pancartes de chiffres : en glissant, elles
+     passaient par-dessus le contenu du dessous. */
+  html:not([data-perf='lite']) main > .page-hero:not(:has(.sim-tabs, .filter-bar, .counters, .signs)) > .wrap,
+  html:not([data-perf='lite']) main > .hero:not(:has(.counters, .signs, .filter-bar)) > .wrap {
+    animation: ow-par-text linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0 70vh;
+  }
+  /* Accueil : le logo prend de l'avance sur la troupe. (La troupe et le
+     cadre du logo ont deja leurs propres animations d'entree : la parallaxe
+     passe par l'image du logo, qui n'en a pas.) */
+  html:not([data-perf='lite']) .home-stage .hb-logo img {
+    animation: ow-par-logo linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0 100vh;
+  }
+
+  @keyframes ow-par-back { to { transform: translateY(16%); } }
+  @keyframes ow-par-front { to { transform: translateY(-5%); } }
+  @keyframes ow-par-text { to { transform: translateY(22%); opacity: .25; } }
+  @keyframes ow-par-logo { to { transform: translateY(-18%); } }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ident-media .hero-media, .ident-biome, .ident-art,
+  main > .page-hero > .wrap, main > .hero > .wrap,
+  .home-stage .hb-logo img,
+  html.sd-ok [data-reveal].is-scroll,
+  main :is(.section-head, .tb-section-head) :is(.t-h2, .t-section, .t-pixel) {
+    animation: none !important;
+  }
+  html.sd-ok [data-reveal].is-scroll { opacity: 1 !important; translate: none !important; scale: none !important; filter: none !important; }
+}
+
+/* ===========================================================================
+   6. Le menu du telephone
+
+   Le bouton a trois barres etait un carre presque noir sur une barre presque
+   noire : on ne le voyait pas. Il devient un vrai bouton « Menu », a l'ambre
+   du site ; le nom du mod revient a cote du logo (la navigation n'a plus
+   besoin de sa place) ; le panneau s'ouvre sur un voile qui assombrit la
+   page, et ses liens arrivent l'un apres l'autre.
+   =========================================================================== */
+
+/* La barre porte huit liens depuis l'arrivee du Guide et de la Communaute,
+   et certaines langues ont des mots bien plus longs. Tant que les liens
+   debordent, js/header.js la resserre d'un cran (data-fit) : le mot
+   « Rechercher » s'efface (la loupe reste), puis les liens se rapprochent,
+   puis le bouton Telecharger laisse sa place (il reste dans l'accueil et le
+   pied de page), puis le code de langue. */
+@media (min-width: 901px) {
+  .site-header[data-fit] .search-label { display: none; }
+  .site-header:is([data-fit='2'], [data-fit='3'], [data-fit='4'], [data-fit='5']) .site-nav a { padding: 0 9px; letter-spacing: .06em; }
+  .site-header:is([data-fit='3'], [data-fit='4'], [data-fit='5']) .site-nav a { padding: 0 7px; font-size: 14px; letter-spacing: .04em; }
+  .site-header:is([data-fit='3'], [data-fit='4'], [data-fit='5']) .header-download { display: none !important; }
+  .site-header:is([data-fit='4'], [data-fit='5']) :is(.lang-button .lang-code, .lang-button > svg) { display: none; }
+  .site-header[data-fit='5'] .site-nav a { padding: 0 5px; font-size: 13px; letter-spacing: .02em; }
+}
+
+@media (max-width: 900px) {
+  .site-brand span { display: inline; }
+
+  .burger {
+    width: auto;
+    height: 40px;
+    gap: 8px;
+    padding: 0 12px 0 10px;
+    background: rgba(242, 163, 44, .14);
+    border: 2px solid var(--accent);
+    color: var(--accent-soft);
+    box-shadow: 0 3px 0 rgba(5, 6, 4, .55);
+    font-family: var(--font-condensed);
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+  .burger::after { content: 'Menu'; }
+  .burger:hover { transform: none; color: #FFFFFF; background: rgba(242, 163, 44, .24); }
+  .burger:active { translate: 0 2px; box-shadow: 0 1px 0 rgba(5, 6, 4, .55); }
+  .site-header.nav-open .burger { background: var(--accent); color: #171A16; }
+  .site-header.nav-open .burger::after { content: 'Fermer'; }
+
+  /* Le voile sous le panneau. */
+  .site-header::before {
+    content: '';
+    position: fixed;
+    inset: var(--header-h, 64px) 0 0 0;
+    z-index: 3;
+    background: rgba(5, 6, 4, .62);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 200ms ease-out, visibility 0s linear 200ms;
+  }
+  .site-header.nav-open::before {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition: opacity 200ms ease-out, visibility 0s;
+  }
+
+  /* Le panneau : le verre du site, et ses liens en lignes franches. */
+  /* Opaque : sous le panneau, les grands titres de la page transparaissaient
+     et brouillaient la lecture des liens. */
+  .site-tools {
+    background: linear-gradient(180deg, #16241C, #111B15);
+    border-bottom: 3px solid var(--accent);
+  }
+  .site-tools .site-nav a {
+    justify-content: space-between;
+    min-height: 48px;
+    font-size: 18px;
+    color: var(--text-strong);
+  }
+  .site-tools .site-nav a::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-top: 3px solid currentColor;
+    border-right: 3px solid currentColor;
+    rotate: 45deg;
+    opacity: .5;
+  }
+  .site-tools .site-nav a[aria-current='page']::after { opacity: 1; color: var(--accent); }
+
+  .site-header.nav-open .site-tools .site-nav a {
+    animation: ow-menu-in 360ms cubic-bezier(.22, 1, .36, 1) backwards;
+  }
+  .site-header.nav-open .site-tools .site-nav a:nth-child(2) { animation-delay: 30ms; }
+  .site-header.nav-open .site-tools .site-nav a:nth-child(3) { animation-delay: 60ms; }
+  .site-header.nav-open .site-tools .site-nav a:nth-child(4) { animation-delay: 90ms; }
+  .site-header.nav-open .site-tools .site-nav a:nth-child(5) { animation-delay: 120ms; }
+  .site-header.nav-open .site-tools .site-nav a:nth-child(6) { animation-delay: 150ms; }
+  .site-header.nav-open .site-tools .site-nav a:nth-child(7) { animation-delay: 180ms; }
+  .site-header.nav-open .site-tools .site-nav a:nth-child(8) { animation-delay: 210ms; }
+  @keyframes ow-menu-in { from { translate: -16px 0; } }
+
+  /* Tant que le panneau est ouvert, la page ne defile pas dessous. */
+  html.nav-lock, html.nav-lock body { overflow: hidden; }
+}
+
+@media (max-width: 340px) {
+  .site-brand span { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-header.nav-open .site-tools .site-nav a { animation: none; }
+}
+
+:root[data-theme='light'] .site-tools { background: #FFFBF2; }
+:root[data-theme='light'] .site-tools .site-nav a { color: var(--ink); }
+
+/* ===========================================================================
+   7. Le mini-lecteur de musique (js/player.js)
+
+   Une pastille de verre en bas a gauche, au bord franc du site : l'icone
+   musicale du panda roux, un egaliseur, le titre, lecture/pause et une croix.
+   Quand le navigateur a bloque la reprise automatique, le bouton pulse a
+   l'ambre : un clic relance la musique la ou elle en etait.
+   =========================================================================== */
+
+.mini-player {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 150;
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+  width: min(360px, calc(100vw - 32px));
+  padding: 10px 10px 14px 10px;
+  background: rgba(12, 20, 15, .9);
+  -webkit-backdrop-filter: blur(10px) saturate(1.15);
+  backdrop-filter: blur(10px) saturate(1.15);
+  border: 2px solid var(--border-strong);
+  border-left: 5px solid var(--accent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1), 0 6px 0 rgba(5, 6, 4, .6), 0 18px 40px rgba(0, 0, 0, .45);
+  animation: mp-in 420ms cubic-bezier(.22, 1, .36, 1);
+}
+.mini-player[hidden] { display: none; }
+.mini-player.is-leaving { animation: mp-out 240ms cubic-bezier(.4, 0, 1, 1) forwards; }
+@keyframes mp-in { from { transform: translateY(24px); } }
+@keyframes mp-out { to { opacity: 0; transform: translateY(24px); } }
+
+.mp-art {
+  width: 38px;
+  height: 38px;
+  background: url('https://theosrb.github.io/Operation-W.I.L.D-Wiki-Assets/ui/red_panda_music.png') center / contain no-repeat;
+}
+.mini-player.is-playing .mp-art { animation: mp-bob 1.2s ease-in-out infinite; }
+@keyframes mp-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -3px; } }
+
+.mp-eq { display: flex; align-items: flex-end; gap: 2px; height: 18px; }
+.mp-eq i { width: 3px; height: 30%; background: var(--accent); }
+.mini-player.is-playing .mp-eq i { animation: mp-eq 900ms ease-in-out infinite; }
+.mini-player.is-playing .mp-eq i:nth-child(2) { animation-delay: -300ms; }
+.mini-player.is-playing .mp-eq i:nth-child(3) { animation-delay: -600ms; }
+.mini-player.is-playing .mp-eq i:nth-child(4) { animation-delay: -150ms; }
+@keyframes mp-eq { 0%, 100% { height: 25%; } 50% { height: 100%; } }
+
+.mp-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.mp-title {
+  overflow: hidden;
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: .03em;
+  color: #FFFFFF;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.mp-text small { font-family: var(--font-pixel); font-size: 8px; color: var(--text-faint); }
+.mini-player.is-blocked .mp-text small { color: var(--accent-soft); }
+
+.mp-btn {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  background: rgba(0, 0, 0, .4);
+  border: 2px solid var(--border-strong);
+  color: #FFFFFF;
+  font-size: 15px;
+  cursor: var(--cur-point);
+  transition: background 120ms ease-out, translate 120ms var(--ease-snap);
+}
+.mp-btn:hover { background: rgba(255, 255, 255, .12); translate: 0 -2px; }
+.mp-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mp-toggle { background: var(--accent); color: #171A16; }
+.mp-toggle:hover { background: var(--accent-hover); }
+.mini-player.is-blocked .mp-toggle { animation: mp-call 1.4s ease-in-out infinite; }
+@keyframes mp-call {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(242, 163, 44, .6); }
+  60% { box-shadow: 0 0 0 10px rgba(242, 163, 44, 0); }
+}
+.mp-close { width: 30px; height: 30px; font-size: 12px; color: var(--text-muted); }
+
+/* La barre de progression : fine au repos, elle s'epaissit sous le pointeur
+   et montre sa poignee ; un clic y saute, un glisser la fait defiler. La zone
+   saisissable deborde la barre pour rester facile a attraper au doigt. */
+.mp-seek {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -7px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  cursor: var(--cur-point);
+  touch-action: none;
+}
+.mp-seek:focus-visible { outline: 2px solid var(--accent); outline-offset: 0; }
+.mp-bar {
+  position: relative;
+  width: 100%;
+  height: 4px;
+  background: rgba(0, 0, 0, .55);
+  transition: height 140ms ease-out;
+}
+.mp-seek:hover .mp-bar,
+.mp-seek.is-seeking .mp-bar { height: 8px; }
+.mp-bar i { display: block; height: 100%; width: 0; background: var(--accent); }
+.mp-knob {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 12px;
+  height: 14px;
+  translate: -50% -50%;
+  background: #FFFFFF;
+  border: 2px solid #171A16;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, .45);
+  scale: 0;
+  transition: scale 140ms var(--ease-snap);
+}
+.mp-seek:hover .mp-knob,
+.mp-seek:focus-visible .mp-knob,
+.mp-seek.is-seeking .mp-knob { scale: 1; }
+
+/* Sur telephone, le lecteur se fait discret au-dessus du bord de l'ecran. */
+@media (max-width: 600px) {
+  .mini-player { left: 8px; right: 8px; bottom: 8px; width: auto; }
+  .mp-eq { display: none; }
+}
+
+:root[data-theme='light'] .mini-player { background: rgba(255, 251, 242, .95); border-color: var(--line); border-left-color: var(--accent); }
+:root[data-theme='light'] .mp-title { color: var(--ink); }
+:root[data-theme='light'] .mp-btn:not(.mp-toggle) { background: #FFFBF3; border-color: var(--line); color: var(--ink); }
+
+@media (prefers-reduced-motion: reduce) {
+  .mini-player, .mini-player.is-playing .mp-art, .mini-player.is-playing .mp-eq i, .mini-player.is-blocked .mp-toggle { animation: none; }
+}
+
+/* La barre d'une piste de la page Musiques : saisissable pendant la lecture
+   (js/player.js, bindSeek) ; elle s'epaissit sous le pointeur. */
+.track .bar-track[role='slider'] { touch-action: none; transition: height 140ms ease-out; }
+.track.is-playing .bar-track[role='slider'] { cursor: var(--cur-point); }
+.track.is-playing .bar-track[role='slider']:hover,
+.track .bar-track.is-seeking { height: 14px; }
+.track .bar-track[role='slider']:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Les boucles d'un bloc sorti de l'ecran, en pause (js/ux.js, pauseOffscreen). */
+[data-off][data-loop],
+[data-off] [data-loop],
+[data-off] [data-loop]::before,
+[data-off] [data-loop]::after { animation-play-state: paused !important; }
+
+/* ===========================================================================
+   Le niveau maximum
+
+   Partout ou s'affiche le niveau d'une bete (arene, verdict, courbe des
+   niveaux, Piste Sauvage), le niveau 50 s'ecrit en or, un rien orange.
+   =========================================================================== */
+
+.lvl-max {
+  color: #FFB938 !important;
+  text-shadow: 0 0 10px rgba(255, 170, 40, .55), 2px 2px 0 rgba(40, 20, 0, .6);
+}
+
+/* ===========================================================================
+   La bulle « i »
+
+   Pour une donnee peu parlante : un petit rond, un i en police pixel ; au
+   survol (ou au toucher, via le focus), une bulle sombre au trait d'encre
+   explique la ligne.
+   =========================================================================== */
+
+.info-dot {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  margin-left: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .12);
+  border: 1px solid rgba(255, 255, 255, .35);
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 1;
+  color: #FFE14D;
+  text-transform: none;
+  letter-spacing: 0;
+  cursor: help;
+  vertical-align: middle;
+  transition: background 160ms ease-out, transform 160ms var(--ease-snap);
+}
+.info-dot:hover, .info-dot:focus-visible { background: rgba(255, 225, 77, .25); transform: scale(1.12); outline: none; }
+.info-dot::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  z-index: 60;
+  width: max-content;
+  max-width: 250px;
+  padding: 9px 11px;
+  background: rgba(10, 14, 11, .96);
+  border: 2px solid #0B0F0C;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12), 0 5px 0 rgba(0, 0, 0, .45);
+  font-family: var(--font-body, 'Barlow', sans-serif);
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 500;
+  color: #F1EDE2;
+  text-align: left;
+  white-space: normal;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, 6px);
+  transition: opacity 160ms ease-out, transform 180ms var(--ease-snap);
+}
+.info-dot:hover::after, .info-dot:focus::after { opacity: 1; transform: translate(-50%, 0); }
+
+/* ===========================================================================
+   Les titres blancs : l'ombre d'encre partout
+
+   La plupart des grands titres blancs portaient deja l'ombre d'encre du site ;
+   ceux-ci l'avaient oubliee.
+   =========================================================================== */
+
+main h1.t-h1,
+.lab-title {
+  text-shadow: 4px 4px 0 #0B120C, 0 12px 34px rgba(5, 6, 4, .45);
+}
+:is(.aura-title, .ward-name, .mz-sleeve-title, .dl-channel-title, .gd-step-title, .gd-pod-name, .prf-name),
+.lab-page h2 {
+  text-shadow: 3px 3px 0 #0B120C, 0 8px 22px rgba(5, 6, 4, .35);
+}
+
+/* ===========================================================================
+   Les fissures
+
+   Les grands titres de page et d'accueil portent quelques fissures en cases.
+   Par-dessus le titre, une copie de son texte (data-crack, tenue a jour par
+   js/ux.js) est transparente : seul son fond — trois fines lezardes sombres a
+   des endroits fixes — s'y voit, decoupe a la forme des lettres. La ou une
+   lezarde croise une lettre, la pierre semble fendue ; ailleurs, rien. Le
+   titre lui-meme n'est pas touche (ni son ombre, ni sa traduction).
+   =========================================================================== */
+
+:root {
+  --crack-a: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 16' shape-rendering='crispEdges' fill='%230B120C'%3E%3Cpath d='M5 0h1v2H5zM4 2h1v2H4zM5 4h1v1H5zM6 5h1v2H6zM5 7h1v2H5zM4 9h1v2H4zM3 11h1v2H3zM7 7h1v1H7zM8 8h1v1H8zM2 13h1v2H2z'/%3E%3C/svg%3E");
+  --crack-b: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 16' shape-rendering='crispEdges' fill='%230B120C'%3E%3Cpath d='M3 0h1v3H3zM4 3h1v2H4zM5 5h1v1H5zM4 6h1v2H4zM2 6h2v1H2zM1 7h1v1H1zM5 8h1v2H5zM6 10h1v2H6zM5 12h1v2H5z'/%3E%3C/svg%3E");
+  --crack-c: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 16' shape-rendering='crispEdges' fill='%230B120C'%3E%3Cpath d='M6 1h1v2H6zM5 3h1v3H5zM6 6h1v1H6zM7 7h1v2H7zM4 6h1v1H4zM3 7h1v1H3zM6 9h1v2H6zM5 11h1v1H5z'/%3E%3C/svg%3E");
+}
+[data-crack]::after {
+  content: attr(data-crack);
+  position: absolute;
+  inset: 0;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  text-shadow: none;
+  /* --crk-a/b/c : la ou tombent les lettres, mesure par js/ux.js. */
+  background: var(--crack-a) calc(var(--crk-a, 17%) - .13em) 30% / .26em .42em no-repeat,
+              var(--crack-b) calc(var(--crk-b, 61%) - .13em) 64% / .26em .42em no-repeat,
+              var(--crack-c) calc(var(--crk-c, 90%) - .12em) 24% / .24em .38em no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  pointer-events: none;
+}
+:root[data-theme='light'] [data-crack]::after { display: none; }
+
+/* L'interrupteur « Effet gyroscope » du menu Langue > Affichage. */
+.hmenu-switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, .04);
+  border: 2px solid rgba(255, 255, 255, .1);
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: #FFFFFF;
+  cursor: var(--cur-point);
+}
+.hmenu-switch i {
+  position: relative;
+  width: 38px;
+  height: 20px;
+  background: rgba(0, 0, 0, .5);
+  border: 2px solid #0B0F0C;
+}
+.hmenu-switch i::after {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  width: 12px;
+  height: 12px;
+  background: #8A8A8A;
+  transition: transform 180ms var(--ease-snap), background 160ms ease-out;
+}
+.hmenu-switch[aria-checked='true'] i::after { transform: translateX(18px); background: var(--accent); }
+
+/* ===========================================================================
+   Le fil d'Ariane des fiches (js/ux.js, crumbs)
+   =========================================================================== */
+
+main:has(> .crumbs) { position: relative; }
+.crumbs {
+  position: absolute;
+  top: calc(var(--header-h, 64px) + 14px);
+  left: max(16px, calc((100vw - var(--wrap-max, 1240px)) / 2));
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  max-width: calc(100vw - 32px);
+}
+.crumbs ol {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin: 0;
+  padding: 6px 12px;
+  list-style: none;
+  background: rgba(8, 12, 9, .66);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 2px solid var(--border-strong);
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #FFE14D;
+}
+.crumbs li + li::before { content: '›'; margin: 0 9px; color: rgba(230, 225, 214, .5); }
+.crumbs a { color: #E6E1D6; text-decoration: none; }
+.crumbs a:hover { color: #FFFFFF; text-decoration: underline; text-underline-offset: 3px; }
+.crumbs-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  background: var(--accent);
+  border: 2px solid #171A16;
+  box-shadow: 0 3px 0 rgba(5, 6, 4, .55);
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #171A16 !important;
+  text-decoration: none !important;
+  transition: transform 160ms var(--ease-snap);
+}
+.crumbs-back:hover { transform: translateX(-3px); }
+.crumbs-from { opacity: .75; text-transform: none; letter-spacing: 0; }
+@media (max-width: 720px) {
+  .crumbs { top: calc(var(--header-h, 58px) + 8px); }
+  .crumbs ol { font-size: 11px; padding: 5px 9px; }
+  .crumbs-from { display: none; }
+}
+
+/* Le lien d'evitement : hors ecran, il descend sous l'en-tete au focus clavier. */
+.skip-link {
+  position: fixed;
+  left: 16px;
+  top: -60px;
+  z-index: 200;
+  padding: 10px 16px;
+  background: var(--accent);
+  border: 3px solid #171A16;
+  box-shadow: 0 4px 0 rgba(5, 6, 4, .55);
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #171A16;
+  text-decoration: none;
+  transition: top 160ms var(--ease-out);
+}
+.skip-link:focus { top: 12px; }
+main:focus { outline: none; }
+
+/* ===========================================================================
+   Les curseurs : une patte (tools/build-cursors.py)
+
+   L'icone d'apprivoisement du mod, en sombre, lisere creme. Chaque etat a sa
+   patte : ouverte partout, les doigts ecartes et tournes vers l'exterieur sur ce qui se clique (elle veut attraper), les doigts
+   ecartes sur ce qui se fait glisser, refermee quand le bouton est enfonce
+   (html.paw-down, js/ux.js), grise barree sur ce qui est desactive, trois
+   points pendant un chargement. Les feuilles du site n'ecrivent plus
+   « cursor: pointer » mais var(--cur-point), etc. Le texte a saisir garde son
+   curseur texte. Sans image (vieux navigateur), le curseur systeme revient.
+   Le point chaud (12 9) tombe entre les deux doigts du milieu.
+   =========================================================================== */
+:root {
+  --cur-default: -webkit-image-set(url('https://theosrb.github.io/Operation-W.I.L.D-Wiki-Assets/ui/cursors/paw.png?v=4') 1x, url('https://theosrb.github.io/Operation-W.I.L.D-Wiki-Assets/ui/cursors/paw@2x.png?v=4') 2x) 12 9, auto;
+  --cur-point: -webkit-image-set(url('https://theosrb.github.io/Operation-W.I.L.D-Wiki-Assets/ui/cursors/point.png?v=4') 1x, url('https://theosrb.github.io/Operation-W.I.L.D-Wiki-Assets/ui/cursors/point@2x.png?v=4') 2x) 14 9, pointer;
+  --cur-press: -webkit-image-set(url('https://theosrb.github.io/Operation-W.I.L.D-Wiki-Assets/ui/cursors/press.png?v=4') 1x, url('https://theosrb.github.io/Operation-W.I.L.D-Wiki-Assets/ui/cursors/press@2x.png?v=4') 2x) 12 9, pointer;
+  --cur-grab: -webkit-image-set(url('https://theosrb.github.io/Operation-W.I.L.D-Wiki-Assets/ui/cursors/grab.png?v=4') 1x, url('https://theosrb.github.io/Operation-W.I.L.D-Wiki-Assets/ui/cursors/grab@2x.png?v=4') 2x) 14 9, grab;
+  --cur-grabbing: -webkit-image-set(url('https://theosrb.github.io/Operation-W.I.L.D-Wiki-Assets/ui/cursors/grabbing.png?v=4') 1x, url('https://theosrb.github.io/Operation-W.I.L.D-Wiki-Assets/ui/cursors/grabbing@2x.png?v=4') 2x) 12 9, grabbing;
+  --cur-no: -webkit-image-set(url('https://theosrb.github.io/Operation-W.I.L.D-Wiki-Assets/ui/cursors/no.png?v=4') 1x, url('https://theosrb.github.io/Operation-W.I.L.D-Wiki-Assets/ui/cursors/no@2x.png?v=4') 2x) 12 9, not-allowed;
+  --cur-wait: -webkit-image-set(url('https://theosrb.github.io/Operation-W.I.L.D-Wiki-Assets/ui/cursors/wait.png?v=4') 1x, url('https://theosrb.github.io/Operation-W.I.L.D-Wiki-Assets/ui/cursors/wait@2x.png?v=4') 2x) 12 9, progress;
+  /* Les images de passage : un curseur ne s'anime pas, alors js/ux.js les
+     enchaine (quelques dizaines de ms chacune) pour que la patte bouge au lieu
+     de sauter d'une image a l'autre. */
+  --cur-press-half: -webkit-image-set(url('https://theosrb.github.io/Operation-W.I.L.D-Wiki-Assets/ui/cursors/press-half.png?v=4') 1x, url('https://theosrb.github.io/Operation-W.I.L.D-Wiki-Assets/ui/cursors/press-half@2x.png?v=4') 2x) 12 9, pointer;
+  --cur-reach: -webkit-image-set(url('https://theosrb.github.io/Operation-W.I.L.D-Wiki-Assets/ui/cursors/point-half.png?v=4') 1x, url('https://theosrb.github.io/Operation-W.I.L.D-Wiki-Assets/ui/cursors/point-half@2x.png?v=4') 2x) 14 9, pointer;
+  /* Le clic molette (js/ux.js) : la patte et sa fleche, selon le sens. */
+  --cur-scroll-up: -webkit-image-set(url('https://theosrb.github.io/Operation-W.I.L.D-Wiki-Assets/ui/cursors/scroll-up.png?v=4') 1x, url('https://theosrb.github.io/Operation-W.I.L.D-Wiki-Assets/ui/cursors/scroll-up@2x.png?v=4') 2x) 13 20, n-resize;
+  --cur-scroll-down: -webkit-image-set(url('https://theosrb.github.io/Operation-W.I.L.D-Wiki-Assets/ui/cursors/scroll-down.png?v=4') 1x, url('https://theosrb.github.io/Operation-W.I.L.D-Wiki-Assets/ui/cursors/scroll-down@2x.png?v=4') 2x) 13 13, s-resize;
+  --cur-scroll-idle: -webkit-image-set(url('https://theosrb.github.io/Operation-W.I.L.D-Wiki-Assets/ui/cursors/scroll.png?v=7') 1x, url('https://theosrb.github.io/Operation-W.I.L.D-Wiki-Assets/ui/cursors/scroll@2x.png?v=7') 2x) 13 19, ns-resize;
+}
+/* Le bouton enfonce : la patte se referme en deux temps (paw-half, puis
+   paw-down), et se rouvre de meme. */
+html.paw-half {
+  --cur-default: var(--cur-press-half);
+  --cur-point: var(--cur-press-half);
+  --cur-grab: var(--cur-press-half);
+}
+html.paw-down {
+  --cur-default: var(--cur-press);
+  --cur-point: var(--cur-press);
+  --cur-grab: var(--cur-grabbing);
+}
+html { cursor: var(--cur-default); }
+a[href], button, summary, select, label[for], [role='button'], [role='tab'], [role='option'], [role='switch'] { cursor: var(--cur-point); }
+:disabled, [aria-disabled='true'] { cursor: var(--cur-no); }
+canvas.is-grabbing, .st3d-canvas.is-grabbing { cursor: var(--cur-grabbing); }
+input:not([type='button']):not([type='submit']):not([type='reset']):not([type='checkbox']):not([type='radio']):not([type='range']):not([type='color']):not([type='file']),
+textarea, [contenteditable='true'] { cursor: text; }
+html[data-booting] { cursor: var(--cur-wait); }
+
+/* L'empreinte d'un clic : la patte tombe, s'ecrase un instant sur la page en
+   soulevant un peu de poussiere, puis s'efface. Les empreintes alternent
+   gauche et droite (--side, js/ux.js) : des clics rapides laissent une petite
+   piste, comme une bete qui marche. Rien que transform et opacity. */
+.paw-print {
+  --paw-dust: #F3E6C8;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 26px;
+  height: 26px;
+  margin: -13px 0 0 -13px;
+  pointer-events: none;
+  z-index: 9999;
+  animation: paw-print 1100ms cubic-bezier(.2, .7, .3, 1) both;
+}
+/* La patte elle-meme, par-dessus sa poussiere (::before). */
+.paw-print::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('https://theosrb.github.io/Operation-W.I.L.D-Wiki-Assets/ui/cursors/press@2x.png?v=4') center / 32px 32px no-repeat;
+  image-rendering: pixelated;
+}
+:root[data-theme='light'] .paw-print { --paw-dust: #6E5A3A; }
+@keyframes paw-print {
+  0% { opacity: 0; transform: translate(var(--x), var(--y)) rotate(var(--r)) scale(calc(var(--side, 1) * 1.7), 1.7); }
+  12% { opacity: .75; transform: translate(var(--x), var(--y)) rotate(var(--r)) scale(calc(var(--side, 1) * .86), .8); }
+  22% { opacity: .7; transform: translate(var(--x), var(--y)) rotate(var(--r)) scale(calc(var(--side, 1) * 1.02), 1); }
+  30% { opacity: .62; transform: translate(var(--x), var(--y)) rotate(var(--r)) scale(var(--side, 1), 1); }
+  100% { opacity: 0; transform: translate(var(--x), var(--y)) rotate(var(--r)) scale(var(--side, 1), 1); }
+}
+/* La poussiere : six grains d'un pixel, qui s'ecartent au moment ou la patte touche. */
+.paw-print::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 60%;
+  width: 3px;
+  height: 3px;
+  margin: -1.5px 0 0 -1.5px;
+  background: var(--paw-dust);
+  box-shadow:
+    -9px -2px 0 var(--paw-dust), 9px -3px 0 var(--paw-dust), -6px 6px 0 var(--paw-dust),
+    7px 6px 0 var(--paw-dust), -12px 3px 0 var(--paw-dust), 12px 2px 0 var(--paw-dust);
+  opacity: 0;
+  animation: paw-dust 460ms ease-out 110ms both;
+}
+@keyframes paw-dust {
+  0% { opacity: .9; transform: scale(.55); }
+  100% { opacity: 0; transform: scale(1.5) translateY(-2px); }
+}
+@media (prefers-reduced-motion: reduce) { .paw-print { display: none; } }
+
+/* Le clic molette (js/ux.js) : le navigateur dessinait son rond a fleches,
+   qu'aucune feuille ne peut remplacer. Le site defile donc lui-meme, et rien
+   d'autre que le curseur n'apparait : la patte a deux petites fleches au
+   repos, puis la patte flechee du sens ou l'on part. Toute la page le garde. */
+html.paw-scrolling, html.paw-scrolling * { cursor: var(--cur-scroll, var(--cur-scroll-idle)) !important; }
+html.paw-scroll-up { --cur-scroll: var(--cur-scroll-up); }
+html.paw-scroll-down { --cur-scroll: var(--cur-scroll-down); }

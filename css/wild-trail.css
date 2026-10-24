@@ -1,0 +1,545 @@
+/* La Piste Sauvage — le composant partage (js/wild-trail.js).
+
+   Une barre d'outils, une fenetre de hauteur fixe ou l'arbre se parcourt, une
+   legende. Toutes les pistes ont la meme fenetre et la meme echelle : un noeud
+   a la meme taille chez le tigre et chez le kodiak. */
+
+.wt {
+  --wt-accent: #F2A32C;
+  --wt-h: 540px;
+  --wt-board: #0C110D;
+  --wt-board-glow: rgba(255, 255, 255, .05);
+  --wt-edge: rgba(255, 255, 255, .16);
+  --wt-edge-outline: rgba(0, 0, 0, .55);
+  --wt-ink: #0B0F0C;
+  --wt-node-off: #151B16;
+  --wt-text: #F1EDE2;
+  --wt-muted: #A19791;
+  --wt-chip: rgba(8, 12, 9, .78);
+  --wt-tip: #101611;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+/* Les surcouches ont leur propre display : l'attribut hidden doit gagner. */
+.wt [hidden] { display: none !important; }
+
+/* ---- barre d'outils ------------------------------------------------------------ */
+
+.wt-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 18px;
+}
+.wt-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.wt-sep { width: 2px; height: 26px; margin: 0 4px; background: var(--hairline); }
+
+.wt-btn,
+.wt-icon {
+  display: inline-grid;
+  place-items: center;
+  height: 36px;
+  padding: 0 14px;
+  background: var(--raised);
+  border: 2px solid var(--border-strong);
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .22), var(--bevel);
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--text-bright);
+  cursor: var(--cur-point);
+  transition: translate 140ms var(--ease-snap), background 120ms ease-out, color 120ms ease-out;
+}
+.wt-icon { width: 36px; padding: 0; font-size: 20px; line-height: 1; }
+.wt-icon svg { width: 18px; height: 18px; fill: currentColor; shape-rendering: crispEdges; }
+.wt-btn:hover, .wt-icon:hover { translate: 0 -2px; background: var(--raised-hi); }
+.wt-btn:active, .wt-icon:active { translate: 0 1px; box-shadow: inset 0 2px 0 rgba(0, 0, 0, .25); }
+.wt-btn:focus-visible, .wt-icon:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.wt-btn-accent { background: var(--accent); color: var(--on-accent); }
+.wt-btn-accent:hover { background: var(--accent-hover); }
+.wt.is-busy .wt-btn { pointer-events: none; opacity: .6; }
+
+/* Le niveau : une barre d'experience de Minecraft, cliquable. */
+.wt-level {
+  display: grid;
+  grid-template-columns: auto auto minmax(140px, 260px) auto;
+  align-items: center;
+  gap: 10px;
+  cursor: var(--cur-point);
+}
+.wt-level-label, .wt-level-max { font-family: var(--font-pixel); font-size: 9px; color: var(--text-faint); }
+.wt-level-out {
+  min-width: 2ch;
+  font-family: var(--font-display);
+  font-size: 28px;
+  line-height: 1;
+  text-align: center;
+  color: #80FF20;
+  text-shadow: 2px 2px 0 #1E3A08, 0 0 12px rgba(128, 255, 32, .35);
+}
+.wt-level-track {
+  position: relative;
+  display: block;
+  height: 12px;
+  background: #1B1B1B;
+  border: 2px solid #000000;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .08);
+}
+.wt-level-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: linear-gradient(180deg, #B9FF5A 0 30%, #80FF20 30% 70%, #4FB80D 70%);
+  transition: width 120ms ease-out;
+}
+.wt-level-track::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(90deg, transparent 0 calc(100% / 18 - 2px), rgba(0, 0, 0, .6) calc(100% / 18 - 2px) calc(100% / 18));
+  pointer-events: none;
+}
+.wt-level input {
+  position: absolute;
+  inset: -8px 0;
+  width: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: var(--cur-point);
+}
+.wt-level input:focus-visible + * , .wt-level:focus-within .wt-level-track { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* ---- le panneau du jeu -------------------------------------------------------------
+
+   L'ecran de la Piste Sauvage en jeu : un panneau gris d'inventaire, bord
+   blanc en haut a gauche, gris fonce en bas a droite, contour noir. Le titre
+   au centre, le pourcentage vert a droite, le solde en bas. */
+
+.wt-gui {
+  --mc-panel: #C6C6C6;
+  --mc-light: #FFFFFF;
+  --mc-dark: #555555;
+  --mc-ink: #000000;
+  position: relative;
+  padding: 0 12px 10px;
+  background: var(--mc-panel);
+  border: 2px solid var(--mc-ink);
+  box-shadow:
+    inset 3px 3px 0 var(--mc-light),
+    inset -3px -3px 0 var(--mc-dark),
+    0 6px 0 var(--shadow-ink);
+}
+.wt-gui-head,
+.wt-gui-foot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-height: 46px;
+  font-family: var(--font-pixel);
+  line-height: 1;
+}
+.wt-gui-foot { min-height: 36px; justify-content: space-between; padding: 0 4px; }
+.wt-gui-title {
+  font-size: clamp(13px, 1.6vw, 19px);
+  letter-spacing: .02em;
+  color: #FFFFFF;
+  text-shadow: 2px 2px 0 #3F3F3F;
+}
+.wt-gui-pct {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  translate: 0 -50%;
+  font-size: clamp(13px, 1.5vw, 18px);
+  color: #A6E34A;
+  text-shadow: 2px 2px 0 #2A3D12;
+}
+.wt-gui-count { font-size: 10px; color: #3F3F3F; }
+.wt-gui-count b { font-weight: 400; font-size: 13px; color: #1B1B1B; }
+.wt-gui-balance {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: clamp(13px, 1.4vw, 17px);
+  color: #FFD34A;
+  text-shadow: 2px 2px 0 #5A4410;
+}
+.wt-gui-balance b { font-weight: 400; }
+.wt-gui-balance .wt-coin { width: 22px; height: 22px; }
+
+/* ---- le plateau ------------------------------------------------------------------ */
+
+.wt-frame {
+  position: relative;
+  height: min(var(--wt-h), 76vh);
+  background-color: #1B2711;
+  background-image: var(--wt-noise, none);
+  background-size: 128px 128px;
+  image-rendering: pixelated;
+  /* Le puits du jeu : ombre en haut a gauche, lumiere en bas a droite. */
+  border: 2px solid #373737;
+  border-right-color: #FFFFFF;
+  border-bottom-color: #FFFFFF;
+  overflow: hidden;
+  isolation: isolate;
+  contain: layout paint;
+}
+.wt-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  box-shadow: inset 0 0 36px 6px rgba(0, 0, 0, .38);
+}
+
+.wt-viewport {
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #8B8B8B rgba(0, 0, 0, .35);
+  outline: none;
+}
+.wt-viewport::-webkit-scrollbar { width: 12px; height: 12px; }
+.wt-viewport::-webkit-scrollbar-track { background: rgba(0, 0, 0, .35); }
+.wt-viewport::-webkit-scrollbar-thumb { background: #8B8B8B; border: 3px solid rgba(0, 0, 0, .5); }
+.wt-viewport::-webkit-scrollbar-corner { background: rgba(0, 0, 0, .35); }
+.wt.is-overflow .wt-viewport { cursor: var(--cur-grab); }
+.wt.is-dragging .wt-viewport { cursor: var(--cur-grabbing); }
+.wt.is-dragging .wt-node { pointer-events: none; }
+
+.wt-stage {
+  display: grid;
+  place-items: center;
+  min-width: 100%;
+  min-height: 100%;
+  width: max-content;
+}
+.wt-svg { display: block; overflow: visible; user-select: none; -webkit-user-select: none; }
+
+/* ---- les liens --------------------------------------------------------------------- */
+
+.wt-edge line { stroke-linecap: square; fill: none; shape-rendering: crispEdges; }
+.wt-edge-base { stroke: #2F2F2F; stroke-width: 10; }
+.wt-edge-open { stroke: #5E5E5E; stroke-width: 6; }
+.wt-edge-fill {
+  stroke: #9BE04A;
+  stroke-width: 6;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 420ms var(--ease-out);
+}
+.wt-edge.is-lit .wt-edge-base { stroke: #3E6A1A; }
+.wt-edge.is-lit .wt-edge-fill { stroke-dashoffset: 0; }
+/* Le lien qui mene a un noeud disponible : un filet dore qui avance. */
+.wt-edge.is-open .wt-edge-open {
+  stroke: #BFA24C;
+  stroke-dasharray: 6 6;
+  animation: wt-ants 900ms linear infinite;
+}
+@keyframes wt-ants { to { stroke-dashoffset: -12; } }
+
+/* ---- les noeuds ------------------------------------------------------------------------ */
+
+.wt-node { cursor: var(--cur-point); outline: none; }
+.wt-node rect { shape-rendering: crispEdges; }
+.wt-node-body { transition: transform 180ms var(--ease-snap), filter 160ms ease-out; }
+.wt-node:hover .wt-node-body,
+.wt-node:focus-visible .wt-node-body { transform: scale(1.1); filter: brightness(1.18); }
+.wt-node-drop { fill: rgba(0, 0, 0, .45); }
+.wt-node-outline { fill: #101010; }
+.wt-node-ring { fill: #3C3C3C; transition: fill 200ms ease-out; }
+.wt-node-fill { fill: #1F1F1F; transition: fill 200ms ease-out; }
+.wt-node-shine { fill: rgba(255, 255, 255, .06); }
+.wt-node-pip { fill: #2E2E2E; stroke: #151515; stroke-width: 1; transition: fill 200ms ease-out; }
+.wt-node-icon { image-rendering: pixelated; opacity: .78; transition: opacity 200ms ease-out; }
+.wt-node-q {
+  font-family: var(--font-pixel);
+  font-size: 18px;
+  fill: #7A7A7A;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Acquis : cadre vert vif, fond de mousse, icone pleine. */
+.wt-node.is-owned .wt-node-ring { fill: #8FD14F; }
+.wt-node.is-owned .wt-node-fill { fill: #2C4A22; }
+.wt-node.is-owned .wt-node-shine { fill: rgba(255, 255, 255, .1); }
+.wt-node.is-owned .wt-node-icon { opacity: 1; }
+.wt-node.is-owned .wt-node-pip { fill: #8B8B8B; }
+
+/* Disponible : cadre dore, qui respire doucement. */
+.wt-node.is-buyable .wt-node-ring { fill: #C9A646; animation: wt-call 1.8s ease-in-out infinite; }
+.wt-node.is-buyable .wt-node-fill { fill: #3B3423; }
+.wt-node.is-buyable .wt-node-icon { opacity: 1; }
+.wt-node.is-buyable .wt-node-pip { fill: #8B8B8B; }
+@keyframes wt-call { 0%, 100% { fill: #C9A646; } 50% { fill: #F0D27A; } }
+
+/* Relie, mais le niveau ne suit pas encore. */
+.wt-node.is-level .wt-node-ring { fill: #6B5A2E; }
+
+/* Verrouille : sombre, l'icone en retrait. */
+.wt-node.is-locked .wt-node-icon { opacity: .55; }
+
+/* Le « ? » : un noeud que le niveau de la bete ne permet pas encore de voir. */
+.wt-node.is-mystery .wt-node-icon { opacity: 0; }
+.wt-node.is-mystery .wt-node-q { opacity: 1; }
+.wt-node.is-mystery .wt-node-fill { fill: #232323; }
+.wt-node.is-mystery .wt-node-ring { fill: #404040; }
+
+/* Achat, remise a zero, refus. */
+.wt-node.is-fresh .wt-node-body { animation: wt-pop 520ms var(--ease-snap); }
+@keyframes wt-pop { 0% { transform: scale(1); } 35% { transform: scale(1.45); } 100% { transform: scale(1); } }
+.wt-node.is-sold .wt-node-body { animation: wt-sold 420ms ease-out; }
+@keyframes wt-sold { 0% { transform: scale(1); opacity: 1; } 40% { transform: scale(.7); opacity: .4; } 100% { transform: scale(1); } }
+.wt-node.is-denied .wt-node-body { animation: wt-deny 380ms ease-in-out; }
+@keyframes wt-deny {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-5px); }
+  40% { transform: translateX(5px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
+}
+.wt-node.is-denied .wt-node-ring { fill: #D2503C; animation: none; }
+
+/* Les etincelles d'un achat. */
+.wt-spark { animation: wt-spark 700ms cubic-bezier(.2, .8, .3, 1) forwards; }
+@keyframes wt-spark {
+  from { transform: translate(0, 0); opacity: 1; }
+  to { transform: translate(var(--dx), var(--dy)); opacity: 0; }
+}
+.wt-ring {
+  fill: none;
+  stroke-width: 3;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: wt-ring 600ms ease-out forwards;
+}
+@keyframes wt-ring { from { transform: scale(.8); opacity: 1; } to { transform: scale(1.9); opacity: 0; } }
+
+/* ---- surcouches ------------------------------------------------------------------------- */
+
+.wt-coin { display: inline-block; width: 16px; height: 16px; background-size: contain; background-repeat: no-repeat; background-position: center; image-rendering: pixelated; }
+
+.wt-minimap {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 3;
+  background: rgba(10, 14, 8, .85);
+  border: 2px solid #000000;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, .4), inset 0 0 0 1px rgba(255, 255, 255, .08);
+  cursor: crosshair;
+  touch-action: none;
+  opacity: .65;
+  transition: opacity 180ms ease-out;
+}
+.wt-minimap:hover { opacity: 1; }
+.wt-minimap svg { display: block; width: 100%; height: 100%; }
+.wt-minimap rect { fill: rgba(255, 255, 255, .22); }
+.wt-minimap rect.is-owned { fill: #8FD14F; }
+.wt-minimap rect.is-buyable { fill: #E3C064; }
+.wt-mm-view {
+  position: absolute;
+  border: 2px solid #FFFFFF;
+  background: rgba(255, 255, 255, .08);
+  pointer-events: none;
+}
+
+.wt-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  z-index: 3;
+  translate: -50% 0;
+  padding: 6px 12px;
+  background: rgba(8, 12, 9, .82);
+  border: 2px solid #000000;
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  color: #F1EDE2;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: wt-hint-in 500ms var(--ease-out) 600ms both;
+  transition: opacity 400ms ease-out;
+}
+.wt-hint.is-gone { opacity: 0; }
+@keyframes wt-hint-in { from { opacity: 0; translate: -50% 10px; } to { opacity: 1; translate: -50% 0; } }
+
+.wt-empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 24px;
+  text-align: center;
+  font-family: var(--font-pixel);
+  font-size: 12px;
+  line-height: 1.6;
+  color: #C9C9C9;
+  text-shadow: 2px 2px 0 #000000;
+}
+.wt.is-empty .wt-toolbar .wt-tools, .wt.is-empty .wt-level { visibility: hidden; }
+
+/* L'info-bulle : un parchemin sombre, comme les infobulles d'objets du jeu. */
+.wt-tip {
+  position: absolute;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: max-content;
+  max-width: 280px;
+  padding: 9px 11px 10px;
+  background: rgba(16, 4, 16, .94);
+  border: 2px solid #1A0A2A;
+  box-shadow: inset 0 0 0 2px #2B0F5A, 0 8px 22px rgba(0, 0, 0, .5);
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.35;
+  color: #E6E1D4;
+  pointer-events: none;
+  animation: wt-tip-in 140ms ease-out;
+}
+@keyframes wt-tip-in { from { opacity: 0; translate: 0 4px; } to { opacity: 1; translate: 0 0; } }
+.wt-tip-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.wt-tip-type {
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 17px;
+  text-transform: uppercase;
+  color: var(--type);
+  filter: brightness(1.25);
+}
+.wt-tip-cost { display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-condensed); font-weight: 700; font-size: 16px; color: #FFD27A; }
+.wt-tip-reward { color: #F7F4EC; }
+.wt-tip-meta { font-size: 12px; color: #A89FB8; }
+.wt-tip-path { font-family: var(--font-condensed); font-weight: 700; font-size: 14px; letter-spacing: .03em; color: #FFFFFF; }
+.wt-tip-path.is-bad { color: #F0A79A; }
+.wt-tip-passives { display: flex; flex-direction: column; gap: 4px; margin: 2px 0; }
+.wt-tip-passive { padding: 4px 6px; border-left: 3px solid #5A4A6A; font-size: 12px; color: #C9C2D6; }
+.wt-tip-passive b { display: block; font-family: var(--font-condensed); font-size: 14px; color: #F7F4EC; }
+.wt-tip-passive.is-chosen { border-left-color: #B84A38; background: rgba(184, 74, 56, .18); }
+.wt-tip-action {
+  margin-top: 2px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, .12);
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  line-height: 1.6;
+  color: #80FF20;
+}
+.wt-tip-action.is-owned { color: #FFD27A; }
+.wt-tip-action.is-level, .wt-tip-action.is-locked, .wt-tip-action.is-bad { color: #FF8B73; }
+
+/* Le choix du passif d'un noeud de capacite. */
+.wt-choose {
+  position: absolute;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(340px, calc(100% - 16px));
+  padding: 14px;
+  background: #121812;
+  border: 2px solid var(--wt-ink);
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--wt-accent) 60%, transparent), 0 14px 34px rgba(0, 0, 0, .6);
+  animation: wt-tip-in 180ms var(--ease-snap);
+}
+.wt-choose-kicker { font-family: var(--font-pixel); font-size: 8px; color: #FFD27A; }
+.wt-choose-title { font-family: var(--font-display); font-weight: 400; font-size: 24px; line-height: 1; text-transform: uppercase; color: #FFFFFF; }
+.wt-choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px;
+  background: rgba(255, 255, 255, .04);
+  border: 2px solid rgba(255, 255, 255, .12);
+  text-align: left;
+  color: #E6E1D4;
+  cursor: var(--cur-point);
+  transition: background 120ms ease-out, border-color 120ms ease-out, translate 160ms var(--ease-snap);
+}
+.wt-choice:hover, .wt-choice:focus-visible { background: rgba(184, 74, 56, .22); border-color: #E0654F; translate: 0 -2px; outline: none; }
+.wt-choice-icon { flex: 0 0 28px; height: 28px; background: url('https://theosrb.github.io/Operation-W.I.L.D-Wiki-Assets/ui/energy.png') center / contain no-repeat; }
+.wt-choice-text { display: flex; flex-direction: column; gap: 3px; }
+.wt-choice-text b { font-family: var(--font-condensed); font-weight: 700; font-size: 17px; text-transform: uppercase; color: #FFFFFF; }
+.wt-choice-text small { font-size: 13px; line-height: 1.35; color: #C9C2B8; }
+.wt-choose-cancel {
+  align-self: flex-end;
+  padding: 4px 8px;
+  background: none;
+  border: 0;
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  color: #A19791;
+  cursor: var(--cur-point);
+}
+.wt-choose-cancel:hover { color: #FFFFFF; }
+
+/* ---- legende ----------------------------------------------------------------------------- */
+
+.wt-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+}
+.wt-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  color: var(--text-soft);
+}
+.wt-key em { font-style: normal; color: var(--text-faint); }
+.wt-key-box {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  background: #2C4A22;
+  border: 2px solid #8FD14F;
+  outline: 1px solid #101010;
+}
+.wt-key-box > span { width: 16px; height: 16px; background-size: contain; background-repeat: no-repeat; background-position: center; image-rendering: pixelated; }
+.wt-key-box > i { width: 6px; height: 6px; background: #8B8B8B; }
+.wt-key-step .wt-key-box { width: 16px; height: 16px; }
+.wt-key-states { display: inline-flex; flex-wrap: wrap; gap: 6px 12px; margin-left: auto; }
+.wt-st {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  color: var(--text-faint);
+}
+.wt-st::before { content: ''; width: 12px; height: 12px; border: 2px solid #3C3C3C; background: #1F1F1F; outline: 1px solid #101010; }
+.wt-st.is-owned::before { border-color: #8FD14F; background: #2C4A22; }
+.wt-st.is-buyable::before { border-color: #C9A646; background: #3B3423; }
+.wt-st.is-mystery::before { content: '?'; display: grid; place-items: center; font-size: 8px; color: #8A8A8A; line-height: 1; }
+
+@media (max-width: 720px) {
+  .wt-level { grid-template-columns: auto auto 1fr auto; width: 100%; }
+  .wt-minimap { display: none; }
+  .wt-key-states { margin-left: 0; }
+  .wt-hint { font-size: 7px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wt-edge.is-open .wt-edge-open, .wt-node.is-buyable .wt-node-ring,
+  .wt-node.is-fresh .wt-node-body, .wt-node.is-sold .wt-node-body, .wt-node.is-denied .wt-node-body { animation: none; }
+  .wt-edge-fill { transition: none; }
+}

@@ -1,0 +1,290 @@
+/* Mecaniques › Archetypes & niveaux : cinq presentations de la courbe de
+   niveau (data-v sur [data-curve-panel], js/sim-versions.js).
+
+   Le meme panneau : le niveau choisi au curseur, sa barre d'experience, les
+   trois chiffres (XP pour le suivant, cumulee, totale) et la courbe des
+   cinquante niveaux.
+     1 · Barre d'experience : l'interface du jeu, en grand.
+     2 · Escalier de blocs : chaque niveau une colonne d'herbe et de terre.
+     3 · Panneaux de bois : le niveau et ses chiffres sur des plaques suspendues.
+     4 · Coffre : la fenetre biseautee de la fiche, des cases creusees.
+     5 · Orbes d'experience : le niveau dans un orbe, un orbe par niveau. */
+
+#stats .curve-panel[data-v] .curve-bar { position: relative; transition: background 160ms ease-out, filter 120ms ease-out, transform 180ms var(--ease-snap); }
+
+/* ===========================================================================
+   1 · BARRE D'EXPERIENCE
+   =========================================================================== */
+
+#stats .curve-panel[data-v='1'] { gap: 20px !important; background: linear-gradient(180deg, rgba(8, 12, 9, .78), rgba(5, 8, 6, .86)); }
+#stats .curve-panel[data-v='1'] .xp-big .xp-level { font-size: 86px; text-shadow: 4px 0 0 #000, -4px 0 0 #000, 0 4px 0 #000, 0 -4px 0 #000, 4px 4px 0 #000, 0 0 30px rgba(128, 255, 32, .45); }
+#stats .curve-panel[data-v='1'] .xp-big .xp-track { height: 26px; border-width: 3px; }
+/* Les trois chiffres : trois cases du HUD, le chiffre en vert d'experience. */
+#stats .curve-panel[data-v='1'] [data-level-rows] { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px !important; }
+#stats .curve-panel[data-v='1'] .stat-row {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 6px 10px;
+  background: rgba(0, 0, 0, .55);
+  border: 2px solid #000000;
+  box-shadow: inset 2px 2px 0 rgba(255, 255, 255, .1), inset -2px -2px 0 rgba(0, 0, 0, .5);
+  text-align: center;
+}
+#stats .curve-panel[data-v='1'] .stat-row dt { font-family: var(--font-pixel); font-size: 7px; line-height: 1.5; color: #A8A8A8; }
+#stats .curve-panel[data-v='1'] .stat-row dd { margin: 0; font-family: var(--font-display); font-size: 30px; color: #80FF20; text-shadow: 2px 2px 0 #000000; }
+/* La courbe : cinquante barres d'experience debout, l'actuelle blanche,
+   marquee d'une fleche. */
+#stats .curve-panel[data-v='1'] .curve { height: 150px; gap: 2px; padding: 10px 8px 8px; background: #050604; border: 3px solid #000000; }
+#stats .curve-panel[data-v='1'] .curve-bar { background: #1E1E1E; box-shadow: inset 0 0 0 1px #000000; }
+#stats .curve-panel[data-v='1'] .curve-bar.is-on { background: linear-gradient(90deg, #4FA80F 0 30%, #80FF20 30% 70%, #C8FF6A 70%); box-shadow: inset 0 0 0 1px #000000, 0 0 6px rgba(128, 255, 32, .35); }
+#stats .curve-panel[data-v='1'] .curve-bar.is-now { background: #FFFFFF; box-shadow: 0 0 12px rgba(255, 255, 255, .7); }
+#stats .curve-panel[data-v='1'] .curve-bar.is-now::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 4px);
+  width: 10px;
+  height: 7px;
+  translate: -50% 0;
+  background: #FFFFFF;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  animation: sim-bob 700ms ease-in-out infinite alternate;
+}
+
+/* ===========================================================================
+   2 · ESCALIER DE BLOCS
+   =========================================================================== */
+
+#stats .curve-panel[data-v='2'] { background: linear-gradient(180deg, rgba(60, 120, 170, .35), rgba(12, 20, 15, .8) 55%); }
+/* Le niveau, sur un panneau de bois plante dans l'herbe. */
+#stats .curve-panel[data-v='2'] .xp-big {
+  align-self: center;
+  width: min(100%, 360px);
+  padding: 14px 18px 18px;
+  background: var(--sim-wood);
+  border: 4px solid var(--sim-wood-edge);
+  box-shadow: inset 0 0 0 2px var(--sim-wood-hi), 0 10px 0 rgba(42, 23, 8, .5);
+}
+#stats .curve-panel[data-v='2'] .xp-big .xp-level { font-size: 64px; color: #FFFFFF; text-shadow: var(--sim-outline-wood), 0 5px 0 rgba(42, 23, 8, .45); }
+#stats .curve-panel[data-v='2'] .xp-big .xp-track { background: #2A1708; border-color: var(--sim-wood-edge); }
+#stats .curve-panel[data-v='2'] .stat-row { border-bottom: 2px solid rgba(93, 160, 58, .3); }
+#stats .curve-panel[data-v='2'] .stat-row dd { color: #9BE04A; }
+/* Chaque niveau : une colonne de terre coiffee d'herbe ; ce qui n'est pas
+   atteint reste en pierre. */
+#stats .curve-panel[data-v='2'] .curve {
+  height: 170px;
+  gap: 0;
+  padding: 0;
+  background: linear-gradient(180deg, rgba(120, 190, 240, .25), rgba(120, 190, 240, .05));
+  border: 0;
+  border-bottom: 10px solid #4A2F18;
+  box-shadow: 0 6px 0 rgba(5, 6, 4, .45);
+}
+#stats .curve-panel[data-v='2'] .curve-bar {
+  background:
+    linear-gradient(180deg, #8C8C8C 0 4px, transparent 4px),
+    repeating-linear-gradient(180deg, #6E6E6E 0 6px, #5E5E5E 6px 8px, #747474 8px 12px);
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, .25);
+}
+#stats .curve-panel[data-v='2'] .curve-bar.is-on {
+  background:
+    linear-gradient(180deg, #7CC24A 0 4px, #4F8F2C 4px 7px, transparent 7px),
+    repeating-linear-gradient(180deg, #8A5A34 0 5px, #74492A 5px 8px, #96663E 8px 12px);
+}
+#stats .curve-panel[data-v='2'] .curve-bar.is-now {
+  background:
+    linear-gradient(180deg, #FFE14D 0 4px, #C9A646 4px 7px, transparent 7px),
+    repeating-linear-gradient(180deg, #8A5A34 0 5px, #74492A 5px 8px, #96663E 8px 12px);
+  box-shadow: 0 0 0 2px #FFE14D, 0 0 16px rgba(255, 225, 77, .6);
+  z-index: 1;
+}
+
+/* ===========================================================================
+   3 · PANNEAUX DE BOIS
+   =========================================================================== */
+
+#stats .curve-panel[data-v='3'] { gap: 22px !important; }
+/* Le niveau : une grande plaque suspendue, la barre d'experience gravee dessous. */
+#stats .curve-panel[data-v='3'] .xp-big {
+  position: relative;
+  align-self: center;
+  width: min(100%, 300px);
+  margin-top: 40px;
+  padding: 14px 16px 18px;
+  background: var(--sim-wood);
+  border: 4px solid var(--sim-wood-edge);
+  box-shadow: inset 0 0 0 2px var(--sim-wood-hi), inset 0 -5px 0 rgba(0, 0, 0, .16), 0 16px 30px rgba(0, 0, 0, .38);
+  transform-origin: 50% -40px;
+}
+#stats .curve-panel[data-v='3'] .xp-big::before {
+  content: '';
+  position: absolute;
+  left: 22%;
+  right: 22%;
+  top: -44px;
+  height: 40px;
+  background: var(--sim-chain) left / 4px 100% no-repeat, var(--sim-chain) right / 4px 100% no-repeat;
+}
+#stats .curve-panel[data-v='3'] .xp-big:hover { animation: sim-curve-swing 1s ease-out; }
+@keyframes sim-curve-swing {
+  0% { transform: rotate(0); } 20% { transform: rotate(3deg); } 45% { transform: rotate(-2.4deg); }
+  70% { transform: rotate(1.2deg); } 100% { transform: rotate(0); }
+}
+#stats .curve-panel[data-v='3'] .xp-big .xp-level { font-size: 62px; color: #FFFFFF; text-shadow: var(--sim-outline-wood), 0 5px 0 rgba(42, 23, 8, .45); }
+#stats .curve-panel[data-v='3'] .xp-big .xp-track { background: #2A1708; border-color: var(--sim-wood-edge); }
+/* Les trois chiffres : trois petites plaques, accrochees a la meme poutre. */
+#stats .curve-panel[data-v='3'] [data-level-rows] {
+  position: relative;
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px !important;
+  padding-top: 34px;
+}
+#stats .curve-panel[data-v='3'] [data-level-rows]::before {
+  content: '';
+  position: absolute;
+  left: -6px;
+  right: -6px;
+  top: 0;
+  height: 12px;
+  background: var(--sim-wood);
+  border: 3px solid var(--sim-wood-edge);
+}
+#stats .curve-panel[data-v='3'] .stat-row {
+  position: relative;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 6px 10px;
+  background: var(--sim-wood);
+  border: 3px solid var(--sim-wood-edge);
+  box-shadow: inset 0 0 0 2px var(--sim-wood-hi), 0 10px 18px rgba(0, 0, 0, .35);
+  text-align: center;
+}
+#stats .curve-panel[data-v='3'] .stat-row::before {
+  content: '';
+  position: absolute;
+  left: 30%;
+  right: 30%;
+  top: -24px;
+  height: 22px;
+  background: var(--sim-chain) left / 3px 100% no-repeat, var(--sim-chain) right / 3px 100% no-repeat;
+}
+#stats .curve-panel[data-v='3'] .stat-row dt { font-family: var(--font-condensed); font-weight: 700; font-size: 12px; letter-spacing: .06em; color: #FFE7B0; text-shadow: 0 2px 0 var(--sim-wood-ink); }
+#stats .curve-panel[data-v='3'] .stat-row dd { margin: 0; font-family: var(--font-display); font-size: 30px; color: #FFFFFF; text-shadow: var(--sim-outline-wood); }
+#stats .curve-panel[data-v='3'] .curve { height: 120px; background: #1A0F06; border: 4px solid var(--sim-wood-edge); box-shadow: inset 0 0 0 2px var(--sim-wood-hi); }
+#stats .curve-panel[data-v='3'] .curve-bar { background: rgba(255, 231, 176, .12); }
+#stats .curve-panel[data-v='3'] .curve-bar.is-on { background: linear-gradient(180deg, #FFD36A, #C98A3A); box-shadow: none; }
+#stats .curve-panel[data-v='3'] .curve-bar.is-now { background: #FFFFFF; box-shadow: 0 0 10px rgba(255, 211, 106, .8); }
+
+/* ===========================================================================
+   4 · COFFRE
+   =========================================================================== */
+
+#stats .curve-panel[data-v='4'] {
+  --cw-slot: rgba(255, 255, 255, .06);
+  --cw-edge: #0B0F0C rgba(255, 255, 255, .2) rgba(255, 255, 255, .2) #0B0F0C;
+  background: linear-gradient(180deg, rgba(35, 40, 36, 0), rgba(0, 0, 0, .25)), linear-gradient(180deg, #2A302B, #171C18);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  border: 3px solid #0B0F0C;
+  box-shadow: inset 2px 2px 0 rgba(255, 255, 255, .12), inset -2px -2px 0 rgba(0, 0, 0, .5), 0 8px 0 rgba(0, 0, 0, .45);
+}
+#stats .curve-panel[data-v='4'] > .t-pixel { font-size: 10px; color: #A9B3A6 !important; }
+/* Le niveau, dans une grande case creusee. */
+#stats .curve-panel[data-v='4'] .xp-big { padding: 14px 16px 16px; background-color: var(--cw-slot); border: 3px solid; border-color: var(--cw-edge); }
+#stats .curve-panel[data-v='4'] .xp-big .xp-level { font-size: 58px; }
+/* Les chiffres : trois petites cases, penchees chacune a sa facon. */
+#stats .curve-panel[data-v='4'] [data-level-rows] { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px !important; }
+#stats .curve-panel[data-v='4'] .stat-row {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 4px;
+  padding: 10px 10px 8px;
+  background-color: var(--cw-slot);
+  border: 3px solid;
+  border-color: var(--cw-edge);
+  rotate: -1.4deg;
+  transition: rotate 220ms var(--ease-snap), translate 220ms var(--ease-snap);
+}
+#stats .curve-panel[data-v='4'] .stat-row:nth-child(2) { rotate: 1.2deg; }
+#stats .curve-panel[data-v='4'] .stat-row:nth-child(3) { rotate: -.6deg; }
+#stats .curve-panel[data-v='4'] .stat-row:hover { rotate: 0deg; translate: 0 -3px; }
+#stats .curve-panel[data-v='4'] .stat-row dt { font-family: var(--font-pixel); font-size: 7px; line-height: 1.5; color: #8E988C; }
+#stats .curve-panel[data-v='4'] .stat-row dd { margin: 0; font-family: var(--font-condensed); font-weight: 700; font-size: 24px; color: #FFFFFF; text-shadow: 0 2px 0 #000000; }
+/* La courbe : une rangee de cases, remplies jusqu'au niveau choisi. */
+#stats .curve-panel[data-v='4'] .curve { height: 130px; gap: 3px; padding: 8px; background-color: var(--cw-slot); border: 3px solid; border-color: var(--cw-edge); }
+#stats .curve-panel[data-v='4'] .curve-bar { background: rgba(0, 0, 0, .35); box-shadow: inset 1px 1px 0 rgba(0, 0, 0, .6), inset -1px -1px 0 rgba(255, 255, 255, .1); }
+#stats .curve-panel[data-v='4'] .curve-bar.is-on { background: linear-gradient(180deg, #FFD36A, #F2A32C 60%, #A86A12); box-shadow: inset 1px 1px 0 rgba(255, 255, 255, .35), inset -1px -1px 0 rgba(0, 0, 0, .35); }
+#stats .curve-panel[data-v='4'] .curve-bar.is-now { background: #FFFFFF; box-shadow: 0 0 0 2px #F2A32C, 0 0 12px rgba(242, 163, 44, .7); }
+
+/* ===========================================================================
+   5 · ORBES D'EXPERIENCE
+   =========================================================================== */
+
+#stats .curve-panel[data-v='5'] .xp-big { padding-top: 12px; }
+/* Le niveau, dans un grand orbe vert qui flotte. */
+#stats .curve-panel[data-v='5'] .xp-big .xp-level {
+  display: grid;
+  place-items: center;
+  width: 120px;
+  height: 120px;
+  margin-bottom: 10px;
+  background:
+    radial-gradient(circle at 34% 30%, #F4FFB0 0 10%, transparent 11%),
+    radial-gradient(circle at 50% 55%, #C8FF6A 0 30%, #80FF20 45%, #3E9A0C 70%, #1E5A04 71% 76%, transparent 77%);
+  border-radius: 50%;
+  font-size: 56px;
+  color: #FFFFFF;
+  text-shadow: 3px 0 0 #1E5A04, -3px 0 0 #1E5A04, 0 3px 0 #1E5A04, 0 -3px 0 #1E5A04;
+  filter: drop-shadow(0 0 18px rgba(128, 255, 32, .55));
+  animation: sim-orb-float 2.2s ease-in-out infinite alternate;
+}
+@keyframes sim-orb-float { from { transform: translateY(0) rotate(-3deg); } to { transform: translateY(-8px) rotate(3deg); } }
+#stats .curve-panel[data-v='5'] .stat-row dt { display: flex; align-items: center; gap: 8px; }
+#stats .curve-panel[data-v='5'] .stat-row dt::before {
+  content: '';
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #F4FFB0 0 18%, #80FF20 40%, #3E9A0C 75%);
+  box-shadow: 0 0 6px rgba(128, 255, 32, .6);
+}
+#stats .curve-panel[data-v='5'] .stat-row dd { color: #9BFF4A; }
+/* La courbe : une tige par niveau, son orbe au bout. Les orbes atteints
+   brillent ; celui du niveau choisi flotte. */
+#stats .curve-panel[data-v='5'] .curve { height: 150px; gap: 0; padding: 16px 4px 4px; background: rgba(0, 0, 0, .4); border-color: #000000; }
+#stats .curve-panel[data-v='5'] .curve-bar { background: none; }
+#stats .curve-panel[data-v='5'] .curve-bar::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 5px;
+  bottom: 0;
+  width: 2px;
+  translate: -1px 0;
+  background: rgba(255, 255, 255, .12);
+}
+#stats .curve-panel[data-v='5'] .curve-bar::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -4px;
+  width: 9px;
+  height: 9px;
+  translate: -50% 0;
+  border-radius: 50%;
+  background: #2A3A26;
+}
+#stats .curve-panel[data-v='5'] .curve-bar.is-on { background: none; }
+#stats .curve-panel[data-v='5'] .curve-bar.is-on::before { background: rgba(128, 255, 32, .45); }
+#stats .curve-panel[data-v='5'] .curve-bar.is-on::after { background: radial-gradient(circle at 35% 35%, #F4FFB0 0 18%, #80FF20 45%, #3E9A0C 80%); box-shadow: 0 0 6px rgba(128, 255, 32, .7); }
+#stats .curve-panel[data-v='5'] .curve-bar.is-now { background: none; }
+#stats .curve-panel[data-v='5'] .curve-bar.is-now::after { width: 16px; height: 16px; top: -8px; background: radial-gradient(circle at 35% 35%, #FFFFFF 0 20%, #C8FF6A 45%, #80FF20 80%); box-shadow: 0 0 14px rgba(200, 255, 106, .9); animation: sim-orb-float 900ms ease-in-out infinite alternate; }
+
+@media (prefers-reduced-motion: reduce) {
+  #stats .curve-panel[data-v] *, #stats .curve-panel[data-v] *::after { animation: none !important; }
+}

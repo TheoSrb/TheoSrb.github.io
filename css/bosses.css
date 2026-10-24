@@ -1,0 +1,1099 @@
+/* Operation W.I.L.D — les boss.
+
+   Deux choses vivent ici :
+     1. la porte des boss, sur la page Creatures (creatures.html) : une plaque
+        de sang pendue a une seule chaine, penchee vers la gauche ;
+     2. la page des boss elle-meme (bosses.html, js/bosses.js).
+
+   Le vocabulaire est celui du site — pancartes de bois pendues a leurs
+   chaines, verre sombre, ombres en bloc, pixels francs — passe au rouge.
+   Tout ce qui bouge en boucle ne touche qu'a transform et opacity (voir
+   css/motion.css) ; les boucles de <main> se mettent en pause hors ecran
+   (js/ux.js, [data-off]). Le rouge du sang est ecrit ici en dur, comme le
+   bois des pancartes dans css/wild.css : la page reste sombre dans les deux
+   themes, c'est son sujet. */
+
+:root {
+  --bz-blood: #B3191C;
+  --bz-blood-hi: #D8413A;
+  --bz-blood-deep: #5C080B;
+  --bz-ink: #1F0406;
+  --bz-bone: #F4EEDF;
+  --bz-ember: #FF3B2A;
+}
+
+/* Les tetes de mort en pixels (js/bosses.js skull(), et la porte). */
+.bz-skull,
+.bgate-skull { display: block; shape-rendering: crispEdges; overflow: visible; }
+.bz-skull .sk-cran, .bz-skull .sk-jaw,
+.bgate-skull .sk-cran, .bgate-skull .sk-jaw { fill: var(--bz-bone); }
+.bz-skull .sk-eyes, .bgate-skull .sk-eyes { fill: var(--bz-ember); }
+
+/* ===========================================================================
+   1. La porte des boss (Creatures)
+   =========================================================================== */
+
+/* Le titre, les pancartes : la plaque se pend a droite, entre les deux.
+   Le haut de la chaine s'aligne sur le bas du titre (meme calcul que la
+   taille du h1 dans css/wild.css). */
+.page-hero .stack:has(> .boss-gate) { position: relative; }
+
+.boss-gate {
+  --gate-tilt: -7deg;
+  position: absolute;
+  right: 0;
+  top: calc(.88 * clamp(64px, 9vw, 138px) - 6px);
+  z-index: 3;
+  display: block;
+  width: max-content;
+  padding-top: 48px;
+  color: #FFFFFF;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.boss-gate:focus-visible { outline: none; }
+.boss-gate:focus-visible .bgate-plate { outline: 3px solid #FFE14D; outline-offset: 5px; }
+
+/* Le tout pivote autour du crochet de la chaine restee accrochee. */
+.bgate-sign {
+  position: relative;
+  display: block;
+  transform: rotate(var(--gate-tilt));
+  transform-origin: 86% -48px;
+  animation: bgate-sway 5.4s ease-in-out infinite;
+}
+@keyframes bgate-sway {
+  0%, 100% { transform: rotate(var(--gate-tilt)); }
+  50% { transform: rotate(calc(var(--gate-tilt) + 1.6deg)); }
+}
+
+/* Les chaines : la recette des pancartes de bois (css/wild.css). */
+.bgate-chain {
+  position: absolute;
+  top: -50px;
+  right: calc(14% - 2px);
+  z-index: -2;
+  width: 4px;
+  height: 54px;
+  background: repeating-linear-gradient(180deg, #8A8A8A 0 6px, #3A3A3A 6px 8px, transparent 8px 10px);
+}
+/* L'autre chaine a casse : un bout pend encore de la plaque, de travers. */
+.bgate-chain.is-snapped {
+  right: auto;
+  left: 14%;
+  top: -18px;
+  height: 22px;
+  transform: rotate(-24deg);
+  transform-origin: 50% 100%;
+}
+.bgate-aura {
+  position: absolute;
+  inset: -46px -44px -52px;
+  z-index: -1;
+  background: radial-gradient(closest-side, rgba(255, 30, 20, .95), rgba(220, 20, 16, .45) 62%, transparent 100%);
+  opacity: .45;
+  animation: bz-heartbeat 1.7s ease-out infinite;
+  transition: transform 360ms var(--ease-out);
+  pointer-events: none;
+}
+
+.bgate-plate {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 18px 16px 34px;
+  background:
+    radial-gradient(40px 26px at 82% 78%, rgba(40, 0, 2, .45), transparent 70%),
+    radial-gradient(22px 16px at 30% 18%, rgba(40, 0, 2, .35), transparent 70%),
+    repeating-linear-gradient(180deg, transparent 0 24px, rgba(40, 0, 2, .45) 24px 26px),
+    linear-gradient(180deg, #B81B1E 0%, #8C1015 55%, #5C080B 100%);
+  border: 4px solid var(--bz-ink);
+  box-shadow:
+    inset 0 0 0 2px var(--bz-blood-hi),
+    inset 0 -6px 0 rgba(0, 0, 0, .25),
+    0 6px 0 rgba(5, 6, 4, .6),
+    0 22px 38px rgba(0, 0, 0, .5);
+  transition: transform 220ms var(--ease-snap);
+}
+/* Les rivets : quatre carres de fer. */
+.bgate-plate::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  pointer-events: none;
+  background:
+    linear-gradient(#2A0406, #2A0406) left top / 6px 6px no-repeat,
+    linear-gradient(#2A0406, #2A0406) right top / 6px 6px no-repeat,
+    linear-gradient(#2A0406, #2A0406) left bottom / 6px 6px no-repeat,
+    linear-gradient(#2A0406, #2A0406) right bottom / 6px 6px no-repeat;
+}
+/* La bande de danger, sur le flanc gauche. */
+.bgate-hazard {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 16px;
+  background: repeating-linear-gradient(-45deg, #140203 0 7px, #E8C21F 7px 14px);
+  border-right: 3px solid var(--bz-ink);
+}
+
+.bgate-skull {
+  flex: none;
+  width: 62px;
+  height: 62px;
+  filter: drop-shadow(3px 3px 0 #2A0406);
+}
+.bgate-skull .sk-eyes { animation: bz-eyes 2.6s steps(1) infinite; }
+.bgate-skull .sk-jaw { transform-box: fill-box; }
+
+.bgate-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.bgate-kicker {
+  width: fit-content;
+  padding: 3px 7px;
+  font-family: Silkscreen, monospace;
+  font-size: 10px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: #FFE1D6;
+  background: rgba(20, 2, 3, .7);
+  border: 2px solid var(--bz-ink);
+}
+.bgate-label {
+  font-family: var(--font-display);
+  font-size: 40px;
+  line-height: .95;
+  text-transform: uppercase;
+  color: #FFFFFF;
+  text-shadow:
+    3px 0 0 #2A0406, -3px 0 0 #2A0406, 0 3px 0 #2A0406, 0 -3px 0 #2A0406,
+    3px 3px 0 #2A0406, -3px 3px 0 #2A0406, 3px -3px 0 #2A0406, -3px -3px 0 #2A0406,
+    0 6px 0 rgba(42, 4, 6, .5);
+  white-space: nowrap;
+}
+.bgate-go {
+  margin-left: auto;
+  font-family: var(--font-display);
+  font-size: 46px;
+  line-height: 1;
+  color: #FFE1D6;
+  text-shadow: 3px 3px 0 #2A0406;
+}
+
+/* Au survol : la plaque grossit et tremble, la machoire claque, les yeux
+   s'allument. Le tremblement vit sur la plaque, en rotate/translate (des
+   proprietes a part) : le balancement de la pancarte et le grossissement
+   continuent sans a-coup, rien n'est relance. */
+.boss-gate:hover .bgate-plate,
+.boss-gate:focus-visible .bgate-plate {
+  transform: scale(1.045);
+  animation: bgate-rattle 520ms ease-in-out 1;
+}
+.boss-gate:active .bgate-plate { transform: scale(.98) translateY(3px); }
+.boss-gate:hover .bgate-aura { transform: scale(1.18); }
+.bgate-skull .sk-jaw { transition: transform 200ms var(--ease-out); }
+.bgate-skull .sk-eyes { transition: fill 220ms ease; }
+.boss-gate:hover .bgate-skull .sk-jaw { animation: bz-chomp 420ms ease-in-out 120ms infinite; }
+.boss-gate:hover .bgate-skull .sk-eyes { fill: #FFD23F; }
+.boss-gate:hover .bgate-go { animation: wild-nudge 700ms ease-in-out infinite; }
+@keyframes bgate-rattle {
+  0%, 100% { rotate: 0deg; translate: 0 0; }
+  18% { rotate: -2.4deg; translate: -3px 0; }
+  38% { rotate: 2deg; translate: 3px 0; }
+  58% { rotate: -1.2deg; translate: -1px 0; }
+  78% { rotate: .5deg; translate: 1px 0; }
+}
+@keyframes bz-chomp { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(1.6px); } }
+@keyframes bz-eyes {
+  0%, 100% { opacity: 1; }
+  46% { opacity: .35; }
+  48% { opacity: 1; }
+  50% { opacity: .5; }
+  52% { opacity: 1; }
+}
+@keyframes bz-heartbeat {
+  0% { opacity: .38; }
+  10% { opacity: .95; }
+  22% { opacity: .45; }
+  32% { opacity: .85; }
+  60%, 100% { opacity: .38; }
+}
+
+/* La place manque a droite du titre : la plaque passe sous les pancartes. */
+@media (max-width: 1099px) {
+  .boss-gate {
+    position: relative;
+    top: auto;
+    right: auto;
+    align-self: flex-end;
+    width: min(372px, 100%);
+    margin: 4px 10px 30px 0;
+  }
+}
+@media (max-width: 720px) {
+  .boss-gate { align-self: center; margin-right: 0; width: min(340px, 100%); }
+  .bgate-label { font-size: 32px; }
+  .bgate-aura { inset: -34px -12px -44px; }
+  .bgate-skull { width: 50px; height: 50px; }
+}
+
+/* ===========================================================================
+   2. La page des boss
+   =========================================================================== */
+
+.bz-page { background: #0B0707; }
+
+/* ---- l'atmosphere, sur le decor de grotte ---------------------------------- */
+
+.bz-atmos {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.bz-atmos > span { position: absolute; inset: 0; }
+.bz-vignette {
+  background:
+    radial-gradient(ellipse 80% 70% at 50% 42%, transparent 38%, rgba(12, 6, 6, .5) 76%, rgba(6, 3, 3, .86) 100%),
+    linear-gradient(180deg, rgba(70, 8, 10, .1), rgba(10, 5, 5, .3));
+}
+.bz-beat {
+  background: radial-gradient(ellipse 90% 80% at 50% 50%, transparent 55%, rgba(170, 14, 18, .2) 100%);
+  opacity: .3;
+  animation: bz-heartbeat 1.8s ease-out infinite;
+}
+/* Deux nappes de brume : un motif repete sur deux largeurs d'ecran, qui
+   glisse d'une largeur — la boucle ne se voit pas. */
+.bz-fog {
+  top: auto !important;
+  width: 200%;
+  height: 46vh;
+  background:
+    radial-gradient(28% 60% at 12% 80%, rgba(90, 70, 70, .16), transparent 70%),
+    radial-gradient(22% 50% at 37% 90%, rgba(120, 30, 30, .12), transparent 70%),
+    radial-gradient(30% 64% at 62% 84%, rgba(90, 70, 70, .14), transparent 70%),
+    radial-gradient(24% 54% at 87% 92%, rgba(120, 30, 30, .12), transparent 70%);
+  background-size: 50% 100%;
+  animation: bz-fog 70s linear infinite;
+}
+.bz-fog-b { height: 34vh; opacity: .8; animation-duration: 46s; animation-direction: reverse; }
+@keyframes bz-fog { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* L'orage : de rares eclairs rouges, en rafale. */
+.bz-lightning {
+  background:
+    radial-gradient(60% 50% at 70% 0%, rgba(255, 190, 170, .38), transparent 70%),
+    rgba(255, 140, 120, .06);
+  opacity: 0;
+  animation: bz-lightning 13s linear infinite;
+}
+@keyframes bz-lightning {
+  0%, 61%, 100% { opacity: 0; }
+  61.4% { opacity: .9; }
+  62% { opacity: .1; }
+  62.6% { opacity: .7; }
+  64% { opacity: 0; }
+  88% { opacity: 0; }
+  88.3% { opacity: .5; }
+  89.4% { opacity: 0; }
+}
+.bz-flash { background: radial-gradient(circle at 30% 35%, rgba(255, 90, 60, .55), rgba(90, 10, 10, .3) 60%, rgba(20, 5, 5, .2)); opacity: 0; }
+.bz-embers { opacity: .8; }
+
+/* ---- l'entree ------------------------------------------------------------ */
+
+.bz-hero {
+  position: relative;
+  padding: 118px 0 30px;
+  min-height: min(100vh, 900px);
+  display: flex;
+  align-items: center;
+}
+.bz-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  align-items: center;
+  gap: 30px;
+}
+.bz-hero-copy { gap: 16px; position: relative; z-index: 2; }
+
+.bz-back {
+  width: fit-content;
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  padding: 7px 12px;
+  font-family: var(--font-condensed);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #FFE1D6;
+  text-decoration: none;
+  background: rgba(16, 12, 12, .66);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  border: 2px solid var(--bz-ink);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1), 0 4px 0 rgba(5, 6, 4, .6);
+  transition: transform 220ms var(--ease-snap), background 180ms ease;
+}
+.bz-back:hover { transform: translateX(-4px); background: rgba(92, 8, 11, .8); color: #FFFFFF; }
+
+.bz-kicker {
+  width: fit-content;
+  padding: 6px 10px;
+  color: #FFE1D6;
+  background: var(--bz-blood-deep);
+  border: 2px solid var(--bz-ink);
+  box-shadow: 0 3px 0 rgba(5, 6, 4, .6);
+  rotate: -2deg;
+}
+
+/* Le titre : la taille de celui des autres rubriques (css/wild.css), sur
+   une seule ligne. */
+.bz-title-box { position: relative; width: fit-content; max-width: 100%; }
+.bz-title {
+  margin: 0;
+  font-size: clamp(64px, 9vw, 138px);
+  line-height: .88;
+  white-space: nowrap;
+  letter-spacing: .01em;
+  text-transform: uppercase;
+  color: var(--bz-bone);
+  text-shadow:
+    5px 5px 0 #3A0507,
+    0 0 42px rgba(255, 40, 28, .45),
+    0 14px 40px rgba(5, 0, 0, .6);
+  transform-origin: 30% 60%;
+}
+
+.bz-lead { max-width: 52ch; color: #F1E4DE !important; text-shadow: 0 2px 10px rgba(0, 0, 0, .6); }
+
+/* Les pancartes de la page : le meme bois, en plus sombre. */
+.bw-on main .bz-signs .counter {
+  background:
+    repeating-linear-gradient(180deg, transparent 0 24px, rgba(20, 8, 2, .55) 24px 26px),
+    #5A3A20;
+  border-color: #1E1006;
+  box-shadow: inset 0 0 0 2px #7A5530, inset 0 -5px 0 rgba(0, 0, 0, .2), 0 16px 30px rgba(0, 0, 0, .5);
+}
+.bw-on main .bz-signs .counter .value { color: #FFE9E2 !important; }
+
+/* Le boss qui trone a droite de l'entree. */
+.bz-hero-art {
+  --boss: var(--bz-blood);
+  position: relative;
+  aspect-ratio: 16 / 11;
+  z-index: 1;
+}
+.bz-hero-halo {
+  position: absolute;
+  inset: 4% 6% 10%;
+  background:
+    radial-gradient(closest-side, color-mix(in srgb, var(--boss) 55%, transparent), transparent 75%),
+    radial-gradient(closest-side, rgba(255, 30, 20, .45), transparent 100%);
+  opacity: .6;
+  animation: bz-heartbeat 3.4s ease-out infinite;
+}
+.bz-hero-float {
+  position: absolute;
+  inset: 0;
+  display: block;
+  transform: translate(calc(var(--mx, 0) * -18px), calc(var(--my, 0) * -10px));
+  transition: transform 500ms var(--ease-out);
+}
+.bz-hero-img {
+  position: absolute;
+  left: -10%;
+  bottom: 0;
+  width: 120%;
+  height: auto;
+  filter: drop-shadow(0 0 26px rgba(255, 30, 20, .35)) drop-shadow(0 26px 30px rgba(0, 0, 0, .7));
+  transform-origin: 50% 100%;
+  animation: bz-breathe 6.5s ease-in-out infinite;
+}
+.bz-hero-ground {
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  bottom: -4%;
+  height: 16%;
+  background: radial-gradient(closest-side, rgba(0, 0, 0, .75), transparent);
+}
+@keyframes bz-breathe {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-1.8%) scale(1.022); }
+}
+
+/* ---- l'entree en scene : le titre s'abat, le sol tremble --------------------- */
+
+html.bz-intro .bz-title { animation: bz-slam 640ms cubic-bezier(.3, .1, .3, 1) 1; }
+html.bz-intro .bz-hero-grid { animation: bz-quake 620ms linear 330ms 1; }
+html.bz-intro .bz-flash { animation: bz-flash 1100ms ease-out 300ms 1; }
+@keyframes bz-slam {
+  0% { transform: scale(2.4) translateY(-40px) rotate(-4deg); }
+  52% { transform: scale(.93) rotate(1deg); }
+  68% { transform: scale(1.04) rotate(-.5deg); }
+  84% { transform: scale(.99); }
+  100% { transform: none; }
+}
+@keyframes bz-quake {
+  0%, 100% { transform: none; }
+  10% { transform: translate(-9px, 5px); }
+  20% { transform: translate(8px, -6px); }
+  30% { transform: translate(-7px, -3px); }
+  40% { transform: translate(6px, 5px); }
+  55% { transform: translate(-4px, 2px); }
+  70% { transform: translate(3px, -2px); }
+  85% { transform: translate(-1px, 1px); }
+}
+@keyframes bz-flash {
+  0% { opacity: 0; }
+  8% { opacity: .9; }
+  100% { opacity: 0; }
+}
+
+/* ---- les rubans de danger -------------------------------------------------- */
+
+.bz-tapes {
+  position: relative;
+  z-index: 3;
+  height: 170px;
+  margin: 10px 0 -40px;
+  overflow: hidden;
+  pointer-events: none;
+}
+.bz-tape {
+  position: absolute;
+  left: -6%;
+  width: 112%;
+  top: 50%;
+  height: 50px;
+  margin-top: -25px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  background: var(--bz-blood);
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  border-image: repeating-linear-gradient(-45deg, #140203 0 8px, #E8C21F 8px 16px) 6;
+  box-shadow: 0 10px 0 rgba(5, 0, 0, .45), 0 22px 40px rgba(0, 0, 0, .5);
+}
+.bz-tape-a { transform: rotate(-3deg); z-index: 2; }
+.bz-tape-b { transform: rotate(2.4deg) translateY(10px); background: #7E0D11; }
+.bz-tape-track { display: flex; width: max-content; animation: bz-tape 34s linear infinite; }
+.bz-tape-b .bz-tape-track { animation-duration: 42s; animation-direction: reverse; }
+.bz-tape-run { display: flex; }
+.bz-tape-seg {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 22px;
+  font-family: var(--font-display);
+  font-size: 24px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #140203;
+  white-space: nowrap;
+}
+.bz-tape-b .bz-tape-seg { color: #F4D9D2; }
+.bz-tape-seg .bz-skull { width: 24px; height: 24px; }
+.bz-tape-seg .bz-skull .sk-cran, .bz-tape-seg .bz-skull .sk-jaw { fill: #140203; }
+.bz-tape-b .bz-tape-seg .bz-skull .sk-cran, .bz-tape-b .bz-tape-seg .bz-skull .sk-jaw { fill: #F4D9D2; }
+.bz-tape-seg .bz-skull .sk-eyes { fill: #FFD23F; }
+@keyframes bz-tape { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* ---- les dossiers ------------------------------------------------------------ */
+
+.bz-roster { display: flex; flex-direction: column; gap: 70px; }
+.bz-empty { color: #F1E4DE; }
+
+.bz-dossier { --boss: var(--bz-blood); position: relative; display: flex; flex-direction: column; gap: 26px; }
+.bz-dossier-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 26px;
+  align-items: stretch;
+}
+.bz-roster > .bz-dossier:nth-child(even) .bz-dossier-top { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); }
+.bz-roster > .bz-dossier:nth-child(even) .bz-stage { order: 2; }
+
+/* La scene : un fond d'arene, un projecteur, de la brume. */
+.bz-stage {
+  position: relative;
+  min-height: 500px;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(70% 55% at 50% 100%, color-mix(in srgb, var(--boss) 40%, transparent), transparent 70%),
+    radial-gradient(60% 50% at 50% 30%, rgba(120, 10, 14, .16), transparent 75%),
+    linear-gradient(180deg, #151010 0%, #060404 100%);
+  border: 4px solid var(--bz-ink);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 6px 0 rgba(5, 6, 4, .6), 0 30px 60px rgba(0, 0, 0, .55);
+}
+.bz-stage-wall {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 600ms ease;
+}
+.bz-stage-wall.has-wall { opacity: .55; }
+.bz-stage-wall.has-wall::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10, 0, 1, .35), rgba(10, 0, 1, .85)); }
+.bz-stage-num {
+  position: absolute;
+  top: -18px;
+  left: 18px;
+  z-index: -1;
+  font-family: var(--font-display);
+  font-size: 230px;
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 3px rgba(255, 90, 70, .16);
+}
+.bz-stage-spot {
+  position: absolute;
+  left: 22%;
+  right: 22%;
+  top: -10%;
+  bottom: 12%;
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(255, 190, 170, .26), rgba(255, 80, 60, .04) 80%, transparent);
+  clip-path: polygon(38% 0, 62% 0, 100% 100%, 0 100%);
+  animation: bz-spot 5s steps(1) infinite;
+}
+@keyframes bz-spot {
+  0%, 100% { opacity: 1; }
+  71% { opacity: .55; }
+  72% { opacity: 1; }
+  74% { opacity: .7; }
+  75% { opacity: 1; }
+}
+.bz-stage-art {
+  position: absolute;
+  inset: 4% 0 0;
+  display: block;
+  transform: translate(calc(var(--mx, 0) * -16px), calc(var(--my, 0) * -9px));
+  transform-origin: 50% 100%;
+  transition: transform 500ms var(--ease-out), scale 600ms var(--ease-out);
+}
+.bz-stage:hover .bz-stage-art { scale: 1.04; animation: bz-growl 560ms ease-in-out 1; }
+.bz-art {
+  position: absolute;
+  left: 50%;
+  bottom: 2%;
+  width: 118%;
+  max-width: none;
+  height: auto;
+  margin-left: -59%;
+  filter: drop-shadow(0 0 22px rgba(255, 30, 20, .3)) drop-shadow(0 24px 20px rgba(0, 0, 0, .7));
+  transform-origin: 50% 100%;
+  animation: bz-breathe 6s ease-in-out infinite;
+}
+@keyframes bz-growl {
+  0%, 100% { translate: 0 0; }
+  15% { translate: -6px 2px; }
+  30% { translate: 5px -3px; }
+  45% { translate: -4px -1px; }
+  60% { translate: 4px 2px; }
+  80% { translate: -2px 0; }
+}
+.bz-stage-fog {
+  position: absolute;
+  left: 0;
+  bottom: -6%;
+  width: 200%;
+  height: 34%;
+  background:
+    radial-gradient(30% 70% at 20% 70%, rgba(170, 30, 30, .3), transparent 70%),
+    radial-gradient(26% 60% at 70% 80%, rgba(120, 18, 20, .34), transparent 70%);
+  background-size: 50% 100%;
+  animation: bz-fog 24s linear infinite;
+}
+.bz-stage-rim {
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 90px rgba(200, 16, 20, .26), inset 0 -40px 60px rgba(0, 0, 0, .6);
+  animation: bz-heartbeat 2.4s ease-out infinite;
+}
+
+/* La fiche : verre sombre, barre de sa couleur, ombre en bloc. */
+.bz-file {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 26px 24px 24px;
+  background: rgba(16, 12, 12, .78);
+  -webkit-backdrop-filter: blur(8px) saturate(1.1);
+  backdrop-filter: blur(8px) saturate(1.1);
+  border: 2px solid #0E0203;
+  border-top: 8px solid var(--boss);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1), 0 6px 0 rgba(5, 6, 4, .6);
+}
+.bz-file-kicker {
+  width: fit-content;
+  padding: 5px 9px;
+  color: #FFE14D;
+  background: rgba(8, 2, 2, .7);
+  border: 2px solid #0E0203;
+  rotate: -1.5deg;
+}
+.bz-name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(44px, 4.9vw, 74px);
+  /* Les accents de la 2e ligne (« VÉGÉTALE ») touchaient la 1re. */
+  line-height: 1.2;
+  text-transform: uppercase;
+  color: var(--boss);
+  text-shadow: 4px 4px 0 #0B120C, 0 0 30px rgba(0, 0, 0, .5);
+}
+.bz-epithet {
+  margin: -6px 0 0;
+  font-family: var(--font-condensed);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #F1C7BD;
+}
+
+/* La menace : cinq tetes de mort. */
+.bz-threat { display: flex; gap: 8px; align-items: center; }
+.bz-threat-pip { display: block; width: 32px; height: 32px; }
+.bz-threat-pip .bz-skull { width: 100%; height: 100%; filter: drop-shadow(2px 2px 0 #2A0406); }
+.bz-threat-pip:not(.is-on) .sk-cran, .bz-threat-pip:not(.is-on) .sk-jaw { fill: rgba(255, 255, 255, .14); }
+.bz-threat-pip:not(.is-on) .sk-eyes { fill: transparent; }
+.bz-threat-pip.is-on .sk-eyes { animation: bz-eyes 2.6s steps(1) infinite; animation-delay: calc(var(--i) * -.45s); }
+.bz-threat.is-lit .bz-threat-pip { animation: bz-pip 520ms var(--ease-snap) calc(250ms + var(--i) * 120ms) backwards; }
+@keyframes bz-pip { from { transform: scale(2.2) rotate(-25deg); opacity: 0; } }
+
+/* La barre de boss, a la maniere de Minecraft. */
+.bz-bar { display: flex; flex-direction: column; gap: 6px; }
+.bz-bar-name {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-family: Silkscreen, monospace;
+  font-size: 12px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #FFFFFF;
+  text-shadow: 2px 2px 0 #1A0203;
+}
+.bz-bar-hp { color: #FFB3A6; }
+.bz-bar-track {
+  position: relative;
+  height: 22px;
+  padding: 3px;
+  background: rgba(0, 0, 0, .55);
+  border: 2px solid #0E0203;
+  box-shadow: 0 3px 0 rgba(5, 6, 4, .6);
+  transform-origin: 0 50%;
+  overflow: hidden;
+}
+.bz-bar-fill { display: flex; gap: 4px; height: 100%; }
+.bz-bar-part {
+  position: relative;
+  display: block;
+  background: var(--boss);
+  box-shadow: inset 0 3px 0 rgba(255, 255, 255, .28), inset 0 -3px 0 rgba(0, 0, 0, .25);
+}
+.bz-bar-part.is-core { background: color-mix(in srgb, var(--boss) 70%, #FFFFFF); }
+/* Un reflet parcourt la jauge. */
+.bz-bar-track::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 30%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .35), transparent);
+  transform: translateX(-120%);
+  animation: bz-shine 3.6s ease-in-out infinite;
+}
+@keyframes bz-shine { 0%, 40% { transform: translateX(-120%); } 100% { transform: translateX(420%); } }
+
+/* Les statistiques en caisses : le bois des pancartes, cercle de fer. */
+.bz-crates { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.bz-crate {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 92px;
+  padding: 14px 8px 12px;
+  text-align: center;
+  background:
+    linear-gradient(#2A1708, #2A1708) left 8px top 0 / 3px 100% no-repeat,
+    linear-gradient(#2A1708, #2A1708) right 8px top 0 / 3px 100% no-repeat,
+    repeating-linear-gradient(180deg, transparent 0 20px, rgba(30, 16, 5, .5) 20px 22px),
+    #6A4828;
+  border: 4px solid #2A1708;
+  box-shadow: inset 0 0 0 2px #8A6538, inset 0 -5px 0 rgba(0, 0, 0, .18), 0 6px 0 rgba(5, 6, 4, .6);
+  transition: transform 260ms var(--ease-out), opacity 640ms var(--ease-reveal), translate 720ms var(--ease-reveal), scale 720ms var(--ease-reveal);
+}
+/* Les coins de fer. */
+.bz-crate::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  pointer-events: none;
+  background:
+    linear-gradient(#4B4B4B, #4B4B4B) left top / 12px 12px no-repeat,
+    linear-gradient(#4B4B4B, #4B4B4B) right top / 12px 12px no-repeat,
+    linear-gradient(#4B4B4B, #4B4B4B) left bottom / 12px 12px no-repeat,
+    linear-gradient(#4B4B4B, #4B4B4B) right bottom / 12px 12px no-repeat;
+  -webkit-mask: linear-gradient(#000 0 0) left top / 12px 12px no-repeat, linear-gradient(#000 0 0) right top / 12px 12px no-repeat,
+                linear-gradient(#000 0 0) left bottom / 12px 12px no-repeat, linear-gradient(#000 0 0) right bottom / 12px 12px no-repeat;
+  box-shadow: inset 0 0 0 2px #1A1A1A;
+}
+.bz-crate:hover { transform: translateY(-5px) rotate(calc((var(--i) - 2.5) * .8deg)); }
+.bz-crate-value {
+  font-family: var(--font-display);
+  font-size: 30px;
+  line-height: 1;
+  color: #FFFFFF;
+  text-shadow:
+    2px 0 0 #2A1708, -2px 0 0 #2A1708, 0 2px 0 #2A1708, 0 -2px 0 #2A1708,
+    2px 2px 0 #2A1708, -2px 2px 0 #2A1708, 2px -2px 0 #2A1708, -2px -2px 0 #2A1708,
+    0 4px 0 rgba(42, 23, 8, .45);
+}
+.bz-crate-value.is-word { font-size: 21px; letter-spacing: .02em; }
+.bz-crate-key {
+  font-family: var(--font-condensed);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #FFFFFF;
+  text-shadow: 0 2px 0 #1E0F04;
+}
+
+
+.bz-file-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+.bz-file-link { display: inline-flex; align-items: center; gap: 8px; }
+.bz-file-link .px-ico { width: 16px; height: 16px; fill: currentColor; shape-rendering: crispEdges; }
+
+/* Les blocs sous le dossier : morceaux, regles, reliques. */
+.bz-dossier-more {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  grid-template-areas: 'parts rules' 'relics rules';
+  gap: 22px 26px;
+  align-items: start;
+}
+.bz-dossier-more > .bz-block:nth-child(1) { grid-area: parts; }
+.bz-dossier-more > .bz-block:nth-child(2) { grid-area: rules; }
+.bz-dossier-more > .bz-block:nth-child(3) { grid-area: relics; }
+.bz-block {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+  background: rgba(14, 11, 11, .74);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 2px solid #0E0203;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 6px 0 rgba(5, 6, 4, .6);
+}
+.bz-block-title {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 400;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  color: #FFFFFF;
+  text-shadow: 3px 3px 0 #0B120C;
+}
+.bz-block-title::before { content: ''; width: 10px; height: 10px; background: var(--boss); box-shadow: 2px 2px 0 #0B120C; }
+
+.bz-parts { display: flex; gap: 10px; }
+.bz-part {
+  position: relative;
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 14px 8px 12px;
+  text-align: center;
+  background: rgba(0, 0, 0, .4);
+  border: 2px solid #0E0203;
+  border-top: 5px solid var(--boss);
+  box-shadow: 0 4px 0 rgba(5, 6, 4, .6);
+}
+.bz-part.is-core { flex-grow: 1.4; background: color-mix(in srgb, var(--boss) 18%, rgba(0, 0, 0, .5)); }
+.bz-part-hp { font-family: var(--font-display); font-size: 40px; line-height: 1; color: #FFFFFF; text-shadow: 3px 3px 0 #0B120C; }
+.bz-part-unit { font-family: Silkscreen, monospace; font-size: 10px; color: #FFB3A6; letter-spacing: .1em; }
+.bz-part-label { margin-top: 6px; font-family: var(--font-condensed); font-weight: 700; font-size: 15px; letter-spacing: .05em; text-transform: uppercase; color: #F1E4DE; }
+.bz-part-tag {
+  position: absolute;
+  top: -14px;
+  right: -6px;
+  padding: 3px 6px;
+  font-family: Silkscreen, monospace;
+  font-size: 9px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #140203;
+  background: #FFE14D;
+  border: 2px solid #140203;
+  rotate: 6deg;
+}
+
+.bz-rules { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; counter-reset: bz-rule; }
+.bz-rule {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  background: rgba(0, 0, 0, .34);
+  border: 2px solid #0E0203;
+  border-left: 5px solid var(--bz-blood);
+  transition: transform 260ms var(--ease-out), border-color 200ms ease, background 200ms ease, opacity 640ms var(--ease-reveal), translate 720ms var(--ease-reveal), scale 720ms var(--ease-reveal);
+}
+.bz-rule:hover { transform: translateX(6px); border-left-color: var(--boss); background: rgba(92, 8, 11, .35); }
+.bz-rule-ico {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  background: var(--bz-blood-deep);
+  border: 2px solid #0E0203;
+  box-shadow: inset 0 0 0 2px rgba(255, 90, 70, .25);
+}
+.bz-rule-ico .px-ico { width: 24px; height: 24px; fill: #FFE1D6; shape-rendering: crispEdges; }
+.bz-rule-body { display: flex; flex-direction: column; gap: 3px; }
+.bz-rule-body strong { font-family: var(--font-condensed); font-size: 18px; letter-spacing: .04em; text-transform: uppercase; color: #FFFFFF; }
+.bz-rule-body span { font-size: 15px; line-height: 1.45; color: #E6D6D0; }
+
+.bz-relics { display: flex; flex-direction: column; gap: 8px; }
+.bz-relic {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  background: rgba(0, 0, 0, .34);
+  border: 2px solid #0E0203;
+  transition: transform 260ms var(--ease-out), background 200ms ease, opacity 640ms var(--ease-reveal), translate 720ms var(--ease-reveal), scale 720ms var(--ease-reveal);
+}
+.bz-relic:hover { transform: translateX(5px); background: rgba(92, 8, 11, .3); }
+/* La case d'inventaire de Minecraft (css/wild.css, .slot). */
+.bz-relic-slot {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  background-color: rgba(139, 139, 139, .26);
+  border: 2px solid;
+  border-color: #2B2B2B rgba(255, 255, 255, .3) rgba(255, 255, 255, .3) #2B2B2B;
+}
+.bz-relic-slot img { width: 32px; height: 32px; image-rendering: pixelated; transition: transform 300ms var(--ease-out); }
+.bz-relic:hover .bz-relic-slot img { transform: translateY(-3px) rotate(-10deg) scale(1.15); }
+.bz-relic-banner { display: block; width: 26px; height: 32px; padding: 4px 3px 8px; background: var(--boss); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%); }
+.bz-relic-banner .bz-skull { width: 100%; height: auto; }
+.bz-relic-note .px-ico { width: 24px; height: 24px; fill: #FFD489; shape-rendering: crispEdges; }
+.bz-relic-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+/* Les themes menent a leur piste dans l'onglet Musiques. */
+a.bz-relic { color: inherit; text-decoration: none; }
+a.bz-relic:focus-visible { outline: 2px solid #FFE14D; outline-offset: 2px; }
+.bz-relic-go {
+  margin-left: auto;
+  font-family: var(--font-display);
+  font-size: 26px;
+  line-height: 1;
+  color: #FFD489;
+  opacity: .5;
+  transition: opacity 200ms ease, transform 260ms var(--ease-out);
+}
+a.bz-relic:hover .bz-relic-go { opacity: 1; transform: translateX(3px); }
+.bz-relic-text strong { font-family: var(--font-condensed); font-size: 17px; letter-spacing: .03em; color: #FFFFFF; }
+.bz-relic-text span { font-family: Silkscreen, monospace; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: #FFB3A6; }
+
+/* Quand l'apparition suit le defilement (css/ux.css, .is-scroll), le site
+   coupe toute transition sur l'element : le survol sautait d'un coup. On la
+   rend au survol seulement — l'apparition, elle, reste pilotee par le
+   defilement. */
+html.sd-ok :is(.bz-crate, .bz-rule, .bz-relic)[data-reveal].is-scroll {
+  transition: transform 260ms var(--ease-out), background 200ms ease, border-color 200ms ease;
+}
+
+/* ---- les boss scelles -------------------------------------------------------- */
+
+.bz-dossier.is-sealed { --boss: #6A6A6A; }
+.bz-stage.is-sealed {
+  background:
+    radial-gradient(60% 50% at 50% 60%, rgba(160, 10, 14, .24), transparent 75%),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, .02) 0 2px, transparent 2px 6px),
+    linear-gradient(180deg, #110d0d, #050404);
+}
+.bz-silhouette { filter: drop-shadow(0 0 2px rgba(255, 60, 40, .9)) drop-shadow(0 0 26px rgba(255, 30, 20, .45)) !important; }
+.bz-stage.is-sealed .bz-art { width: 80%; margin-left: -40%; bottom: 8%; }
+.bz-stage.is-sealed:hover .bz-stage-art { animation: bz-shiver 420ms ease-in-out 2; }
+@keyframes bz-shiver { 0%, 100% { translate: 0 0; } 33% { translate: -4px 1px; } 66% { translate: 4px -1px; } }
+
+/* Deux chaines en croix barrent la scene. */
+.bz-chains { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.bz-chains i {
+  position: absolute;
+  left: -20%;
+  right: -20%;
+  top: 50%;
+  height: 16px;
+  margin-top: -8px;
+  background:
+    repeating-linear-gradient(90deg, #9A9A9A 0 16px, #3A3A3A 16px 18px, transparent 18px 22px, #6E6E6E 22px 30px, transparent 30px 34px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, .6);
+  transform: rotate(24deg);
+}
+.bz-chains i + i { transform: rotate(-24deg); }
+.bz-stage.is-sealed:hover .bz-chains i { animation: bz-rattle 460ms ease-in-out 1; }
+.bz-stage.is-sealed:hover .bz-chains i + i { animation: bz-rattle-b 460ms ease-in-out 1; }
+@keyframes bz-rattle { 0%, 100% { transform: rotate(24deg); } 25% { transform: rotate(25.5deg) translateY(-3px); } 60% { transform: rotate(22.8deg) translateY(2px); } }
+@keyframes bz-rattle-b { 0%, 100% { transform: rotate(-24deg); } 25% { transform: rotate(-25.5deg) translateY(3px); } 60% { transform: rotate(-22.8deg) translateY(-2px); } }
+/* Le cadenas, au croisement. */
+.bz-lock {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 3;
+  width: 56px;
+  height: 46px;
+  margin: -12px 0 0 -28px;
+  background:
+    linear-gradient(#140203, #140203) 50% 40% / 8px 14px no-repeat,
+    linear-gradient(180deg, #D8A93A, #8C6420);
+  border: 4px solid #140203;
+  box-shadow: inset 0 0 0 2px #F2CF6A, 0 6px 0 rgba(5, 6, 4, .6);
+}
+.bz-lock::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  top: -30px;
+  height: 30px;
+  border: 7px solid #9A9A9A;
+  border-bottom: 0;
+  box-shadow: 0 0 0 2px #140203;
+}
+.bz-stamp {
+  position: absolute;
+  right: 6%;
+  bottom: 10%;
+  z-index: 4;
+  padding: 6px 16px;
+  font-family: var(--font-display);
+  font-size: 46px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #E0282A;
+  border: 5px solid #E0282A;
+  box-shadow: inset 0 0 0 3px rgba(224, 40, 42, .35);
+  background: rgba(20, 2, 3, .35);
+  transform: rotate(-12deg);
+  opacity: .92;
+}
+.bz-stage.is-sealed.is-lit .bz-stamp { animation: bz-stamp 520ms var(--ease-snap) 500ms 1 backwards; }
+@keyframes bz-stamp { 0% { transform: rotate(-12deg) scale(2.6); } 100% { transform: rotate(-12deg) scale(1); } }
+
+/* « ??? » qui grésille : deux copies decalees, rouge et gris. */
+.bz-name-sealed { position: relative; color: #D8D2CC; letter-spacing: .08em; }
+.bz-name-sealed::before,
+.bz-name-sealed::after {
+  content: '???';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.bz-name-sealed::before { color: rgba(255, 40, 30, .7); text-shadow: none; animation: bz-glitch 2.8s steps(1) infinite; }
+.bz-name-sealed::after { color: rgba(120, 200, 255, .35); text-shadow: none; animation: bz-glitch 2.8s steps(1) infinite reverse; }
+@keyframes bz-glitch {
+  0%, 100% { transform: translate(0, 0); opacity: 0; }
+  12% { transform: translate(-4px, 1px); opacity: 1; }
+  14% { transform: translate(3px, -1px); opacity: 1; }
+  16% { opacity: 0; }
+  62% { transform: translate(5px, 0); opacity: 1; }
+  64% { opacity: 0; }
+}
+.bz-bar.is-sealed .bz-bar-part {
+  background: repeating-linear-gradient(90deg, #3A3A3A 0 6px, #202020 6px 12px);
+  animation: bz-static 1.4s steps(4) infinite;
+}
+@keyframes bz-static { 0%, 100% { opacity: .55; } 25% { opacity: .9; } 50% { opacity: .4; } 75% { opacity: .8; } }
+.bz-hint {
+  margin: 0;
+  padding: 14px 16px;
+  font-family: var(--font-condensed);
+  font-size: 19px;
+  font-weight: 600;
+  font-style: italic;
+  letter-spacing: .02em;
+  color: #FFE1D6;
+  background: rgba(92, 8, 11, .4);
+  border-left: 5px solid var(--bz-blood);
+}
+
+/* ---- la sortie ---------------------------------------------------------------- */
+
+.bz-outro { padding-bottom: 60px; }
+.bz-outro-row { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+
+/* ---- a toutes les tailles --------------------------------------------------- */
+
+@media (max-width: 1023px) {
+  .bz-hero { min-height: 0; }
+  .bz-hero-grid { grid-template-columns: minmax(0, 1fr); }
+  .bz-hero-art { max-width: 640px; width: 100%; justify-self: center; }
+  .bz-dossier-top,
+  .bz-roster > .bz-dossier:nth-child(even) .bz-dossier-top { grid-template-columns: minmax(0, 1fr); }
+  .bz-roster > .bz-dossier:nth-child(even) .bz-stage { order: 0; }
+  .bz-dossier-more { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'parts' 'rules' 'relics'; }
+}
+@media (max-width: 720px) {
+  .bz-hero { padding-top: 96px; }
+  .bz-stage { min-height: 320px; }
+  .bz-stage-num { font-size: 150px; }
+  .bz-crates { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bz-crate-value { font-size: 24px; }
+  .bz-crate-value.is-word { font-size: 17px; }
+  .bz-file { padding: 22px 16px 18px; }
+  .bz-parts { gap: 6px; }
+  .bz-part-hp { font-size: 30px; }
+  .bz-tapes { height: 130px; }
+  .bz-tape-seg { font-size: 19px; }
+  .bz-stamp { font-size: 32px; }
+  .bz-kicker { rotate: 0deg; }
+}
+
+/* Effets alleges : ni orage, ni brume, ni battement de fond. */
+html[data-perf='lite'] .bz-lightning,
+html[data-perf='lite'] .bz-fog,
+html[data-perf='lite'] .bz-stage-fog { display: none; }
+html[data-perf='lite'] .bz-beat { animation: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bgate-sign, .bgate-aura, .bgate-skull .sk-eyes,
+  .bz-beat, .bz-fog, .bz-lightning, .bz-hero-halo, .bz-hero-img,
+  .bz-tape-track, .bz-stage-spot, .bz-art, .bz-stage-fog, .bz-stage-rim, .bz-bar-track::after,
+  .bz-threat-pip .sk-eyes, .bz-name-sealed::before, .bz-name-sealed::after, .bz-bar.is-sealed .bz-bar-part {
+    animation: none !important;
+  }
+  .boss-gate:hover .bgate-plate, .boss-gate:hover .bgate-skull .sk-jaw,
+  .bz-stage:hover .bz-stage-art, .bz-stage.is-sealed:hover .bz-chains i { animation: none !important; }
+  .bz-lightning { opacity: 0; }
+}

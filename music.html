@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="fr" data-theme="dark" data-booting>
+<head>
+<meta charset="utf-8">
+<!-- En local, les assets viennent du depot GitHub (js/remote-assets.js) : en premier. -->
+<script src="js/remote-assets.js?v=20261001l"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Le wiki n'a pas d'etape de construction : les fichiers sont servis tels
+     quels. Sans ces en-tetes, un navigateur garde volontiers l'ancien CSS
+     apres une modification, et la page semble ne pas avoir bouge. -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Musiques - Operation W.I.L.D</title>
+<meta name="description" content="La bande son d'Operation W.I.L.D : thème principal et thèmes de boss, rangés par album.">
+<link rel="icon" href="assets/logo.png" type="image/png">
+<meta name="theme-color" content="#0B0F0C">
+<link rel="apple-touch-icon" href="assets/logo.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Operation W.I.L.D">
+<meta property="og:title" content="Musiques - Operation W.I.L.D">
+<meta property="og:description" content="La bande son d'Operation W.I.L.D : thème principal et thèmes de boss, rangés par album.">
+<meta property="og:image" content="https://operation-wild-wiki.netlify.app/assets/og/site.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://operation-wild-wiki.netlify.app/assets/og/site.png">
+<script>
+  /* Theme, effets et langue avant le premier rendu : ni flash de fond, ni flash de texte.
+     La traduction elle-meme (js/i18n.js) leve le voile des qu'elle est prete. */
+  try {
+    var t = localStorage.getItem('ow-theme');
+    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+    var p = localStorage.getItem('ow-perf');
+    if (p === 'full' || p === 'lite') document.documentElement.setAttribute('data-perf', p);
+  } catch (e) {}
+  (function () {
+    var codes = ['fr', 'en', 'es', 'pt', 'ru'], l = null;
+    try { l = localStorage.getItem('ow-lang'); } catch (e) {}
+    if (codes.indexOf(l) < 0) {
+      l = 'en';
+      var list = navigator.languages || [navigator.language || 'en'];
+      for (var i = 0; i < list.length; i++) {
+        var k = String(list[i] || '').slice(0, 2).toLowerCase();
+        if (codes.indexOf(k) >= 0) { l = k; break; }
+      }
+    }
+    document.documentElement.lang = l;
+    if (l !== 'fr') {
+      document.documentElement.setAttribute('data-i18n-pending', '');
+      setTimeout(function () { document.documentElement.removeAttribute('data-i18n-pending'); }, 1800);
+    }
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=Barlow+Condensed:wght@600;700&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="css/tokens.css?v=20261001l">
+<link rel="stylesheet" href="css/base.css?v=20261021c">
+<link rel="stylesheet" href="css/motion.css?v=20261001l">
+<link rel="stylesheet" href="css/components.css?v=20261001l">
+<link rel="stylesheet" href="css/icons.css?v=20261001l">
+<link rel="stylesheet" href="css/search.css?v=20261001l">
+<link rel="stylesheet" href="css/pages.css?v=20261001l">
+<link rel="stylesheet" href="css/music.css?v=20261001l">
+<link rel="stylesheet" href="css/biome-world.css?v=20261021g">
+<link rel="stylesheet" href="css/wild.css?v=20261024b">
+<link rel="stylesheet" href="css/ux.css?v=20261022a">
+<link rel="stylesheet" href="css/billy.css?v=20261020e">
+<link rel="stylesheet" href="css/theme-light.css?v=20261024b">
+<script src="js/loader.js?v=20261021c"></script>
+<!-- Apres les feuilles de style, jamais avant : un script lent a arriver ne doit
+     pas laisser la page s'afficher sans elles (sans @view-transition, css/ux.css,
+     la transition entre pages est abandonnee). Le decor de biome est ici, dans
+     l'en-tete : il se pose avant la premiere image, pour que la transition ait
+     toujours de quoi glisser. -->
+<script src="js/biome-config.js?v=20261010x"></script>
+<script src="js/biome-world.js?v=20261024b"></script>
+</head>
+<body data-page="music">
+
+<div data-site-header></div>
+
+<main class="page mz">
+  <!-- La scene : le jukebox et sa platine ------------------------------------------ -->
+  <section class="mz-stage" data-stage aria-label="Le jukebox">
+    <div class="wrap">
+      <div class="mz-intro">
+        <span class="t-pixel t-accent">BANDE SON</span>
+        <h1 class="t-display t-h1 anim-slide-left">Musiques</h1>
+        <p class="t-lead">
+          Le thème du mod et les disques de boss, rangés par album. Chaque disque jouable
+          se glisse dans le jukebox, directement depuis sa pochette.
+        </p>
+      </div>
+
+      <div class="mz-stage-grid">
+        <!-- Le jukebox : le disque dans sa fente, le panda roux aux platines -->
+        <div class="mz-jukebox" aria-hidden="true">
+          <span class="mz-notes" data-notes></span>
+          <span class="mz-stage-disc" data-stage-disc><span class="mz-disc"><i></i></span></span>
+          <span class="mz-box">
+            <span class="mz-box-slot"></span>
+            <span class="mz-box-face"><i></i></span>
+          </span>
+          <img class="mz-dj crisp" src="assets/ui/red_panda_music.png" alt="" width="767" height="662">
+          <span class="mz-floor"></span>
+        </div>
+
+        <!-- La platine -->
+        <div class="mz-deck" data-deck data-player>
+          <div class="mz-deck-head">
+            <span class="mz-deck-state" data-deck-state>PRÊT</span>
+            <span class="mz-deck-tag" data-deck-tag>THÈME PRINCIPAL</span>
+          </div>
+          <b class="mz-deck-title" data-deck-title>Operation W.I.L.D</b>
+          <span class="mz-deck-sub" data-deck-sub>Le thème de l’écran-titre</span>
+          <canvas class="mz-scope" data-scope aria-hidden="true"></canvas>
+          <div class="mz-seek" data-seek aria-label="Position dans le morceau">
+            <span class="mz-seek-bar"><span class="mz-seek-fill" data-seek-fill></span><b class="mz-seek-knob" data-seek-knob></b></span>
+          </div>
+          <div class="mz-time"><span data-time>0:00</span><span data-duration>—:—</span></div>
+          <div class="mz-controls">
+            <button type="button" class="mz-ctl" data-back aria-label="Reculer de 10 secondes" title="−10 s">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3h2v2H6zM4 5h2v2H4zM2 7h2v2H2zM4 9h2v2H4zM6 11h2v2H6zM12 3h2v2h-2zM10 5h2v2h-2zM8 7h2v2H8zM10 9h2v2h-2zM12 11h2v2h-2z"/></svg>
+              <small>10</small>
+            </button>
+            <button type="button" class="mz-play" data-toggle aria-label="Lecture"></button>
+            <button type="button" class="mz-ctl" data-fwd aria-label="Avancer de 10 secondes" title="+10 s">
+              <small>10</small>
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3h2v2H8zM10 5h2v2h-2zM12 7h2v2h-2zM10 9h2v2h-2zM8 11h2v2H8zM2 3h2v2H2zM4 5h2v2H4zM6 7h2v2H6zM4 9h2v2H4zM2 11h2v2H2z"/></svg>
+            </button>
+            <label class="mz-volume" title="Volume">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6h3l4-3v10l-4-3H2zM11 5h1v1h1v4h-1v1h-1v-1h1V6h-1z"/></svg>
+              <input type="range" min="0" max="100" step="1" value="100" data-volume aria-label="Volume">
+            </label>
+          </div>
+          <audio data-audio src="assets/music/main-theme.mp3" preload="metadata"></audio>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 01 · La discotheque ---------------------------------------------------------------- -->
+  <section class="section">
+    <div class="wrap stack" style="gap:30px">
+      <div class="section-head" data-reveal="left">
+        <span class="t-pixel t-accent">01 · LA DISCOTHÈQUE</span>
+        <h2 class="t-section">Les albums du mod</h2>
+        <span class="fill"></span>
+      </div>
+      <div class="mz-crate" data-crate></div>
+    </div>
+  </section>
+
+</main>
+
+<div data-site-footer></div>
+
+<script src="js/attack-profiles.js?v=20261010x"></script>
+<script src="js/wiki-data.js?v=20261020a"></script>
+<script src="js/asset-list.js?v=20261023a"></script>
+<script src="js/site.js?v=20261024a"></script>
+<script src="js/block-icons.js?v=20261009a"></script>
+<script src="js/site-config.js?v=20261010x"></script>
+<script src="js/assets-config.js?v=20261001l"></script>
+<script src="js/ux.js?v=20261024d"></script>
+<script src="js/player.js?v=20261001l"></script>
+<script src="js/theme.js?v=20261001l"></script>
+<script src="js/perf.js?v=20261001l"></script>
+<script src="js/i18n.js?v=20261001l"></script>
+<script src="js/favorites.js?v=20261001l"></script>
+<script src="js/reveal.js?v=20261022a"></script>
+<script src="js/interactions.js?v=20261001l"></script>
+<script src="js/footer.js?v=20261001l"></script>
+<script src="js/search.js?v=20261024a"></script>
+<script src="js/header.js?v=20261001l"></script>
+<script src="js/billy.js?v=20261024a"></script>
+<script src="js/swing.js?v=20261021f"></script>
+<script src="js/wild.js?v=20261001l"></script>
+<script src="js/music.js?v=20261001l"></script>
+</body>
+</html>

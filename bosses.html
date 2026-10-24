@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="fr" data-theme="dark" data-booting>
+<head>
+<meta charset="utf-8">
+<!-- En local, les assets viennent du depot GitHub (js/remote-assets.js) : en premier. -->
+<script src="js/remote-assets.js?v=20261001l"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Le wiki n'a pas d'etape de construction : les fichiers sont servis tels
+     quels. Sans ces en-tetes, un navigateur garde volontiers l'ancien CSS
+     apres une modification, et la page semble ne pas avoir bouge. -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Boss - Operation W.I.L.D</title>
+<meta name="description" content="Les boss d'Operation W.I.L.D : leurs points de vie, leurs règles de combat, leurs reliques. Lis la fiche avant d'entrer dans l'arène.">
+<link rel="icon" href="assets/logo.png" type="image/png">
+<meta name="theme-color" content="#140405">
+<link rel="apple-touch-icon" href="assets/logo.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Operation W.I.L.D">
+<meta property="og:title" content="Boss - Operation W.I.L.D">
+<meta property="og:description" content="Les boss d'Operation W.I.L.D : leurs points de vie, leurs règles de combat, leurs reliques. Lis la fiche avant d'entrer dans l'arène.">
+<meta property="og:image" content="https://operation-wild-wiki.netlify.app/assets/og/site.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://operation-wild-wiki.netlify.app/assets/og/site.png">
+<script>
+  /* Theme, effets et langue avant le premier rendu : ni flash de fond, ni flash de texte.
+     La traduction elle-meme (js/i18n.js) leve le voile des qu'elle est prete. */
+  try {
+    var t = localStorage.getItem('ow-theme');
+    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+    var p = localStorage.getItem('ow-perf');
+    if (p === 'full' || p === 'lite') document.documentElement.setAttribute('data-perf', p);
+  } catch (e) {}
+  (function () {
+    var codes = ['fr', 'en', 'es', 'pt', 'ru'], l = null;
+    try { l = localStorage.getItem('ow-lang'); } catch (e) {}
+    if (codes.indexOf(l) < 0) {
+      l = 'en';
+      var list = navigator.languages || [navigator.language || 'en'];
+      for (var i = 0; i < list.length; i++) {
+        var k = String(list[i] || '').slice(0, 2).toLowerCase();
+        if (codes.indexOf(k) >= 0) { l = k; break; }
+      }
+    }
+    document.documentElement.lang = l;
+    if (l !== 'fr') {
+      document.documentElement.setAttribute('data-i18n-pending', '');
+      setTimeout(function () { document.documentElement.removeAttribute('data-i18n-pending'); }, 1800);
+    }
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=Barlow+Condensed:wght@600;700&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="css/tokens.css?v=20261001l">
+<link rel="stylesheet" href="css/base.css?v=20261021c">
+<link rel="stylesheet" href="css/motion.css?v=20261001l">
+<link rel="stylesheet" href="css/components.css?v=20261001l">
+<link rel="stylesheet" href="css/icons.css?v=20261001l">
+<link rel="stylesheet" href="css/search.css?v=20261001l">
+<link rel="stylesheet" href="css/pages.css?v=20261001l">
+<link rel="stylesheet" href="css/biome-world.css?v=20261021g">
+<link rel="stylesheet" href="css/wild.css?v=20261024b">
+<link rel="stylesheet" href="css/ux.css?v=20261022a">
+<link rel="stylesheet" href="css/billy.css?v=20261020e">
+<link rel="stylesheet" href="css/theme-light.css?v=20261024b">
+<link rel="stylesheet" href="css/bosses.css?v=20261001l">
+<script src="js/loader.js?v=20261021c"></script>
+<!-- Apres les feuilles de style, jamais avant : un script lent a arriver ne doit
+     pas laisser la page s'afficher sans elles (sans @view-transition, css/ux.css,
+     la transition entre pages est abandonnee). Le decor de biome est ici, dans
+     l'en-tete : il se pose avant la premiere image, pour que la transition ait
+     toujours de quoi glisser. -->
+<script src="js/biome-config.js?v=20261010x"></script>
+<script src="js/biome-world.js?v=20261024b"></script>
+</head>
+<!-- La page des boss : le decor ne montre que la grotte (data-biome-only),
+     une atmosphere rouge se pose par-dessus (.bz-atmos). Rubrique : Creatures. -->
+<body data-page="creatures" data-bw-page="bosses" data-biome-only data-biome-start="cave" data-header-overlay class="bz-page">
+
+<div data-site-header></div>
+
+<div class="bz-atmos" aria-hidden="true">
+  <span class="bz-vignette"></span>
+  <span class="bz-beat"></span>
+  <span class="bz-fog bz-fog-a"></span>
+  <span class="bz-fog bz-fog-b"></span>
+  <span class="bz-lightning"></span>
+  <span class="bz-flash"></span>
+</div>
+<canvas class="ambient-canvas bz-embers" data-embers aria-hidden="true"></canvas>
+
+<main class="page bz">
+  <!-- L'entree ------------------------------------------------------------ -->
+  <section class="bz-hero" data-bz-hero>
+    <div class="wrap bz-hero-grid">
+      <div class="bz-hero-copy stack">
+        <a class="bz-back" href="creatures.html"><span aria-hidden="true">‹</span> Retour au bestiaire</a>
+        <span class="t-pixel bz-kicker">Zone interdite</span>
+        <div class="bz-title-box">
+          <h1 class="t-display t-h1 bz-title" data-bz-title>Les Boss</h1>
+        </div>
+        <p class="t-lead bz-lead" data-bz-intro>Les adversaires les plus redoutables d'Operation W.I.L.D. Chacun a ses propres règles de combat, sa musique et ses reliques, toutes détaillées sur sa fiche.</p>
+      </div>
+      <div class="bz-hero-art" data-bz-hero-art aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <!-- Le ruban de danger ----------------------------------------------------- -->
+  <div class="bz-tapes" aria-hidden="true" data-bz-tapes></div>
+
+  <!-- Les boss ----------------------------------------------------------- -->
+  <section class="section bz-roster-section">
+    <div class="wrap stack" style="gap:28px">
+      <div class="section-head" data-reveal="left">
+        <h2 class="t-section" style="font-size:30px">Le bestiaire interdit</h2>
+        <span class="fill"></span>
+      </div>
+      <div class="bz-roster" data-bz-roster></div>
+    </div>
+  </section>
+
+  <!-- Les boss scelles --------------------------------------------------- -->
+  <section class="section bz-sealed-section" data-bz-sealed-section hidden>
+    <div class="wrap stack" style="gap:28px">
+      <div class="section-head" data-reveal="left">
+        <h2 class="t-section" style="font-size:30px">Scellés… pour l'instant</h2>
+        <span class="fill"></span>
+      </div>
+      <div class="bz-roster" data-bz-sealed></div>
+    </div>
+  </section>
+
+  <!-- La sortie ------------------------------------------------------------ -->
+  <section class="section-tight bz-outro">
+    <div class="wrap bz-outro-row" data-reveal>
+      <a class="btn btn-accent btn-lg" href="simulator.html">Préparer le combat</a>
+      <a class="btn btn-lg" href="creatures.html">Retour au bestiaire</a>
+    </div>
+  </section>
+</main>
+
+<div data-site-footer></div>
+
+<script src="js/attack-profiles.js?v=20261010x"></script>
+<script src="js/wiki-data.js?v=20261020a"></script>
+<script src="js/asset-list.js?v=20261023a"></script>
+<script src="js/site.js?v=20261024a"></script>
+<script src="js/block-icons.js?v=20261009a"></script>
+<script src="js/site-config.js?v=20261010x"></script>
+<script src="js/assets-config.js?v=20261001l"></script>
+<script src="js/ux.js?v=20261024d"></script>
+<script src="js/gyro.js?v=20261001l"></script>
+<script src="js/player.js?v=20261001l"></script>
+<script src="js/theme.js?v=20261001l"></script>
+<script src="js/perf.js?v=20261001l"></script>
+<script src="js/i18n.js?v=20261001l"></script>
+<script src="js/favorites.js?v=20261001l"></script>
+<script src="js/reveal.js?v=20261022a"></script>
+<script src="js/interactions.js?v=20261001l"></script>
+<script src="js/footer.js?v=20261001l"></script>
+<script src="js/search.js?v=20261024a"></script>
+<script src="js/header.js?v=20261001l"></script>
+<script src="js/billy.js?v=20261024a"></script>
+<script src="js/swing.js?v=20261021f"></script>
+<script src="js/wild.js?v=20261001l"></script>
+<script src="js/embers.js?v=20261021f"></script>
+<script src="js/upcoming.js?v=20261010x"></script>
+<script src="js/bosses.js?v=20261020a"></script>
+</body>
+</html>

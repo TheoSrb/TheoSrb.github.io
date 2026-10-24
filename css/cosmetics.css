@@ -1,0 +1,569 @@
+/* Les cosmetiques : la vitrine (scene 3D + garde-robe) et la monnaie. */
+
+.cosmetics-hero { --hero-a: #5A3A0C; --hero-b: #1D1408; }
+
+/* La planche des skins (celle de l'accordeon de l'accueil), en grand a droite
+   du titre. Elle flotte doucement ; en dessous de 1000 px de large, la place
+   manque a cote du titre : elle passe sous les pancartes. */
+.cos-hero-art {
+  position: absolute;
+  /* Au fond du heros : poussee vers le bord droit (le heros coupe ce qui
+     depasse), un peu plus bas, et estompee derriere le texte. */
+  right: calc(var(--gutter, 24px) - 130px);
+  top: 26px;
+  z-index: 0;
+  width: clamp(360px, 38vw, 600px);
+  opacity: .42;
+  pointer-events: none;
+}
+.cos-hero-art img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 20px 26px rgba(0, 0, 0, .55));
+  animation: cos-hero-float 6s ease-in-out infinite;
+}
+@keyframes cos-hero-float {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50% { transform: translateY(-10px) rotate(.6deg); }
+}
+.cosmetics-hero .wrap > :not(.cos-hero-art) { position: relative; z-index: 1; }
+/* Ce qui depasse a droite est coupe, sans elargir la page (biome-world.css
+   remet les en-tetes en overflow: visible, d'ou la precision). */
+.bw-on .page-hero.cosmetics-hero, .page-hero.cosmetics-hero { overflow-x: clip; overflow-y: visible; }
+@media (max-width: 999px) {
+  .cos-hero-art { position: relative; right: auto; top: auto; width: min(100%, 520px); align-self: center; margin-top: 6px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cos-hero-art img { animation: none; }
+}
+
+.coin-stack {
+  object-fit: contain;
+  transition: transform 160ms ease-out;
+}
+.coin-stack:hover { transform: translateY(-4px); }
+
+.gem {
+  width: 11px;
+  height: 11px;
+  flex: 0 0 auto;
+  background: var(--gem);
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 0 8px var(--gem-glow);
+}
+
+/* ===========================================================================
+   La vitrine : la scene collee a gauche, la garde-robe qui defile a droite
+   =========================================================================== */
+
+.showroom {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: clamp(22px, 3vw, 40px);
+  align-items: start;
+}
+
+/* ---- la scene ----------------------------------------------------------------- */
+
+.stage {
+  --rarity-color: #F5C842;
+  --rarity-glow: rgba(245, 200, 66, .5);
+  position: sticky;
+  top: calc(var(--header-h) + 16px);
+  display: flex;
+  flex-direction: column;
+  background: rgba(12, 20, 15, .68);
+  -webkit-backdrop-filter: blur(10px) saturate(1.15);
+  backdrop-filter: blur(10px) saturate(1.15);
+  border: 2px solid var(--border-strong);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .12),
+    0 6px 0 rgba(5, 6, 4, .6),
+    0 0 70px color-mix(in srgb, var(--rarity-color) 22%, transparent),
+    0 24px 50px rgba(0, 0, 0, .35);
+  transition: box-shadow 400ms ease-out;
+}
+
+/* Le studio reste sombre : un fond clair laverait les modeles voxel. */
+.stage-view {
+  position: relative;
+  height: clamp(260px, 40vh, 420px);
+  overflow: hidden;
+  background:
+    radial-gradient(70% 62% at 50% 58%, color-mix(in srgb, var(--rarity-color) 20%, transparent) 0%, transparent 72%),
+    linear-gradient(180deg, rgba(8, 13, 10, .35) 0%, rgba(8, 13, 10, .8) 100%);
+}
+/* Des rayons de la couleur de la rarete, qui tournent lentement. */
+.stage-rays {
+  position: absolute;
+  left: 50%;
+  top: 56%;
+  width: 150%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  background: repeating-conic-gradient(from 0deg,
+    color-mix(in srgb, var(--rarity-color) 16%, transparent) 0deg 9deg,
+    transparent 9deg 24deg);
+  -webkit-mask: radial-gradient(closest-side, #000 10%, transparent 70%);
+  mask: radial-gradient(closest-side, #000 10%, transparent 70%);
+  animation: stage-rays 38s linear infinite;
+  opacity: .7;
+  pointer-events: none;
+}
+.stage.is-legendary .stage-rays { opacity: 1; animation-duration: 22s; }
+@keyframes stage-rays { to { rotate: 360deg; } }
+
+.stage-halo {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(46% 38% at 50% 74%, color-mix(in srgb, var(--rarity-color) 26%, transparent) 0%, transparent 72%);
+  animation: ow-halo 7s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.stage-view canvas {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: var(--cur-grab);
+}
+.stage-view canvas:active { cursor: var(--cur-grabbing); }
+.stage-view canvas[hidden] { display: none; }
+
+.stage-status {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #B9B3A4;
+}
+.stage-status[hidden] { display: none; }
+
+.stage-fallback {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  z-index: 2;
+  width: 70%;
+  height: 72%;
+  translate: -50% -50%;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: drop-shadow(0 14px 0 rgba(0, 0, 0, .3));
+  animation: stage-float 5s ease-in-out infinite;
+}
+.stage-fallback[hidden] { display: none; }
+@keyframes stage-float { 0%, 100% { translate: -50% -50%; } 50% { translate: -50% -53%; } }
+
+.stage-note {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  top: 14px;
+  z-index: 3;
+  color: #B9B3A4;
+  text-align: left;
+}
+.stage-note[hidden] { display: none; }
+
+.stage-index {
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  z-index: 3;
+  color: #F1EDE2;
+  opacity: .75;
+}
+
+/* Sous la scene, une barre : les controles ne cachent jamais les pattes. */
+.stage-controls {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px;
+  background: rgba(5, 8, 6, .55);
+  border-bottom: 2px solid var(--border-strong);
+}
+.stage-btn {
+  display: inline-grid;
+  place-items: center;
+  min-width: 38px;
+  height: 34px;
+  padding: 0 10px;
+  background: rgba(5, 6, 4, .66);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  border: 2px solid #2E3128;
+  color: #F1EDE2;
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  cursor: var(--cur-point);
+  transition: background 130ms ease-out, color 130ms ease-out, border-color 130ms ease-out, translate 130ms ease-out;
+}
+.stage-btn:hover { background: rgba(5, 6, 4, .9); color: #FFD489; border-color: var(--rarity-color); translate: 0 -2px; }
+.stage-btn:active { translate: 0 1px; }
+.stage-btn-wide { min-width: 118px; }
+.stage-btn[hidden] { display: none; }
+
+/* ---- la fiche du skin, sous la scene ------------------------------------------ */
+
+.stage-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px 22px 22px;
+}
+.stage-tags {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.stage-tags .t-pixel { color: var(--text-faint); }
+.stage-name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(30px, 2.6vw, 42px);
+  line-height: 1.02;
+  font-weight: 400;
+  text-transform: uppercase;
+  color: #FFFFFF;
+  text-shadow: 0 3px 0 rgba(0, 0, 0, .45);
+}
+.stage-lore {
+  margin: 0;
+  color: var(--text-body);
+  font-size: 16px;
+  line-height: 1.5;
+}
+.stage-rows {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  background: var(--border-strong);
+  border: 2px solid var(--border-strong);
+}
+.stage-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  background: rgba(10, 16, 12, .72);
+  min-width: 0;
+}
+.stage-row .t-pixel { color: var(--text-faint); }
+.stage-row-value {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.2;
+}
+.stage-row-value > span {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.stage-link {
+  align-self: flex-start;
+  margin-top: 4px;
+}
+
+/* Le changement de skin : le modele et la fiche entrent en scene. */
+.stage.is-swapping .stage-view > :is(canvas, .stage-fallback) { animation: stage-in 460ms var(--ease-reveal) both; }
+.stage.is-swapping .stage-view > .stage-fallback { animation: stage-in 460ms var(--ease-reveal) both, stage-float 5s ease-in-out 460ms infinite; }
+.stage.is-swapping .stage-info > * { animation: stage-info-in 420ms var(--ease-reveal) both; }
+.stage.is-swapping .stage-info > :nth-child(2) { animation-delay: 40ms; }
+.stage.is-swapping .stage-info > :nth-child(3) { animation-delay: 80ms; }
+.stage.is-swapping .stage-info > :nth-child(4) { animation-delay: 120ms; }
+.stage.is-swapping .stage-info > :nth-child(5) { animation-delay: 160ms; }
+@keyframes stage-in { from { opacity: 0; scale: .86; } to { opacity: 1; scale: 1; } }
+@keyframes stage-info-in { from { opacity: 0; translate: 0 8px; } to { opacity: 1; translate: 0 0; } }
+
+/* ===========================================================================
+   La garde-robe : une tringle par creature, les skins pendus a des cintres
+   =========================================================================== */
+
+.wardrobe {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+}
+.wardrobe-head { display: flex; flex-direction: column; gap: 8px; }
+.wardrobe-note { margin: 4px 0 0; }
+
+.wardrobe-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.ward-row {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px 18px 18px;
+  background: rgba(27, 42, 34, .62);
+  -webkit-backdrop-filter: blur(9px) saturate(1.15);
+  backdrop-filter: blur(9px) saturate(1.15);
+  border: 2px solid var(--border-strong);
+  border-top: 4px solid var(--accent-line);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1), 0 6px 0 rgba(5, 6, 4, .5), 0 18px 36px rgba(0, 0, 0, .28);
+}
+.ward-row[hidden] { display: none; }
+
+.ward-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.ward-head-img {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: drop-shadow(0 0 1px rgba(255, 255, 255, .55)) drop-shadow(0 3px 0 rgba(0, 0, 0, .4));
+}
+.ward-name {
+  font-family: var(--font-display);
+  font-size: 26px;
+  line-height: 1;
+  text-transform: uppercase;
+  color: #FFFFFF;
+  text-decoration: none;
+  transition: color 130ms ease-out;
+}
+.ward-name:hover { color: var(--accent-line); }
+.ward-count {
+  margin-left: auto;
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.ward-count b {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 26px;
+  color: #FFFFFF;
+  text-shadow: 0 3px 0 var(--accent-line), 0 3px 0 rgba(0, 0, 0, .5);
+  margin-right: 3px;
+}
+
+/* La tringle : une barre de bois en haut de chaque ligne de cintres. Les
+   cintres ont une hauteur fixe, la tringle se repete donc au bon pas. */
+.ward-rack {
+  --hanger-w: 124px;
+  --hanger-h: 212px;
+  --rack-gap: 16px;
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--rack-gap) 14px;
+  padding: 0 4px 6px;
+  background:
+    repeating-linear-gradient(180deg,
+      transparent 0 5px,
+      #33210F 5px 7px,
+      #93703F 7px 9px,
+      #775530 9px 13px,
+      #5B3F22 13px 15px,
+      #33210F 15px 17px,
+      transparent 17px calc(var(--hanger-h) + var(--rack-gap)));
+}
+
+.hanger {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: var(--hanger-w);
+  height: var(--hanger-h);
+  padding: 0;
+  background: none;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  text-align: center;
+  cursor: var(--cur-point);
+  transform-origin: 50% 11px;
+  will-change: transform;
+}
+.hanger[hidden] { display: none; }
+
+/* Le crochet, pose sur la tringle. */
+.hanger-hook {
+  position: relative;
+  flex: 0 0 auto;
+  width: 16px;
+  height: 22px;
+}
+.hanger-hook::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 1px;
+  height: 12px;
+  border: 3px solid #C9C4B6;
+  border-bottom: 0;
+  box-shadow: 0 -1px 0 #3A3A3A;
+}
+.hanger-hook::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 12px;
+  width: 3px;
+  height: 10px;
+  translate: -50% 0;
+  background: #C9C4B6;
+  box-shadow: 1px 0 0 #6B6B6B;
+}
+
+.hanger-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+  background: rgba(8, 12, 9, .66);
+  border: 2px solid var(--border-strong);
+  border-bottom: 4px solid var(--rarity-color);
+  box-shadow: 0 5px 0 rgba(5, 6, 4, .55);
+  overflow: hidden;
+  transition: border-color 160ms ease-out, box-shadow 200ms ease-out, background 160ms ease-out;
+}
+.hanger-figure {
+  position: relative;
+  flex: 0 0 auto;
+  height: 112px;
+  overflow: hidden;
+  background: radial-gradient(70% 60% at 50% 70%, color-mix(in srgb, var(--rarity-color) 26%, transparent) 0%, transparent 72%);
+}
+.hanger-img {
+  position: absolute;
+  inset: 8px 6px 4px;
+  background-size: contain;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  transition: scale 220ms var(--ease-reveal);
+}
+.hanger-3d {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  z-index: 4;
+  padding: 3px 4px;
+  font-size: 7px;
+  color: #171A16;
+  background: var(--rarity-color);
+  border: 1px solid var(--border-strong);
+}
+.hanger-name {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  padding: 7px 8px 0;
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.15;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  color: #FFFFFF;
+}
+.hanger-foot {
+  margin-top: auto;
+  padding: 0 8px 7px;
+  display: flex;
+  justify-content: center;
+}
+.hanger-price {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--accent-text);
+}
+.hanger-price > span {
+  width: 16px;
+  height: 16px;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.hanger-unlock {
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  color: var(--rarity-color);
+  letter-spacing: .02em;
+}
+
+.hanger:hover .hanger-card {
+  border-color: var(--rarity-color);
+  background: rgba(14, 20, 16, .8);
+  box-shadow: 0 5px 0 rgba(5, 6, 4, .55), 0 0 22px var(--rarity-glow);
+}
+.hanger:hover .hanger-img { scale: 1.1; }
+.hanger:focus-visible { outline: none; }
+.hanger:focus-visible .hanger-card { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* Le skin en scene : cadre de sa rarete, lueur, et une pastille. */
+.hanger.is-current .hanger-card {
+  border-color: var(--rarity-color);
+  box-shadow: 0 5px 0 rgba(5, 6, 4, .55), 0 0 0 2px var(--rarity-color), 0 0 30px var(--rarity-glow);
+}
+.hanger.is-current .hanger-card::after {
+  content: var(--label-on-stage, 'EN SCÈNE');
+  position: absolute;
+  left: 5px;
+  top: 5px;
+  z-index: 4;
+  padding: 3px 4px;
+  font-family: var(--font-pixel);
+  font-size: 7px;
+  color: #171A16;
+  background: #FFFFFF;
+  border: 1px solid var(--border-strong);
+}
+
+/* ===========================================================================
+   Petits ecrans : la scene passe au-dessus et ne colle plus
+   =========================================================================== */
+
+@media (max-width: 980px) {
+  .showroom { grid-template-columns: 1fr; }
+  .stage { position: relative; top: auto; }
+  .stage-view { height: clamp(260px, 56vw, 400px); }
+}
+@media (max-width: 560px) {
+  .ward-rack { --hanger-w: calc((100% - 14px) / 2); }
+  .stage-rows { grid-template-columns: 1fr; }
+  .stage-info { padding: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage-rays, .stage-halo, .stage-fallback { animation: none !important; }
+  .stage.is-swapping * { animation: none !important; }
+}

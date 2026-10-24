@@ -1,0 +1,558 @@
+/* Le guide du debutant (js/guide.js).
+
+   Le vocabulaire du site, rien d'autre : un sentier de plaques de bois pour le
+   parcours, la bande de verre penchee pour cocher ses priorites, un podium de
+   blocs comme celui du simulateur, des trophees a bord franc, un inventaire
+   pour les ressources, des cases d'objet pour les blocs. */
+
+.gd-hero { --hero-a: #1F3A2A; --hero-b: #1B2A22; }
+.gd-empty { margin: 0; color: var(--text-muted); }
+
+.gd-ico,
+.gd-farm-ico {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+}
+
+.gd-bar {
+  position: relative;
+  display: block;
+  height: 12px;
+  background: rgba(0, 0, 0, .45);
+  border: 2px solid var(--border-strong);
+}
+.gd-bar i { display: block; height: 100%; background: var(--ink, var(--accent)); transition: width 420ms cubic-bezier(.22, 1, .36, 1); }
+.gd-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(90deg, transparent 0 calc(10% - 2px), rgba(5, 6, 4, .75) calc(10% - 2px) 10%);
+}
+
+.gd-items { display: flex; flex-wrap: wrap; gap: 8px; }
+.gd-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 9px 4px 5px;
+  background: rgba(139, 139, 139, .16);
+  border: 2px solid;
+  border-color: #2B2B2B rgba(255, 255, 255, .22) rgba(255, 255, 255, .22) #2B2B2B;
+}
+.gd-item b { font-family: var(--font-condensed); font-weight: 700; font-size: 15px; color: #FFE27A; }
+.gd-item small { font-size: 13px; color: var(--text-body); }
+
+/* ===========================================================================
+   01 · Le parcours : la carte de l'expedition
+
+   Une carte de nuit, dans les tons du site : un panneau sombre parcouru de
+   courbes de niveau, ses coins marques a l'ambre. Un chemin de terre la
+   traverse en serpentant (js/guide.js, drawTrail), balise en pointilles
+   ambre, de la pancarte du depart au X du tresor. Chaque etape est une
+   plaque de bois plantee sur le chemin, et sa note, un panneau sombre
+   penche d'un rien, filet de couleur en tete.
+   =========================================================================== */
+
+.gd-path {
+  position: relative;
+  padding: 110px clamp(18px, 4vw, 56px) 132px;
+  background:
+    radial-gradient(130% 100% at 50% 40%, transparent 50%, rgba(0, 0, 0, .45) 100%),
+    repeating-radial-gradient(ellipse at 18% 22%, transparent 0 26px, rgba(127, 194, 90, .07) 26px 28px),
+    repeating-radial-gradient(ellipse at 84% 68%, transparent 0 30px, rgba(127, 194, 90, .06) 30px 32px),
+    repeating-linear-gradient(0deg, transparent 0 63px, rgba(255, 255, 255, .03) 63px 64px),
+    repeating-linear-gradient(90deg, transparent 0 63px, rgba(255, 255, 255, .03) 63px 64px),
+    linear-gradient(170deg, #13221A, #0D1712 60%, #0A120E);
+  border: 2px solid var(--border-strong);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .08),
+    inset 0 0 90px rgba(0, 0, 0, .45),
+    0 8px 0 rgba(5, 6, 4, .6),
+    0 20px 40px rgba(0, 0, 0, .35);
+}
+/* Les coins de la carte, en equerres d'ambre. */
+.gd-path::before,
+.gd-path::after {
+  content: '';
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  border: 4px solid var(--accent);
+  pointer-events: none;
+}
+.gd-path::before { left: 12px; top: 12px; border-right: 0; border-bottom: 0; }
+.gd-path::after { right: 12px; bottom: 12px; border-left: 0; border-top: 0; }
+
+/* Le chemin : une bande de terre, et son balisage en pointilles. */
+.gd-path-trail {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.gd-path-trail path { fill: none; stroke-linejoin: round; }
+.gd-trail-bed { stroke: rgba(119, 85, 48, .34); stroke-width: 34; stroke-linecap: round; }
+.gd-trail-edge { stroke: rgba(0, 0, 0, .35); stroke-width: 40; stroke-linecap: round; }
+.gd-trail { stroke: var(--accent); stroke-width: 5; stroke-linecap: square; stroke-dasharray: 7 13; }
+
+/* Le depart : une petite pancarte de bois suspendue, en haut a droite — la
+   premiere plaque l'attend de ce cote. */
+.gd-path-start {
+  position: absolute;
+  right: 12%;
+  top: 34px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px 8px 10px;
+  background:
+    repeating-linear-gradient(180deg, transparent 0 15px, rgba(30, 16, 5, .5) 15px 17px),
+    #775530;
+  border: 3px solid #33210F;
+  box-shadow: inset 0 0 0 2px #93703F, 0 6px 0 rgba(0, 0, 0, .45);
+  rotate: 3deg;
+}
+.gd-path-start::before {
+  content: '';
+  position: absolute;
+  left: 22%;
+  right: 22%;
+  top: -24px;
+  height: 24px;
+  background:
+    repeating-linear-gradient(180deg, #8A8A8A 0 5px, #3A3A3A 5px 7px, transparent 7px 9px) left / 4px 100% no-repeat,
+    repeating-linear-gradient(180deg, #8A8A8A 0 5px, #3A3A3A 5px 7px, transparent 7px 9px) right / 4px 100% no-repeat;
+}
+.gd-path-start svg { width: 30px; height: 30px; fill: #FFE14D; filter: drop-shadow(0 2px 0 #1E0F04); }
+.gd-path-start b,
+.gd-path-end b {
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 17px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #FFFFFF;
+  text-shadow: 0 2px 0 #1E0F04;
+}
+
+/* L'arrivee : le X du tresor, qui luit, et son ecriteau. */
+.gd-path-end {
+  position: absolute;
+  left: 50%;
+  bottom: 26px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  translate: -50% 0;
+}
+.gd-path-end svg {
+  width: 62px;
+  height: 62px;
+  fill: #E0664F;
+  filter: drop-shadow(3px 4px 0 #0A0D0B) drop-shadow(0 0 14px rgba(242, 163, 44, .55));
+  animation: gd-x 2.4s ease-in-out infinite;
+}
+/* En `transform` : sur un <svg>, `scale` seul reste hors de la carte graphique. */
+@keyframes gd-x { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+.gd-path-end b {
+  padding: 6px 14px;
+  background:
+    repeating-linear-gradient(180deg, transparent 0 15px, rgba(30, 16, 5, .5) 15px 17px),
+    #775530;
+  border: 3px solid #33210F;
+  box-shadow: inset 0 0 0 2px #93703F, 0 6px 0 rgba(0, 0, 0, .45);
+  rotate: -2deg;
+}
+
+.gd-journey {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 38px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.gd-step {
+  --c: var(--accent);
+  position: relative;
+  width: 58%;
+}
+.gd-step:nth-child(6n+2) { --c: #7FC25A; }
+.gd-step:nth-child(6n+3) { --c: #5FB3E6; }
+.gd-step:nth-child(6n+4) { --c: #E0664F; }
+.gd-step:nth-child(6n+5) { --c: #C58CE8; }
+.gd-step:nth-child(6n+6) { --c: #FFE14D; }
+.gd-step.is-left { align-self: flex-start; }
+.gd-step.is-right { align-self: flex-end; }
+.gd-step:nth-child(4n+1) .gd-step-body { rotate: -.8deg; }
+.gd-step:nth-child(4n+2) .gd-step-body { rotate: .6deg; }
+.gd-step:nth-child(4n+3) .gd-step-body { rotate: -.4deg; }
+.gd-step:nth-child(4n+4) .gd-step-body { rotate: .9deg; }
+
+/* La plaque de bois, plantee sur le chemin : dans l'espace libre a cote de
+   la note — a droite d'une note de gauche, a gauche d'une note de droite —
+   pour que le chemin aille d'un bord de la carte a l'autre. */
+.gd-step-num {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 56px;
+  background:
+    repeating-linear-gradient(180deg, transparent 0 17px, rgba(30, 16, 5, .5) 17px 19px),
+    #775530;
+  border: 4px solid #33210F;
+  box-shadow: inset 0 0 0 2px #93703F, 0 6px 0 rgba(0, 0, 0, .5);
+  font-family: var(--font-display);
+  font-size: 32px;
+  line-height: 1;
+  color: #FFFFFF;
+  text-shadow:
+    3px 0 0 #2A1708, -3px 0 0 #2A1708, 0 3px 0 #2A1708, 0 -3px 0 #2A1708,
+    3px 3px 0 #2A1708, -3px 3px 0 #2A1708, 3px -3px 0 #2A1708, -3px -3px 0 #2A1708;
+}
+.gd-step.is-left .gd-step-num { left: calc(100% + 36%); translate: -50% -50%; rotate: 4deg; }
+.gd-step.is-right .gd-step-num { right: calc(100% + 36%); translate: 50% -50%; rotate: -4deg; }
+
+.gd-step-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px 24px 20px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .05), transparent 45%),
+    #15221B;
+  border: 2px solid var(--border-strong);
+  border-top: 5px solid var(--c);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 6px 0 rgba(5, 6, 4, .6), 0 16px 30px rgba(0, 0, 0, .3);
+}
+.gd-step-kicker { font-family: var(--font-pixel); font-size: 8px; line-height: 1.5; color: var(--c); }
+.gd-step-title { font-family: var(--font-display); font-weight: 400; font-size: clamp(24px, 2.4vw, 30px); line-height: 1; text-transform: uppercase; color: #FFFFFF; }
+.gd-step-body p { margin: 0; font-size: 16px; line-height: 1.55; color: var(--text-body); }
+.gd-step-body p b { color: #FFFFFF; }
+.gd-step-body .link-arrow { align-self: flex-start; }
+.gd-heads { display: flex; gap: 6px; }
+.gd-head {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  background: rgba(0, 0, 0, .35);
+  border: 2px solid;
+  border-color: #0E120E rgba(255, 255, 255, .16) rgba(255, 255, 255, .16) #0E120E;
+  transition: translate 160ms var(--ease-snap);
+}
+.gd-head:hover { translate: 0 -3px; }
+.gd-head span { width: 34px; height: 34px; background-size: contain; background-repeat: no-repeat; background-position: center; }
+
+/* ===========================================================================
+   02 · Le choix de la premiere creature
+   =========================================================================== */
+
+.gd-needs { margin-bottom: 8px; }
+.gd-need { display: inline-flex; align-items: center; gap: 8px; }
+.gd-need > span { width: 22px; height: 22px; background-size: contain; background-repeat: no-repeat; background-position: center; }
+
+.gd-podium {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 14px;
+  padding-top: 20px;
+}
+.gd-pod {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: min(300px, 32%);
+  padding: 16px 16px 18px;
+  background: rgba(12, 20, 15, .82);
+  border: 2px solid var(--border-strong);
+  border-top: 6px solid var(--ink);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1), 0 6px 0 rgba(5, 6, 4, .6);
+  color: #FFFFFF;
+  text-align: center;
+  text-decoration: none;
+  transition: translate 240ms var(--ease-snap), box-shadow 220ms ease-out;
+}
+.gd-pod:hover { translate: 0 -5px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 11px 0 rgba(5, 6, 4, .6), 0 0 30px color-mix(in srgb, var(--ink) 35%, transparent); }
+.gd-pod.place-1 { padding-top: 26px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 6px 0 rgba(5, 6, 4, .6), 0 0 40px color-mix(in srgb, var(--ink) 30%, transparent); }
+.gd-pod-rank {
+  position: absolute;
+  left: -12px;
+  top: -18px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  background: #C9A646;
+  border: 3px solid #171A16;
+  box-shadow: inset 3px 3px 0 #F4DC8A, inset -3px -3px 0 #7E6320, 0 4px 0 rgba(0, 0, 0, .4);
+  font-family: var(--font-display);
+  font-size: 26px;
+  color: #171A16;
+  rotate: -8deg;
+}
+.gd-pod.place-2 .gd-pod-rank { background: #C9CED6; box-shadow: inset 3px 3px 0 #F2F4F7, inset -3px -3px 0 #7C8490, 0 4px 0 rgba(0, 0, 0, .4); }
+.gd-pod.place-3 .gd-pod-rank { background: #C9824A; box-shadow: inset 3px 3px 0 #EDB58A, inset -3px -3px 0 #7A4520, 0 4px 0 rgba(0, 0, 0, .4); }
+.gd-pod-art {
+  width: 100%;
+  height: 150px;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 0 rgba(0, 0, 0, .35));
+}
+.gd-pod.place-1 .gd-pod-art { height: 190px; }
+.gd-pod-name { font-family: var(--font-display); font-weight: 400; font-size: 28px; line-height: 1; text-transform: uppercase; }
+.gd-pod-score { font-family: var(--font-display); font-size: 40px; line-height: 1; color: var(--ink-t, var(--ink)); text-shadow: 2px 2px 0 #0B120C; }
+.gd-pod-score small { font-size: 16px; color: var(--text-faint); }
+.gd-pod-why { margin: 4px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 5px; }
+.gd-pod-why li { font-size: 13.5px; color: var(--text-body); }
+
+.gd-rank {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 24px;
+  margin: 26px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.gd-rank li,
+.gd-sources li {
+  display: grid;
+  grid-template-columns: 24px 36px minmax(0, 1fr) minmax(80px, 1.1fr) 36px;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  background: rgba(12, 20, 15, .62);
+  border: 2px solid var(--border-strong);
+}
+.gd-rank li a,
+.gd-src-text a { font-family: var(--font-condensed); font-weight: 700; font-size: 17px; color: #FFFFFF; text-decoration: none; }
+.gd-rank li a:hover,
+.gd-src-text a:hover { color: var(--accent-soft); }
+.gd-rank li > b,
+.gd-sources li > b { font-family: var(--font-condensed); font-weight: 700; font-size: 16px; text-align: right; color: #FFFFFF; }
+.gd-rank-n { font-family: var(--font-pixel); font-size: 9px; color: var(--text-faint); }
+.gd-rank-head { width: 32px; height: 32px; background-size: contain; background-repeat: no-repeat; background-position: center; }
+
+/* ===========================================================================
+   03 · Les records
+   =========================================================================== */
+
+/* Neuf records : trois par trois, sans rangee orpheline. */
+.gd-awards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 30px 18px; }
+.gd-award {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 26px 14px 16px;
+  text-align: center;
+  background: rgba(12, 20, 15, .8);
+  border: 2px solid var(--border-strong);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1), 0 6px 0 rgba(5, 6, 4, .6);
+  transition: translate 240ms var(--ease-snap);
+}
+.gd-award:hover { translate: 0 -4px; }
+.gd-award-medal {
+  position: absolute;
+  top: -16px;
+  width: 36px;
+  height: 36px;
+  background-color: #C9A646;
+  background-size: 22px;
+  background-position: center;
+  background-repeat: no-repeat;
+  border: 3px solid #171A16;
+  box-shadow: inset 2px 2px 0 #F4DC8A, inset -2px -2px 0 #7E6320, 0 4px 0 rgba(0, 0, 0, .4);
+  rotate: 45deg;
+}
+.gd-award-title { font-family: var(--font-pixel); font-size: 8px; line-height: 1.5; color: #FFE14D; }
+.gd-award-win { display: flex; flex-direction: column; align-items: center; gap: 6px; color: #FFFFFF; text-decoration: none; }
+.gd-award-head {
+  width: 64px;
+  height: 64px;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: drop-shadow(0 4px 0 rgba(0, 0, 0, .4)) drop-shadow(0 0 16px color-mix(in srgb, var(--ink) 50%, transparent));
+  transition: scale 240ms var(--ease-snap);
+}
+.gd-award:hover .gd-award-head { scale: 1.1; }
+.gd-award-win b { font-family: var(--font-display); font-weight: 400; font-size: 24px; line-height: 1; text-transform: uppercase; }
+.gd-award-value { font-family: var(--font-condensed); font-weight: 700; font-size: 16px; color: var(--ink-t, var(--ink)); }
+.gd-award-next { display: flex; gap: 10px; margin-top: 4px; padding-top: 10px; border-top: 1px solid var(--hairline); }
+.gd-award-next a { display: flex; align-items: center; gap: 4px; text-decoration: none; opacity: .75; transition: opacity 120ms; }
+.gd-award-next a:hover { opacity: 1; }
+.gd-award-next small { font-family: var(--font-pixel); font-size: 8px; color: var(--text-faint); }
+.gd-award-next span { width: 26px; height: 26px; background-size: contain; background-repeat: no-repeat; background-position: center; }
+
+/* ===========================================================================
+   04 · Le farm
+   =========================================================================== */
+
+.gd-farm {
+  display: grid;
+  grid-template-columns: minmax(220px, .8fr) minmax(0, 2fr);
+  gap: 20px;
+  align-items: start;
+}
+.gd-farm-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 560px;
+  overflow-y: auto;
+  padding: 8px;
+  background: rgba(12, 20, 15, .72);
+  border: 2px solid var(--border-strong);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 5px 0 rgba(5, 6, 4, .55);
+  scrollbar-width: thin;
+}
+.gd-res {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 9px;
+  background: rgba(139, 139, 139, .1);
+  border: 2px solid transparent;
+  color: var(--text-soft);
+  text-align: left;
+  cursor: var(--cur-point);
+  transition: background 120ms ease-out, translate 140ms var(--ease-snap);
+}
+.gd-res .gd-ico { width: 24px; height: 24px; }
+.gd-res span:not(.gd-ico) { font-family: var(--font-condensed); font-weight: 600; font-size: 15px; }
+.gd-res small { font-family: var(--font-pixel); font-size: 8px; color: #171A16; background: var(--accent); padding: 2px 5px; }
+.gd-res:hover { background: rgba(255, 255, 255, .08); translate: 3px 0; }
+.gd-res.is-on { background: rgba(242, 163, 44, .16); border-color: var(--accent); color: #FFFFFF; }
+.gd-res:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.gd-farm-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 22px;
+  background: rgba(12, 20, 15, .78);
+  border: 2px solid var(--border-strong);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1), 0 6px 0 rgba(5, 6, 4, .6);
+}
+.gd-farm-head { display: flex; align-items: center; gap: 14px; }
+.gd-farm-ico {
+  width: 64px;
+  height: 64px;
+  padding: 10px;
+  background-color: rgba(139, 139, 139, .22);
+  background-origin: content-box;
+  border: 3px solid;
+  border-color: #2B2B2B rgba(255, 255, 255, .3) rgba(255, 255, 255, .3) #2B2B2B;
+}
+.gd-farm-head b { font-family: var(--font-display); font-weight: 400; font-size: 32px; line-height: 1; text-transform: uppercase; color: #FFFFFF; }
+.gd-farm-head small { font-family: var(--font-pixel); font-size: 8px; color: var(--text-faint); }
+.gd-sources { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.gd-sources li { grid-template-columns: 24px 36px minmax(0, 1.4fr) minmax(80px, 1fr) 52px; }
+.gd-src-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.gd-src-text small { font-size: 12.5px; color: var(--text-muted); }
+.gd-uses { display: flex; flex-direction: column; gap: 10px; padding-top: 14px; border-top: 1px solid var(--hairline); }
+.gd-uses .t-pixel { font-size: 8px; color: var(--text-faint); }
+
+/* ===========================================================================
+   Petits ecrans
+   =========================================================================== */
+
+@media (max-width: 760px) {
+  .gd-awards { grid-template-columns: 1fr; }
+}
+@media (max-width: 860px) {
+  .gd-farm { grid-template-columns: 1fr; }
+  .gd-farm-list { flex-direction: row; overflow-x: auto; max-height: none; }
+  .gd-res { flex: 0 0 auto; }
+  .gd-rank { grid-template-columns: 1fr; }
+  /* Sur telephone, le podium se range en trois lignes compactes : la bete a
+     gauche, son nom, sa note et ses raisons a droite. */
+  .gd-podium { flex-direction: column; align-items: stretch; gap: 22px; }
+  .gd-pod,
+  .gd-pod.place-1 {
+    display: grid;
+    grid-template-columns: 110px minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    column-gap: 14px;
+    row-gap: 4px;
+    width: auto;
+    padding: 14px 14px 14px 10px;
+    text-align: left;
+    align-items: center;
+  }
+  .gd-pod.place-1 { order: -1; }
+  .gd-pod-art, .gd-pod.place-1 .gd-pod-art { grid-row: 1 / 4; height: 96px; }
+  .gd-pod-name { font-size: 24px; }
+  .gd-pod-score { font-size: 30px; }
+  .gd-pod-why { margin: 0; }
+  .gd-pod-why li { font-size: 12.5px; }
+}
+/* Sur telephone, la carte se lit d'une seule colonne : le sentier descend le
+   long du bord gauche, les plaques dessus. */
+@media (max-width: 760px) {
+  .gd-path { padding: 104px 14px 124px 16px; }
+  .gd-step, .gd-step.is-left, .gd-step.is-right { width: auto; align-self: stretch; margin-left: 30px; }
+  .gd-step.is-left .gd-step-num, .gd-step.is-right .gd-step-num { left: -38px; right: auto; top: -14px; translate: 0 0; width: 50px; height: 44px; font-size: 24px; }
+  .gd-step.is-left .gd-step-body, .gd-step.is-right .gd-step-body { padding: 16px 16px 18px 28px; rotate: 0deg; }
+  .gd-path-start { right: auto; left: 58px; }
+  .gd-trail-bed { stroke-width: 26; }
+  .gd-trail-edge { stroke-width: 32; }
+}
+@media (max-width: 620px) {
+  .gd-rank li, .gd-sources li { grid-template-columns: 22px 32px minmax(0, 1fr) 44px; }
+  .gd-rank li .gd-bar, .gd-sources li .gd-bar { display: none; }
+}
+
+:root[data-theme='light'] :is(.gd-pod, .gd-award, .gd-farm-list, .gd-farm-detail, .gd-rank li, .gd-sources li) {
+  background: var(--paper-glass);
+  border-color: var(--line);
+  box-shadow: var(--paper-shadow);
+}
+:root[data-theme='light'] :is(.gd-pod, .gd-award-win, .gd-farm-head b, .gd-rank li a, .gd-src-text a, .gd-rank li > b, .gd-sources li > b) { color: var(--ink); }
+:root[data-theme='light'] :is(.gd-pod-why li, .gd-src-text small) { color: #4A4438; }
+:root[data-theme='light'] .gd-res { color: var(--ink); }
+/* La carte, en theme clair : la meme, sur papier. */
+:root[data-theme='light'] .gd-path {
+  background:
+    repeating-radial-gradient(ellipse at 18% 22%, transparent 0 26px, rgba(66, 52, 26, .07) 26px 28px),
+    repeating-radial-gradient(ellipse at 84% 68%, transparent 0 30px, rgba(66, 52, 26, .06) 30px 32px),
+    var(--paper-glass-deep);
+  border-color: var(--line);
+  box-shadow: var(--paper-shadow);
+}
+:root[data-theme='light'] .gd-trail-bed { stroke: rgba(119, 85, 48, .2); }
+:root[data-theme='light'] .gd-trail-edge { stroke: rgba(66, 52, 26, .12); }
+:root[data-theme='light'] .gd-trail { stroke: #C77A12; }
+:root[data-theme='light'] .gd-step-body { background: var(--paper-glass-hi); border-color: var(--line); border-top-color: var(--c); box-shadow: var(--paper-shadow), 0 10px 22px rgba(66, 52, 26, .12); }
+:root[data-theme='light'] :is(.gd-step-title, .gd-step-body p b) { color: var(--ink); }
+:root[data-theme='light'] .gd-step-body p { color: #4A4438; }
+:root[data-theme='light'] .gd-step-kicker { color: #8A4B08; }
+:root[data-theme='light'] .gd-head { background: rgba(58, 42, 24, .1); border-color: rgba(58, 42, 24, .45) rgba(255, 250, 236, .8) rgba(255, 250, 236, .8) rgba(58, 42, 24, .45); }
+
+@media (prefers-reduced-motion: reduce) {
+  .gd-bar i { transition: none; }
+  .gd-path-end svg { animation: none; }
+}

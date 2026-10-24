@@ -1,0 +1,882 @@
+/* Operation W.I.L.D — le theme clair, « Plein jour ».
+
+   Refait de zero. L'ancien theme clair posait un voile creme a 80 % sur un
+   decor pense pour la nuit : les biomes devenaient une bouillie grise, les
+   titres blancs flottaient sur du blanc, la navigation disparaissait.
+
+   L'idee : la meme expedition, mais en plein jour.
+
+     - Les biomes ont leurs palettes de jour : ciels bleus, lumiere franche,
+       plans qui s'eclaircissent avec la distance, silhouettes de premier plan
+       en vert ou en brun profonds plutot qu'en noir. Le voile de lecture est
+       leger : on voit le monde.
+     - Les surfaces sont du papier de carnet de terrain : un creme chaud, en
+       verre depoli sur le decor, cerne du meme trait d'encre de 2 px que le
+       theme sombre — c'est lui qui fait lire le site comme du voxel.
+     - Le texte est de l'encre. Les grands titres gardent le blanc cerne
+       d'encre de la marque : il se lit sur n'importe quel ciel.
+     - Ce qui montre une image ou imite l'interface du jeu (rendus, captures,
+       plateau de la Piste Sauvage, infobulles, vitrine 3D, cartes de
+       creature) reste sombre, comme un ecran pose sur le papier. Tout ce qui
+       se lit — donnees, listes, reglages — passe sur le papier.
+
+   Charge en dernier : ses regles passent devant les feuilles de page. */
+
+/* ===========================================================================
+   1 · Jetons
+   =========================================================================== */
+
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --canvas: #F2EBDC;
+  --panel: #FFFBF3;
+  --raised: #F8F1E3;
+  --raised-hi: #EEE2C8;
+  --inset: #E9DFC7;
+  --inset-deep: #D8CAA8;
+
+  --parchment: #FFFDF8;
+  --parchment-ink: #26221F;
+  --parchment-muted: #6B665A;
+
+  --border-strong: var(--line);
+  /* Le trait d'encre du jour : un brun gris, pas un noir. Sur le creme, le
+     noir du theme sombre tranchait bien plus fort que sur le vert nuit. */
+  --line: #847A64;
+  --rule: #CFC2A2;
+  --hairline: rgba(42, 42, 31, .14);
+  --border-soft: rgba(42, 42, 31, .28);
+  --bevel-top: rgba(255, 255, 255, .92);
+
+  --text-strong: #2A2A22;
+  --text-bright: #2F3027;
+  --text-soft: #383A2F;
+  --text-body: #45473B;
+  --text-muted: #56533F;
+  --text-faint: #5E5A48;
+  --text-dim: #605C4A;
+
+  --accent: #EC9A1E;
+  --accent-hover: #D98A10;
+  --accent-soft: #8A5307;
+  --on-accent: #1B1403;
+  --link: #7A4604;
+  --link-hover: #573208;
+  --accent-text: #8A5207;
+
+  --moss: #56651A;
+  --blood: #9A331F;
+  --abyss: #044D6D;
+  --abyss-bright: #07708E;
+  --bark: #6E4619;
+  --forest: #275041;
+  --ember: #A5501F;
+  --leaf: #4E7A12;
+
+  --shadow-ink: rgba(66, 52, 26, .15);
+  --shadow-ink-strong: rgba(66, 52, 26, .24);
+  --shadow-lift: 0 22px 58px rgba(66, 52, 26, .26);
+
+  --header-bg: rgba(253, 249, 240, .95);
+  --header-bg-overlay: rgba(253, 249, 240, .8);
+  --scrim: rgba(38, 33, 20, .66);
+  --scrim-deep: rgba(38, 33, 20, .78);
+
+  --glass: rgba(255, 252, 244, .76);
+  --glass-edge: rgba(42, 42, 31, .2);
+
+  --media-veil-top: rgba(20, 24, 16, .5);
+  --media-veil-mid: rgba(20, 24, 16, .08);
+  --media-veil-low: rgba(20, 24, 16, .62);
+
+  /* Propres au theme clair : le papier en verre depoli, et l'encre des
+     composants qui ecrivaient en blanc en dur. */
+  --paper-glass: rgba(255, 251, 242, .8);
+  --paper-glass-hi: rgba(255, 252, 245, .92);
+  --paper-glass-deep: rgba(246, 238, 221, .86);
+  --ink: #2A2A22;
+  --ink-soft: #45473B;
+  --paper-shadow: inset 0 1px 0 rgba(255, 255, 255, .9), 0 4px 0 rgba(66, 52, 26, .14);
+}
+
+/* Les ecrans sombres gardent leurs jetons sombres. La portee .on-media est
+   deja definie dans tokens.css ; on la rappelle ici pour qu'elle passe devant
+   les jetons clairs de :root. */
+:root[data-theme='light'] .on-media {
+  --panel: #1B2A22; --raised: #22362B; --raised-hi: #2C4A3B; --inset: #0E120E; --inset-deep: #050604;
+  --border-strong: #0E120E; --rule: #2E3128;
+  --hairline: rgba(241, 237, 226, .12); --border-soft: rgba(241, 237, 226, .22); --bevel-top: rgba(255, 255, 255, .10);
+  --text-strong: #F7F4EC; --text-bright: #F1EDE2; --text-soft: #E6E1D4; --text-body: #D5D0BF;
+  --text-muted: #BAAEA7; --text-faint: #A19791; --text-dim: #958B86;
+  --accent-text: #F2A32C; --link: #FFB94A; --link-hover: #FFD489; --on-accent: #171A16;
+  --shadow-ink: rgba(5, 6, 4, .6);
+}
+
+/* ===========================================================================
+   2 · La barre du site
+   =========================================================================== */
+
+:root[data-theme='light'] .site-header,
+:root[data-theme='light'] .site-header.on-media {
+  --text-strong: var(--ink); --text-bright: #1B1D14; --text-body: #34372B; --text-muted: #4E4B3B; --text-faint: #5A5645;
+  --raised: #F3EAD6; --inset: #F3EAD6; --rule: #CFC2A2; --border-strong: var(--line); --border-soft: rgba(42, 42, 31, .3);
+  --accent-soft: #8A5307; --accent-text: #B86F08; --bevel: inset 0 1px 0 rgba(255, 255, 255, .9);
+  background: var(--header-bg);
+  box-shadow: 0 2px 0 rgba(66, 52, 26, .12);
+}
+:root[data-theme='light'] .site-header[data-overlay='true']:not([data-scrolled='true']) {
+  background: rgba(253, 249, 240, .82);
+}
+:root[data-theme='light'] .site-nav a { color: #3A3B2E; }
+:root[data-theme='light'] .site-nav a:hover { background: rgba(236, 154, 30, .14); color: var(--ink); }
+:root[data-theme='light'] .site-nav a[aria-current='page'] { color: var(--ink); border-bottom-color: #EC9A1E; }
+:root[data-theme='light'] .search-button,
+:root[data-theme='light'] .icon-button { background: #FFFBF3; border-color: var(--line); color: #34372B; }
+:root[data-theme='light'] .search-button:hover,
+:root[data-theme='light'] .icon-button:hover { background: #FFF3D9; color: #8A5307; }
+
+/* ===========================================================================
+   3 · Le monde des biomes, de jour
+   ===========================================================================
+
+   Les memes biomes que la nuit, en plein jour. Chaque palette de jour est
+   calculee depuis sa palette de nuit (css/biome-world.css) par
+   tools/build-light-biomes.py : meme teinte pour chaque couleur, meme
+   etagement des plans, plus de lumiere. L'ancienne version, peinte a part,
+   tournait au pastel : ciels blanchis sur un tiers de l'ecran, plans lointains
+   et moyens de la meme valeur, brume blanche epaisse, et un voile creme a 40 %
+   par-dessus le tout.
+
+   Le voile de lecture reste, mais leger et d'un blanc chaud : les surfaces du
+   contenu sont deja du papier en verre depoli, elles n'ont pas besoin qu'on
+   delave le monde derriere elles. */
+
+:root[data-theme='light'] .bw { --veil-max: .16; }
+:root[data-theme='light'] .bw-veil { background: #FFFBF2; }
+:root[data-theme='light'] .bw-scene[data-biome='snow'] .hb-aurora { opacity: .35; }
+:root[data-theme='light'] .bw-scene[data-biome='cave'] .hb-corner .hb-hi { fill: #76848A; }
+
+/* >>> palettes de jour : generees par tools/build-light-biomes.py, ne pas modifier a la main <<< */
+:root[data-theme='light'] .bw-scene[data-biome='jungle'] {
+  --sky: linear-gradient(180deg, #6C9E94 0%, #75AA9B 16%, #72BE99 32%, #83D87A 48%, #BCEB59 60%, #EFEF68 70%, #FFF298 78%, #FFF5C9 84%);
+  --sun-a: #FFFDE6; --sun-b: #FFF0A0; --sun-c: #F9D25A; --sun-d: #EFA83A; --sun-glow: 255, 236, 150;
+  --far: #57B66F; --mid: #368A60; --near: #33513F; --mist: 234, 246, 192; --mist-o: 0.18;
+  --side: #336449; --side-far: #357B56; --ceiling: #336746; --ceil-b: #37774B; --ceil-d: #3D8550;
+  --vine: #346544; --fg: #2D4338; --rim: #FFF0A0; --rim-glow: 255, 236, 150; --particle: #F3FF8A;
+  --tag: #E9F58A; --rays: .16;
+}
+:root[data-theme='light'] .bw-scene[data-biome='desert'] {
+  --sky: linear-gradient(180deg, #769EDC 0%, #78B7FF 20%, #8FD7FF 36%, #C3EED6 50%, #FFE0AF 62%, #FFD3AB 72%, #FFE7C6 82%);
+  --sun-a: #FFFFF2; --sun-b: #FFF3B8; --sun-c: #FFD25E; --sun-d: #F59E3A; --sun-glow: 255, 214, 130;
+  --far: #E98651; --mid: #F4A749; --near: #76431B; --mist: 255, 236, 202; --mist-o: 0.20;
+  --side: #3C662B; --side-far: #93A551; --ceiling: transparent; --vine: transparent; --fg: #4D301F;
+  --rim: #FFE6A8; --rim-glow: 255, 210, 130; --particle: #F6DDB0; --tag: #FFD27A; --rays: .1;
+}
+:root[data-theme='light'] .bw-scene[data-biome='swamp'] {
+  --sky: linear-gradient(180deg, #85A3C1 0%, #8CB2CB 16%, #93C7CE 34%, #BCD4B0 50%, #D9DEA5 62%, #EDE8AA 72%, #F6EEBE 82%);
+  --sun-a: #FFFBE6; --sun-b: #F4EDB8; --sun-c: #DCCF84; --sun-d: #B8A860; --sun-glow: 240, 230, 170;
+  --far: #9CAE63; --mid: #7B914E; --near: #5B6B40; --mist: 236, 244, 199; --mist-o: 0.21;
+  --side: #6A7C46; --side-far: #8D9F55; --ceiling: #677840; --vine: #78914B; --fg: #53623B;
+  --water-a: #92B88C; --water-b: #729B7C; --water-c: #587C65; --rim: #F4EDB8; --rim-glow: 240, 230, 170;
+  --particle: #D8F07A; --tag: #D6DC8C; --rays: .1;
+}
+:root[data-theme='light'] .bw-scene[data-biome='ocean'] {
+  --sky: linear-gradient(180deg, #6DA1E5 0%, #6FBDFF 22%, #89D7FF 40%, #A3ECFF 54%, #D0FAE0 63%, #FFEFC6 69%);
+  --sun-a: #FFFFF4; --sun-b: #FFF6C2; --sun-c: #FFE07C; --sun-d: #FFB84E; --sun-glow: 255, 238, 176;
+  --far: #4AB3E4; --mid: #1D90D5; --near: #305978; --mist: 220, 242, 255; --mist-o: 0.12;
+  --side: #305978; --side-far: #2F8BBE; --ceiling: transparent; --vine: transparent; --fg: #2D4C63;
+  --water-a: #5ECFFF; --water-b: #1CA1E5; --water-c: #2372B2; --rim: #FFF6C2; --rim-glow: 255, 238, 176;
+  --particle: #FFFFFF; --tag: #BDEFFF; --rays: .1;
+}
+:root[data-theme='light'] .bw-scene[data-biome='savanna'] {
+  --sky: linear-gradient(180deg, #9087B9 0%, #B187C0 18%, #EF84A1 36%, #FFA592 52%, #FFC59C 64%, #FFDDA9 74%, #FFECC2 82%);
+  --sun-a: #FFF4C2; --sun-b: #FFD266; --sun-c: #FF9A3C; --sun-d: #F0562E; --sun-glow: 255, 170, 70;
+  --far: #EA5D76; --mid: #974970; --near: #4E3C4A; --mist: 255, 234, 219; --mist-o: 0.12;
+  --side: #4E3C4A; --side-far: #974970; --ceiling: transparent; --vine: transparent; --fg: #433741;
+  --rim: #FFD266; --rim-glow: 255, 160, 60; --particle: #FFB45A; --tag: #F9C063; --rays: .12;
+}
+:root[data-theme='light'] .bw-scene[data-biome='redwood'] {
+  --sky: linear-gradient(180deg, #7492AF 0%, #7DA0BA 18%, #85B7C3 34%, #A9D4BE 50%, #DCE5B2 62%, #FFE8A7 72%, #FFEFCF 80%);
+  --sun-a: #FFFBEA; --sun-b: #FFEFC0; --sun-c: #F5D07A; --sun-d: #E3A452; --sun-glow: 255, 232, 172;
+  --far: #6EA09A; --mid: #4A766C; --near: #384C44; --mist: 231, 243, 219; --mist-o: 0.22;
+  --side: #6E4338; --side-far: #935B48; --ceiling: #344842; --vine: transparent; --fg: #33473D;
+  --rim: #FFEFC0; --rim-glow: 255, 232, 172; --particle: #FFF3C4; --tag: #F0DDA6; --rays: .22;
+}
+:root[data-theme='light'] .bw-scene[data-biome='snow'] {
+  --sky: linear-gradient(180deg, #7E8DB6 0%, #7F99D1 18%, #86ACEB 34%, #9FCBFD 50%, #C5E4FF 62%, #FCEBC3 72%, #FFEDD5 80%);
+  --sun-a: #FFFFFF; --sun-b: #FFF5DC; --sun-c: #FFE0A8; --sun-d: #F7B77A; --sun-glow: 255, 235, 205;
+  --far: #96B8ED; --mid: #688FCD; --near: #445885; --cap: #EAEFF7; --mist: 231, 239, 254;
+  --mist-o: 0.21; --side: #3D5584; --side-far: #6488C1; --hi: #E8EFFC; --ceiling: transparent;
+  --vine: transparent; --fg: #384A6E; --rim: #FFFFFF; --rim-glow: 220, 235, 255; --particle: #FFFFFF;
+  --tag: #D6E8FF; --rays: .08;
+}
+:root[data-theme='light'] .bw-scene[data-biome='abyss'] {
+  --sky: linear-gradient(180deg, #5C8DDA 0%, #5A81CF 12%, #5975C0 28%, #576AB2 46%, #5562A0 64%, #54578F 82%, #504F87 100%);
+  --far: #4351BD; --mid: #3A40A6; --near: #2E2F5A; --mist: 169, 160, 255; --mist-o: 0.07;
+  --side: #4046B5; --side-far: #4B51CB; --hi: #DBB0FF; --ceiling: transparent; --vine: transparent;
+  --fg: #453899; --rim: #C4B2FF; --rim-glow: 170, 150, 255; --particle: #C9D2FF; --tag: #CDBBFF;
+  --rays: .12; --ray-c: 180, 190, 255; --rays-at: 50% -5%;
+}
+:root[data-theme='light'] .bw-scene[data-biome='lukewarm'] {
+  --sky: linear-gradient(180deg, #6BEFFD 0%, #5EDFF3 12%, #58CCE8 28%, #55B9D8 46%, #54A8CA 64%, #539ABA 82%, #518CAC 100%);
+  --far: #1BA7B9; --mid: #168CA6; --near: #206479; --mist: 167, 248, 239; --mist-o: 0.09;
+  --side: #2F9F5F; --side-far: #44B38E; --hi: #C1FFE3; --ceiling: transparent; --vine: transparent;
+  --fg: #246D61; --rim: #DDFFF6; --rim-glow: 190, 255, 238; --particle: #EFFFFB; --tag: #BDF3E6;
+  --rays: .22; --ray-c: 215, 255, 246; --rays-at: 50% -5%;
+}
+:root[data-theme='light'] .bw-scene[data-biome='badlands'] {
+  --sky: linear-gradient(180deg, #78A2ED 0%, #7EB4FF 16%, #9CC6FF 32%, #C9D3FC 46%, #FFD5C0 58%, #FFD4BD 68%, #FFE0C9 78%, #FFE9D7 86%);
+  --sun-a: #FFFCEB; --sun-b: #FFEBB0; --sun-c: #FFC870; --sun-d: #F29A48; --sun-glow: 255, 210, 130;
+  --far: #F9643F; --far-b1: #FF7F4B; --far-b2: #FFBB8B; --far-b3: #E05A3B; --far-b4: #FFE2C5;
+  --mid: #BE4E41; --mid-b1: #CA533F; --mid-b2: #EA6C3D; --mid-b3: #AB463A; --mid-b4: #F88949;
+  --near: #5E3F37; --mist: 255, 233, 223; --mist-o: 0.14; --side: #583E36; --side-far: #A5543C;
+  --ceiling: transparent; --vine: transparent; --fg: #4E3934; --rim: #FFCF6E; --rim-glow: 255, 160, 70;
+  --particle: #FFC07A; --tag: #FFBF7A; --rays: .14;
+}
+:root[data-theme='light'] .bw-scene[data-biome='bamboo'] {
+  --sky: linear-gradient(180deg, #70A194 0%, #78AF99 18%, #79C49B 34%, #90DF92 50%, #BFF193 62%, #E7F7B1 72%, #F9F6CC 82%);
+  --sun-a: #FFFFF2; --sun-b: #F6F8CE; --sun-c: #DCEC98; --sun-d: #BCD870; --sun-glow: 232, 246, 196;
+  --far: #79D08B; --far-b: #89E28E; --far-c: #71C584; --mid: #459E66; --mid-b: #54BB70;
+  --mid-c: #3E8E65; --near: #376B47; --near-b: #3D8550; --near-d: #FFF196; --ceiling: #346043;
+  --ceil-b: #39774B; --mist: 226, 246, 214; --mist-o: 0.28; --side: #3C7D51; --side-far: #55A96C;
+  --hi: #47A55A; --vine: transparent; --fg: #314C3B; --rim: #F6F8CE; --rim-glow: 232, 246, 196;
+  --particle: #A6D86E; --tag: #CFEA9A; --rays: .24;
+}
+:root[data-theme='light'] .bw-scene[data-biome='mangrove'] {
+  --sky: linear-gradient(180deg, #7D98B7 0%, #78AECA 16%, #79C9C9 32%, #9EDFAF 48%, #DFE699 60%, #FFE7A5 70%, #FFEFCA 80%);
+  --sun-a: #FFFBE0; --sun-b: #FFE9A0; --sun-c: #F8C866; --sun-d: #E8A044; --sun-glow: 255, 220, 150;
+  --far: #46A38A; --water-a: #4BC4BF; --water-b: #319FA5; --water-c: #287788; --ripple: .12;
+  --mid: #3C8560; --mid-b: #57B367; --mid-c: #785C47; --ceiling: #365947; --ceil-b: #3A754F;
+  --mist: 227, 246, 215; --mist-o: 0.17; --side: #6A5543; --side-far: #876C51; --hi: #3B7552;
+  --vine: transparent; --fg: #365041; --rim: #FFE9A0; --rim-glow: 255, 220, 150; --particle: #FFF6D0;
+  --tag: #CFE0A0; --rays: .12;
+}
+:root[data-theme='light'] .bw-scene[data-biome='cherry'] {
+  --sky: linear-gradient(180deg, #8493C6 0%, #89A1E4 18%, #99BBF2 34%, #B6D5F5 50%, #CDEECD 62%, #FDEBC3 72%, #FFF2DC 82%);
+  --sun-a: #FFFBF2; --sun-b: #FFEDE8; --sun-c: #FFCBD4; --sun-d: #F2A6B8; --sun-glow: 255, 215, 220;
+  --far: #6EB181; --mid: #4D9855; --mid-b: #FFD8E7; --mid-c: #7A5656; --mid-d: #FFE7F0;
+  --mid-e: #FFE3EE; --near: #407F49; --near-b: #499750; --near-d: #EEEEEE; --near-e: #FFE3EE;
+  --ceiling: #FFB2D2; --ceil-b: #FF93C2; --ceil-c: #FFE7F0; --mist: 255, 231, 241; --mist-o: 0.17;
+  --side: #674E4E; --side-far: #9A6C76; --hi: #FFDDEA; --vine: transparent; --fg: #375E3D;
+  --rim: #FFEDE8; --rim-glow: 255, 215, 220; --particle: #FFC3D8; --tag: #FFC6DA; --rays: .14;
+}
+:root[data-theme='light'] .bw-scene[data-biome='cave'] {
+  --sky: linear-gradient(180deg, #3F4344 0%, #424649 50%, #44494C 100%);
+  --far: #3A4348; --mid: #4F5B61; --mid-b: #383D40; --mid-e: #AF967F; --mid-c: #66747A;
+  --near: #626F75; --near-b: #768489; --near-e: #B39A7E; --ceiling: #3F494D; --ceil-c: #546167;
+  --mist: 90, 104, 113; --mist-o: 0.04; --side: #455055; --side-far: #3A4044; --hi: #627076;
+  --vine: transparent; --fg: #58646A; --rim: #C9D2D6; --rim-glow: 160, 170, 180; --particle: #6A7880;
+  --tag: #B8C8D0; --rays: 0;
+}
+:root[data-theme='light'] .bw-scene[data-biome='frozen'] {
+  --sky: linear-gradient(180deg, #4790E2 0%, #54A7FB 18%, #82C4FF 34%, #B4DDFF 50%, #DAEFFF 62%, #F5FBFF 76%);
+  --sun-a: #FFFFFF; --sun-b: #FFFFFF; --sun-c: #EEF4FC; --sun-d: #D0E0F2; --sun-glow: 235, 245, 255;
+  --far: #8CB4E1; --far-b: #E3F1FC; --water-a: #3275B5; --water-b: #1E5B9A; --water-c: #103F72;
+  --ripple: .12; --mid: #6F9FD1; --mid-b: #EAEFF5; --mid-c: #AFD4F6; --near: #80ADDC;
+  --near-b: #EBEFF3; --near-c: #4D81B7; --mist: 230, 239, 251; --mist-o: 0.14; --side: #9AC6F0;
+  --side-far: #709BC8; --hi: #E9EFF7; --ceiling: transparent; --vine: transparent; --fg: #5F8BC0;
+  --rim: #FFFFFF; --rim-glow: 235, 245, 255; --particle: #FFFFFF; --tag: #D6E8FF; --rays: .1;
+}
+:root[data-theme='light'] .bw-scene[data-biome='forest'] {
+  --sky: linear-gradient(180deg, #7C98CA 0%, #7DADE6 18%, #87C8F7 34%, #AEE3ED 50%, #DFF0B9 62%, #FFEEAD 72%, #FFF3D2 82%);
+  --sun-a: #FFFDF0; --sun-b: #FFF2C4; --sun-c: #FFDD88; --sun-d: #F4B458; --sun-glow: 255, 232, 170;
+  --far: #68C17B; --mid: #54B44F; --mid-b: #46A547; --mid-c: #8B6244; --mid-d: #74D14C;
+  --mid-e: #F3EEE0; --near: #428E38; --near-b: #4AA13B; --near-d: #FFEFB1; --ceiling: #3D8043;
+  --ceil-b: #428D49; --mist: 241, 241, 206; --mist-o: 0.17; --side: #785C41; --side-far: #7FB466;
+  --hi: #469946; --vine: transparent; --fg: #3A6B37; --rim: #FFF2C4; --rim-glow: 255, 232, 170;
+  --particle: #FFF4C0; --tag: #F4E6B0; --rays: .24;
+}
+/* >>> fin des palettes de jour generees <<< */
+
+/* Les titres d'entete, poses sur le ciel : le blanc cerne d'encre de la marque
+   se lit sur n'importe quel ciel de jour. Le chapeau et le texte d'intro
+   passent sur une bande de papier. */
+:root[data-theme='light'] .bw-on :is(.page-hero, .hero) :is(h1, h2) {
+  text-shadow: 4px 4px 0 rgba(44, 48, 32, .55), 0 10px 30px rgba(28, 36, 20, .2);
+}
+:root[data-theme='light'] body:not([data-page='home']) :is(.page-hero, .hero) .t-pixel:first-child {
+  background: #FFFBF3;
+  border-color: var(--line);
+  color: #8A5207 !important;
+  box-shadow: 0 3px 0 rgba(66, 52, 26, .15);
+}
+:root[data-theme='light'] body:not([data-page='home']) :is(.page-hero, .hero) .t-lead,
+:root[data-theme='light'] .bw-on :is(.page-hero, .hero) > .wrap > p {
+  width: fit-content;
+  padding: 12px 16px;
+  background: var(--paper-glass);
+  border: 2px solid var(--line);
+  box-shadow: 0 4px 0 rgba(66, 52, 26, .14);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: var(--ink-soft) !important;
+  text-shadow: none !important;
+}
+
+/* Les titres de section : le meme blanc cerne. Les chapeaux et les liens
+   poses a meme le decor recoivent une bande de papier. */
+:root[data-theme='light'] .bw-on main :is(.t-section, .t-h2):not(.panel *):not(.table *) {
+  color: #FFFFFF;
+  text-shadow: 3px 3px 0 rgba(44, 48, 32, .55), 0 6px 18px rgba(28, 36, 20, .3);
+}
+:root[data-theme='light'] .bw-on main .section-head .t-pixel,
+:root[data-theme='light'] .bw-on main .section > .wrap > .t-small,
+:root[data-theme='light'] .bw-on main .section-tight > .wrap > .t-small {
+  width: fit-content;
+  padding: 4px 8px;
+  background: var(--paper-glass-hi);
+  border: 2px solid var(--line);
+  text-shadow: none;
+}
+:root[data-theme='light'] .bw-on main .section-head .fill { background: rgba(42, 42, 31, .35); }
+:root[data-theme='light'] .bw-on main .link-arrow {
+  padding: 4px 8px;
+  background: var(--paper-glass-hi);
+  border: 2px solid var(--line);
+  text-shadow: none;
+}
+
+/* ===========================================================================
+   4 · Le papier : surfaces, boutons, tableaux, filtres
+   =========================================================================== */
+
+:root[data-theme='light'] .bw-on main {
+  --panel: rgba(255, 251, 242, .8);
+  --raised: rgba(250, 244, 230, .86);
+  --raised-hi: rgba(242, 231, 206, .92);
+  --inset: rgba(233, 223, 199, .78);
+}
+:root[data-theme='light'] .bw-on main .on-media {
+  --panel: rgba(27, 42, 34, .6);
+  --raised: rgba(34, 54, 43, .72);
+  --raised-hi: rgba(44, 74, 59, .84);
+  --inset: rgba(8, 12, 9, .5);
+}
+:root[data-theme='light'] .bw-on main .modal {
+  --panel: #FFFBF3; --raised: #F8F1E3; --raised-hi: #EEE2C8; --inset: #E9DFC7;
+}
+
+:where(:root[data-theme='light'] .bw-on main) :is(
+  .panel, .panel-raised, .table, .featured-tile, .recipe-cell, .craft-card, .saddle-card,
+  .channel-card, .track, .sfx-cell, .biome-card, .structure-card, .upcoming-tile, .fighter,
+  .ability-card, .passive-card, .idcard, .taming-page, .variant-tile, .media-tile, .skin-card,
+  .food-item, .need-row, .rank-row, .dps-row, .archetype-row
+) {
+  box-shadow: var(--paper-shadow);
+}
+:where(:root[data-theme='light'] .bw-on main) .card-lift:hover {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9), 0 9px 0 rgba(66, 52, 26, .15),
+              0 0 26px color-mix(in srgb, var(--accent-line, var(--accent)) 35%, transparent);
+}
+
+:root[data-theme='light'] .bw-on main .btn:not(.btn-accent):not([aria-pressed='true']) {
+  background: var(--paper-glass-hi);
+  color: var(--ink);
+}
+:root[data-theme='light'] .bw-on main .btn:not(.btn-accent):not([aria-pressed='true']):hover {
+  background: #FFF3D9;
+  color: var(--ink);
+}
+:root[data-theme='light'] .bw-on main .btn-toggle:hover { box-shadow: 0 7px 0 rgba(66, 52, 26, .15); }
+
+:root[data-theme='light'] .bw-on main .filter-group:not(:empty),
+:root[data-theme='light'] .bw-on main .inv-tabs,
+:root[data-theme='light'] .bw-on main .inv-filters {
+  background: var(--paper-glass);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9), 0 10px 22px rgba(66, 52, 26, .18);
+}
+
+:root[data-theme='light'] .bw-on main .table-head { background: var(--line); }
+:root[data-theme='light'] .bw-on main .table-head span { color: #FFD27A; }
+:root[data-theme='light'] .bw-on main .table-row:hover { background: rgba(236, 154, 30, .1); }
+
+:root[data-theme='light'] .bw-on main :is(.slot, .featured-slot, .craft-slot, .slot-40) {
+  background-color: #C6C6C6;
+  border-color: #373737 #FFFFFF #FFFFFF #373737;
+}
+
+:root[data-theme='light'] .bw-on main .bar-track { background: rgba(42, 42, 31, .16); }
+:root[data-theme='light'] .bw-on main .bar-track::after {
+  background: repeating-linear-gradient(90deg, transparent 0 calc(10% - 2px), rgba(42, 42, 31, .55) calc(10% - 2px) 10%);
+}
+
+/* Le bandeau defilant de l'accueil : une bande de papier kraft. */
+:root[data-theme='light'] .marquee { background: rgba(255, 251, 242, .85); border-color: var(--line); }
+:root[data-theme='light'] .marquee-name { color: var(--ink); }
+
+/* Les compteurs en bois restent en bois : ils sont deja du jour. */
+
+/* Le pied de page. */
+:root[data-theme='light'] .site-footer { background: #EAE0CA; }
+
+/* ===========================================================================
+   5 · Les ecrans sombres
+
+   Ce qui montre un rendu ou imite l'interface du jeu garde ses aplats
+   sombres. Ces composants lisent leur texte dans les jetons : on leur rend
+   les jetons du theme sombre, sans quoi l'encre du jour tomberait sur du noir.
+   =========================================================================== */
+
+:root[data-theme='light'] :is(
+  .deck-front, .deck-rear, .vard-stage, .vhanger-card, .skin, .frame, .reel, .shot, .atlas-map,
+  .stamp, .dif-card, .sack-tip, .chest-tip, .toast-adv, .lightbox-inner, .ident,
+  .trail-hero, .verdict-banner, .toast, .podium-block,
+  .stage-view, .inv-tooltip, .cc, .acc, .lab, .wt-frame, .wt-tip, .wt-choose
+) {
+  --panel: #1B2A22; --raised: #22362B; --raised-hi: #2C4A3B; --inset: #0E120E; --inset-deep: #050604;
+  --border-strong: #0E120E; --rule: #2E3128;
+  --hairline: rgba(241, 237, 226, .12); --border-soft: rgba(241, 237, 226, .22); --bevel-top: rgba(255, 255, 255, .10);
+  --text-strong: #F7F4EC; --text-bright: #F1EDE2; --text-soft: #E6E1D4; --text-body: #D5D0BF;
+  --text-muted: #BAAEA7; --text-faint: #A19791; --text-dim: #958B86;
+  --accent-text: #F2A32C; --accent-soft: #FFD489; --link: #FFB94A; --link-hover: #FFD489; --on-accent: #171A16;
+  --moss: #8A9A2E; --blood: #B84A38; --abyss-bright: #00A0C8;
+  --shadow-ink: rgba(5, 6, 4, .6);
+}
+/* Les ecrans poses sur le papier : leur ombre devient brune. */
+:root[data-theme='light'] :is(.deck-front, .vard-stage, .skin, .frame, .reel, .shot, .atlas-map, .trail-hero, .wt-frame) {
+  box-shadow: 0 6px 0 rgba(66, 52, 26, .16);
+}
+
+/* ===========================================================================
+   6 · La fiche de creature
+   =========================================================================== */
+
+/* La couleur de l'espece, foncee pour se lire sur le papier ; les ecrans
+   sombres gardent l'encre de nuit. */
+:root[data-theme='light'] :is(.shell, .modal) {
+  --entity-ink: var(--entity-ink-day, #8A5207);
+  --entity-strong: var(--entity-ink-day, #8A5207);
+}
+:root[data-theme='light'] :is(.shell, .modal) :is(.deck-front, .deck-rear, .vard-stage, .vhanger-card, .skin, .frame, .stamp, .dif-card, .ident, .atlas-map, .wt) {
+  --entity-ink: var(--entity-ink-night, #F2A32C);
+  --entity-strong: var(--entity-ink-night, #F2A32C);
+}
+:root[data-theme='light'] .anim-loop.is-on { color: #3F6E0A; }
+:root[data-theme='light'] .need { background: rgba(255, 255, 255, .6); }
+:root[data-theme='light'] .need-name { color: var(--ink-soft); }
+:root[data-theme='light'] .const-chip { background: rgba(255, 255, 255, .6); border-color: rgba(42, 42, 31, .2); }
+:root[data-theme='light'] .const-value { color: var(--ink); }
+:root[data-theme='light'] .hanger-price { color: #6E4104; }
+:root[data-theme='light'] .inv-chip[aria-pressed='true'] { color: #FFFFFF; text-shadow: 1px 1px 0 #3F3F3F; }
+
+/* Le bandeau d'une fiche, de jour : le decor de l'espece eclairci, un voile
+   leger (juste assez d'ombre a gauche pour le panneau, qui reste une plaque
+   sombre), et un bas qui se fond dans le papier au lieu du noir — la page
+   claire reprend sans couture sous l'en-tete. */
+:root[data-theme='light'] .ident { background: transparent; }
+/* Le decor de l'espece s'efface vers le bas sur le decor de la page lui-meme :
+   de part et d'autre de la couture, le meme monde sous le meme voile de papier
+   (celui de .shell::before) — plus aucune ligne. */
+:root[data-theme='light'] .ident-media {
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 62%, rgba(0, 0, 0, 0) 100%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 62%, rgba(0, 0, 0, 0) 100%);
+}
+:root[data-theme='light'] .ident-media .hero-media { filter: brightness(1.4) saturate(1.12) contrast(.94); }
+:root[data-theme='light'] .ident-veil {
+  background:
+    linear-gradient(90deg, rgba(22, 30, 24, .42) 0%, rgba(22, 30, 24, .14) 46%, rgba(22, 30, 24, 0) 100%),
+    linear-gradient(180deg, rgba(242, 235, 220, .22) 0%, rgba(242, 235, 220, 0) 30%, rgba(242, 235, 220, 0) 70%, rgba(242, 235, 220, .35) 100%);
+}
+:root[data-theme='light'] .ident-ground { background: none; }
+/* Aucun voile de part et d'autre de la couture : deux voiles qui decroissent
+   en sens contraire y dessinaient une ligne. Seul le decor de l'espece s'efface
+   (le masque de .ident-media), sur le decor de la page. */
+:root[data-theme='light'] .ident::after { display: none; }
+
+/* Les fondus noirs qui raccordaient le bandeau au decor deviennent des fondus
+   de papier. */
+:root[data-theme='light'] .ident-vitals::before {
+  background: linear-gradient(180deg, rgba(242, 235, 220, 0) 0%, rgba(242, 235, 220, .55) 45%, rgba(242, 235, 220, 0) 100%);
+}
+:root[data-theme='light'] .shell::before { display: none; }
+
+/* Le rail : une fiche de papier epinglee. */
+:root[data-theme='light'] .rail {
+  background: var(--paper-glass-hi);
+  border-color: var(--line);
+  box-shadow: inset 0 1px 0 #FFFFFF, 0 6px 0 rgba(66, 52, 26, .14);
+}
+:root[data-theme='light'] :is(.rail-nav, .rail-switch) { border-top-color: rgba(42, 42, 31, .16); }
+:root[data-theme='light'] :is(.rail-names b, .rail-burger-text b) { color: var(--ink); }
+:root[data-theme='light'] :is(.rail-nav a, .rail-beast-link) { color: #4A4838; }
+:root[data-theme='light'] :is(.rail-nav a, .rail-beast-link):hover { color: var(--ink); background: rgba(236, 154, 30, .12); }
+:root[data-theme='light'] :is(.rail-nav a.is-active, .rail-beast-link[aria-current='page']) { color: var(--ink); }
+:root[data-theme='light'] .rail-head { filter: drop-shadow(0 3px 0 rgba(66, 52, 26, .35)); }
+@media (max-width: 1100px) {
+  :root[data-theme='light'] .rail-nav { background: var(--paper-glass-hi); border-color: var(--line); }
+}
+
+:root[data-theme='light'] .chap-title { text-shadow: 3px 3px 0 rgba(44, 48, 32, .55), 0 6px 18px rgba(28, 36, 20, .28); }
+:root[data-theme='light'] .chap-num { -webkit-text-stroke-color: var(--line); color: var(--entity-ink, var(--accent)); }
+:root[data-theme='light'] :is(.chap-lead, .chap-note) {
+  width: fit-content;
+  padding: 10px 14px;
+  background: var(--paper-glass);
+  border: 2px solid var(--line);
+  color: var(--ink-soft);
+}
+:root[data-theme='light'] .chap-label { color: color-mix(in srgb, var(--entity-ink, var(--accent)) 55%, var(--ink)); }
+
+/* Les panneaux de lecture passent au papier. */
+:root[data-theme='light'] :is(.prof, .paper-card, .aura, .atlas-card, .chest-side, .board-side, .anim-rows, .tape) {
+  background: var(--paper-glass);
+  -webkit-backdrop-filter: blur(8px) saturate(1.1);
+  backdrop-filter: blur(8px) saturate(1.1);
+  border-color: var(--line);
+  box-shadow: var(--paper-shadow);
+}
+:root[data-theme='light'] .tape { border-top-color: var(--tape); }
+:root[data-theme='light'] .paper-card { border-left-color: var(--entity-ink, var(--accent)); }
+:root[data-theme='light'] .aura { border-left-color: var(--accent-line, var(--accent)); }
+:root[data-theme='light'] :is(.row, .tbl-row, .craft-row, .tape-row, .tape-head, .anim-row, .step) { border-color: rgba(42, 42, 31, .12); }
+:root[data-theme='light'] :is(.tbl-headrow, .anim-head) { background: rgba(42, 42, 31, .08); border-bottom-color: var(--line); }
+:root[data-theme='light'] :is(.tbl-body .tbl-row, .tape-row, .anim-row):hover { background: rgba(236, 154, 30, .1); }
+:root[data-theme='light'] :is(
+  .row dd, .aura-title, .craft-out b, .tape-head b, .tape-name, .anim-name,
+  .board-passive b, .dif-rung.is-on .dif-rung-num, .saddle-titles b, .somno-titles b
+) { color: var(--ink); }
+:root[data-theme='light'] .somno-rows .need:hover { background: rgba(255, 255, 255, .6); }
+/* La note « Chaque creature est unique » ecrivait en gris clair sur un fond gris. */
+:root[data-theme='light'] .tbl-random { background: rgba(42, 42, 31, .06); color: var(--ink-soft); }
+:root[data-theme='light'] .tbl-random b { color: var(--ink); }
+:root[data-theme='light'] :is(.tbl-val, .step p b, .step p strong, .aura-text b, .aura-text strong) {
+  color: color-mix(in srgb, var(--entity-strong, var(--entity-ink, var(--accent))) 60%, var(--ink));
+}
+:root[data-theme='light'] :is(.prof-fold, .craft-chip) { background: rgba(255, 255, 255, .55); border-color: rgba(42, 42, 31, .16); }
+:root[data-theme='light'] .prof-fold-head:hover { background: rgba(236, 154, 30, .1); }
+:root[data-theme='light'] .anim-bar { background: rgba(42, 42, 31, .16); }
+:root[data-theme='light'] .step-num { border-color: var(--line); color: #FFF4DE; background: #8A6430; }
+:root[data-theme='light'] .biome-chip { background: #FFFBF3; border-color: var(--line); color: var(--ink); }
+:root[data-theme='light'] .biome-chip:hover { background: #FFF3D9; }
+:root[data-theme='light'] .board-passive { background: rgba(255, 255, 255, .55); border-color: rgba(42, 42, 31, .16); }
+:root[data-theme='light'] .board-passive.is-owned { background: rgba(184, 74, 56, .12); border-color: #B84A38; }
+:root[data-theme='light'] .sack-slot { background-color: #C6C6C6; border-color: #373737 #FFFFFF #FFFFFF #373737; }
+
+/* Le journal devient un vrai carnet : papier ligne, encre brune. */
+:root[data-theme='light'] .book {
+  background:
+    repeating-linear-gradient(180deg, transparent 0 29px, rgba(138, 100, 48, .14) 29px 30px),
+    radial-gradient(90% 70% at 50% 0%, rgba(255, 255, 255, .7), transparent 70%),
+    #FBF4E2;
+  border-color: var(--line);
+  border-top-color: #8A6430;
+  box-shadow: inset 0 1px 0 #FFFFFF, 0 8px 0 rgba(66, 52, 26, .15);
+}
+:root[data-theme='light'] .book-spine { background: linear-gradient(180deg, transparent, rgba(138, 100, 48, .45) 20%, rgba(138, 100, 48, .45) 80%, transparent); }
+:root[data-theme='light'] .book-folio { color: #8A6430; }
+:root[data-theme='light'] .book-page p { color: #2E2A1F; }
+:root[data-theme='light'] :is(.book-page p b, .book-page p strong, .book-page:hover .book-folio) { color: #9A4E0C; }
+:root[data-theme='light'] .book-empty { color: #5A5240; }
+
+/* Le butin : la vraie fenetre de coffre de Minecraft, grise et biseautee. */
+:root[data-theme='light'] .chest-window {
+  background: #C6C6C6;
+  border-color: #000000;
+  box-shadow: inset 3px 3px 0 #FFFFFF, inset -3px -3px 0 #555555, 0 6px 0 rgba(66, 52, 26, .16);
+}
+:root[data-theme='light'] :is(.chest-title, .chest-note) { color: #3F3F3F; }
+:root[data-theme='light'] .chest-slot { background: #8B8B8B; border-color: #373737 #FFFFFF #FFFFFF #373737; }
+:root[data-theme='light'] .chest-slot:hover { background: #A5A5A5; }
+:root[data-theme='light'] .chest-slot.is-empty { background: #8B8B8B; }
+/* La meme fenetre grise pour tout ce que la fiche habille en coffre
+   (css/animal.css, --ch-*) : statistiques, passif, apparition, bandeaux de
+   l'apprivoisement, cadre des skins. Les ecrans sombres gardent la nuit. */
+:root[data-theme='light'] {
+  --ch-window: #C6C6C6;
+  --ch-edge: #000000;
+  --ch-window-shadow: inset 3px 3px 0 #FFFFFF, inset -3px -3px 0 #555555, 0 6px 0 rgba(66, 52, 26, .16);
+  --ch-slot: #BEBEBE;
+  --ch-slot-hover: #CBCBCB;
+  --ch-slot-edge: #373737 #FFFFFF #FFFFFF #373737;
+  --ch-title: #3F3F3F;
+  --ch-text: #3F3F3F;
+  --ch-muted: #555555;
+  --ch-value: #FFFFFF;
+  --ch-value-shadow: 2px 2px 0 #3F3F3F;
+  --ch-pixel-shadow: 2px 2px 0 #3F3F3F;
+  --ch-track: rgba(0, 0, 0, .2);
+}
+/* De jour, jamais d'encre noire sur le gris : le texte prend le gris fonce
+   de l'interface du jeu, les grands titres et les chiffres le blanc ombre de
+   ses compteurs (avant, le titre du passif tombait en encre sous une ombre
+   noire). */
+:root[data-theme='light'] :is(#stats, #abilities, #spawn) :is(.row dd, .tbl-cell, .tbl-name, .tbl-random, .tbl-random b, .aura-text p, .wild-row, .const-value) { color: #3F3F3F; }
+:root[data-theme='light'] :is(#stats, #spawn) :is(.row dt, .tbl-th, .tbl-foot, .tbl-range, .prof-raw-head em) { color: #555555; }
+:root[data-theme='light'] #abilities .aura-title {
+  color: #FFFFFF;
+  text-shadow: 3px 3px 0 #3F3F3F;
+}
+
+/* La difficulte : le tampon passe au gris du jeu, sa couleur de palier en
+   lueur et en titre ombre. */
+:root[data-theme='light'] #taming .stamp {
+  background:
+    radial-gradient(70% 90% at 12% 50%, color-mix(in srgb, var(--difficulty-color) 26%, transparent), transparent 72%),
+    #C6C6C6;
+  box-shadow: inset 3px 3px 0 #FFFFFF, inset -3px -3px 0 #555555, 0 6px 0 rgba(66, 52, 26, .16);
+}
+:root[data-theme='light'] #taming .stamp:hover {
+  box-shadow: inset 3px 3px 0 #FFFFFF, inset -3px -3px 0 #555555, 0 10px 0 rgba(66, 52, 26, .2),
+    0 0 30px color-mix(in srgb, var(--difficulty-color) 40%, transparent);
+}
+:root[data-theme='light'] #taming .stamp-text b {
+  color: var(--difficulty-ink, var(--difficulty-color));
+  text-shadow: 2px 2px 0 color-mix(in srgb, var(--difficulty-color) 35%, #000000);
+}
+:root[data-theme='light'] #taming .stamp-text small { color: #555555; }
+:root[data-theme='light'] #taming .stamp-text em { color: #8A5207; }
+
+/* Le progres : la notification du jeu, en fenetre grise. */
+:root[data-theme='light'] #taming .toast-adv {
+  background: #C6C6C6;
+  border-color: #000000;
+  box-shadow: inset 3px 3px 0 #FFFFFF, inset -3px -3px 0 #555555, 0 6px 0 rgba(66, 52, 26, .16);
+}
+:root[data-theme='light'] #taming .toast-adv-text small { color: #7A5C00; }
+:root[data-theme='light'] #taming .toast-adv-text b { color: #3F3F3F; }
+:root[data-theme='light'] #taming .toast-adv-text em { color: #555555; }
+
+/* La fenetre de l'echelle de difficulte : la meme fenetre grise, le palier en
+   scene dans une case creusee, les barreaux en cases du jeu. Le nom du palier
+   prend sa couleur lisible (--dif-ink : les deux derniers sont presque noirs)
+   sous une ombre de la meme teinte. */
+:root[data-theme='light'] [data-difficulty-modal] .dif-card {
+  background: #C6C6C6;
+  border: 3px solid #000000;
+  box-shadow: inset 3px 3px 0 #FFFFFF, inset -3px -3px 0 #555555, 0 10px 0 rgba(66, 52, 26, .2), 0 30px 70px rgba(28, 36, 20, .3);
+}
+:root[data-theme='light'] [data-difficulty-modal] .dif-kicker { color: #555555; }
+:root[data-theme='light'] [data-difficulty-modal] .dif-title { color: #FFFFFF; text-shadow: 3px 3px 0 #3F3F3F; }
+:root[data-theme='light'] [data-difficulty-modal] .btn-close {
+  background: #7A7A7A;
+  border: 2px solid #000000;
+  box-shadow: inset 2px 2px 0 #ABABAB, inset -2px -3px 0 #4C4C4C;
+  color: #FFFFFF;
+}
+:root[data-theme='light'] [data-difficulty-modal] .btn-close:hover { background: #8A8A8A; }
+:root[data-theme='light'] [data-difficulty-modal] .btn-close svg { fill: #FFFFFF; filter: drop-shadow(2px 2px 0 #3F3F3F); }
+:root[data-theme='light'] [data-difficulty-modal] .dif-stage {
+  background:
+    radial-gradient(70% 120% at 12% 50%, color-mix(in srgb, var(--dif) 30%, transparent), transparent 70%),
+    #BEBEBE;
+  box-shadow: inset 2px 2px 0 #373737, inset -2px -2px 0 #FFFFFF, 0 0 34px color-mix(in srgb, var(--dif) 24%, transparent);
+}
+:root[data-theme='light'] [data-difficulty-modal] .dif-face { filter: drop-shadow(0 6px 0 rgba(63, 63, 63, .45)); }
+:root[data-theme='light'] [data-difficulty-modal] .dif-text small { color: #555555; }
+:root[data-theme='light'] [data-difficulty-modal] .dif-text b {
+  color: var(--dif-ink, var(--dif));
+  text-shadow: 2px 2px 0 color-mix(in srgb, var(--dif) 35%, #000000);
+}
+:root[data-theme='light'] [data-difficulty-modal] .dif-text em { color: #3F3F3F; }
+:root[data-theme='light'] [data-difficulty-modal] .dif-rung {
+  background: #BEBEBE;
+  border-color: #373737 #FFFFFF #FFFFFF #373737;
+  border-bottom-color: var(--dif);
+}
+:root[data-theme='light'] [data-difficulty-modal] .dif-rung:hover { background: #CBCBCB; }
+:root[data-theme='light'] [data-difficulty-modal] .dif-rung.is-on {
+  background: color-mix(in srgb, var(--dif) 30%, #C6C6C6);
+  box-shadow: 0 0 0 2px var(--dif), 0 0 26px color-mix(in srgb, var(--dif) 30%, transparent);
+}
+:root[data-theme='light'] [data-difficulty-modal] .dif-rung-num { color: #555555; }
+:root[data-theme='light'] [data-difficulty-modal] .dif-rung.is-on .dif-rung-num { color: #3F3F3F; }
+:root[data-theme='light'] [data-difficulty-modal] .dif-rung-mark { background: #3F3F3F; }
+
+/* Les variantes : la fenetre et les cintres en gris du jeu, le nom en blanc
+   ombre, le bouton en pierre comme ceux de Minecraft. */
+:root[data-theme='light'] #variants .vard-meta small { color: var(--entity-ink-day, #8A5207); }
+:root[data-theme='light'] #variants .vard-meta b { color: #FFFFFF; text-shadow: 3px 3px 0 #3F3F3F; }
+:root[data-theme='light'] #variants .vard-meta em { color: #555555; }
+:root[data-theme='light'] #variants .vard-zoom {
+  background: #7A7A7A;
+  border: 2px solid #000000;
+  box-shadow: inset 2px 2px 0 #ABABAB, inset -2px -3px 0 #4C4C4C;
+  color: #FFFFFF;
+  text-shadow: 2px 2px 0 #3F3F3F;
+}
+:root[data-theme='light'] #variants .vard-zoom:hover { background: #8A8A8A; }
+:root[data-theme='light'] #variants .vhanger-name { color: #3F3F3F; }
+:root[data-theme='light'] #variants .vhanger-foot { color: #555555; }
+:root[data-theme='light'] #variants :is(.vard-stage, .vhanger-card) { border-bottom-color: var(--entity-ink-day, #8A5207); }
+
+/* ===========================================================================
+   7 · Le simulateur
+   =========================================================================== */
+
+:root[data-theme='light'] :is(.sim-panel, .verdict-card, .arch-card, .podium-rest-row) {
+  background: var(--paper-glass);
+  border-color: var(--line);
+  box-shadow: var(--paper-shadow);
+}
+:root[data-theme='light'] :is(
+  .podium-rest-row, .radar-key, .bd-beast b, .ttk-head small, .ttk-cell b,
+  .verdict-name, .verdict-score, .trail-count > span, .trail-unlock-name, .dps-name,
+  .duel-tag, .duel-name, .duel-level b, .duel-stat b, .dial-name, .dial-stats dd, .duel-add
+) { color: var(--ink); }
+:root[data-theme='light'] :is(.sim-step-title, .quest-col-title, .podium-name) {
+  color: #FFFFFF;
+  text-shadow: 3px 3px 0 rgba(44, 48, 32, .55), 0 6px 16px rgba(28, 36, 20, .25);
+}
+:root[data-theme='light'] .sim-step-head .fill { background: rgba(42, 42, 31, .3); }
+:root[data-theme='light'] :is(.duel-bar, .mult-track, .duel-range) { background: rgba(42, 42, 31, .16); border-color: var(--line); }
+:root[data-theme='light'] .duel-remove { background: #FFFBF3; color: var(--ink); border-color: var(--line); }
+:root[data-theme='light'] .duel-add { background: var(--paper-glass); border-color: var(--line); }
+:root[data-theme='light'] .duel-add:hover { background: #FFF3D9; }
+:root[data-theme='light'] .duel-pick { background: rgba(255, 255, 255, .6); }
+:root[data-theme='light'] .duel-pick.is-taken { background: rgba(42, 42, 31, .22); }
+/* Le choix du mode : la jauge passe au papier. */
+:root[data-theme='light'] .asp-meter-panel {
+  background: var(--paper-glass);
+  border-color: var(--line);
+  box-shadow: var(--paper-shadow);
+}
+:root[data-theme='light'] .asp-meter-title b { color: var(--ink); text-shadow: none; }
+:root[data-theme='light'] :is(.asp-meter-title small, .asp-meter-title .t-pixel) { color: #5A5347; }
+:root[data-theme='light'] :is(.ttk-cell.is-fastest b, .mult-value.is-up, .verdict-list.is-pro .t-pixel, .is-pro .verdict-line::before) { color: #356A0A; }
+:root[data-theme='light'] .dial-stats > div { border-bottom-color: rgba(42, 42, 31, .12); }
+:root[data-theme='light'] .dial-stats > div:hover { background: rgba(236, 154, 30, .1); }
+:root[data-theme='light'] .dial-penalty { color: #9A331F; background: rgba(184, 74, 56, .12); }
+
+/* Les couleurs de place (bleu, vert d'olive) sont trop claires en texte sur
+   le papier : on les fonce, en gardant leur teinte. */
+:root[data-theme='light'] :is(.dial .ring-inner b, .dial-rank, .bd-total) { color: color-mix(in srgb, var(--slot) 62%, var(--ink)); }
+:root[data-theme='light'] .ttk-cell { background: rgba(255, 255, 255, .55); }
+:root[data-theme='light'] .ttk-cell.is-fastest { box-shadow: inset 0 0 0 2px #4F8A12; }
+:root[data-theme='light'] :is(.verdict-list.is-con .t-pixel, .is-con .verdict-line::before, .mult-value.is-down) { color: #A8321C; }
+
+:root[data-theme='light'] .trail-unlock { background: rgba(255, 255, 255, .6); border-color: rgba(42, 42, 31, .2); }
+:root[data-theme='light'] .trail-unlock.is-owned { background: rgba(184, 74, 56, .12); border-color: #B84A38; }
+:root[data-theme='light'] { --tone-spend: #8A5207; --tone-gain: #3F6E0A; --tone-loss: #A8321C; }
+:root[data-theme='light'] .arch-name { color: color-mix(in srgb, var(--arch) 55%, var(--ink)); }
+
+/* Les cartes de l'arene et les cadrans : du papier teinte par la bete. */
+:root[data-theme='light'] .sim-cards { --card-base: rgba(255, 251, 242, .86); }
+:root[data-theme='light'] :is(.duel-row, .dial) { box-shadow: inset 0 1px 0 #FFFFFF, 0 6px 0 rgba(66, 52, 26, .15); }
+:root[data-theme='light'] .duel-row:hover { box-shadow: inset 0 1px 0 #FFFFFF, 0 9px 0 rgba(66, 52, 26, .15), 0 0 34px color-mix(in srgb, var(--slot) 22%, transparent); }
+:root[data-theme='light'] .sim-cards[data-card-style='sober'] :is(.duel-row, .dial) {
+  background:
+    linear-gradient(180deg, var(--beast) 0 4px, transparent 4px),
+    color-mix(in srgb, var(--beast) 9%, #FFFBF3);
+}
+:root[data-theme='light'] .sim-cards[data-card-style='holo'] :is(.duel-row, .dial)::before { mix-blend-mode: normal; opacity: .75; }
+:root[data-theme='light'] .sim-cards[data-card-style='stripes'] :is(.duel-row, .dial)::before {
+  background: repeating-linear-gradient(135deg, rgba(42, 42, 31, .06) 0 8px, transparent 8px 20px),
+    linear-gradient(90deg, color-mix(in srgb, var(--beast) 30%, transparent) 0%, transparent 55%);
+}
+:root[data-theme='light'] .sim-cards[data-card-style='voxel'] :is(.duel-row, .dial)::before { background: var(--beast); opacity: .3; }
+:root[data-theme='light'] .sim-cards[data-card-style='emblem'] :is(.duel-row, .dial)::before { opacity: .16; }
+
+/* ===========================================================================
+   8 · Les objets
+   =========================================================================== */
+
+/* .fiche:not(main) : la carte d'un objet — pas le <main class="fiche"> de la page
+   d'une creature, qui recouvrait sinon tout le decor d'un papier opaque. */
+:root[data-theme='light'] :is(.inv-tab, .fiche:not(main), .inv-search input, .inv-sort select) {
+  background: var(--paper-glass-hi);
+  border-color: var(--line);
+  color: var(--ink);
+}
+:root[data-theme='light'] .inv-tab:hover { background: #FFF3D9; color: var(--ink); }
+:root[data-theme='light'] .inv-tab[aria-selected='true'] { background: var(--accent); color: var(--on-accent); }
+:root[data-theme='light'] .inv-tab[aria-selected='true'] .inv-tab-count { color: #5A2E00; }
+:root[data-theme='light'] :is(.inv-count, .fiche-name, .fiche-stat b, .craft-arrow, .craft-count, .need-row, .fiche-creature, .fiche-use, .inv-chip, .blk-name) { color: var(--ink); }
+:root[data-theme='light'] :is(.fiche-h, .need-row b) { color: #8A5207; }
+:root[data-theme='light'] .fiche-creature:hover { color: #8A5207; }
+:root[data-theme='light'] .inv-title { color: #FFFFFF; text-shadow: 3px 3px 0 rgba(44, 48, 32, .55); }
+:root[data-theme='light'] .inv-chip[aria-pressed='true'] { background: var(--accent); color: var(--on-accent); }
+:root[data-theme='light'] .fiche:not(main) { box-shadow: var(--paper-shadow); }
+
+/* ===========================================================================
+   9 · Les cosmetiques
+   =========================================================================== */
+
+:root[data-theme='light'] :is(.stage, .stage-controls, .stage-row, .hanger-card) {
+  background: var(--paper-glass);
+  border-color: var(--line);
+}
+:root[data-theme='light'] .stage { box-shadow: var(--paper-shadow); }
+:root[data-theme='light'] .stage-btn { background: #FFFBF3; color: var(--ink); border-color: var(--line); }
+:root[data-theme='light'] .stage-btn:hover { background: #FFF3D9; color: #8A5207; }
+:root[data-theme='light'] :is(.stage-name, .ward-name, .ward-count b, .hanger-name) { color: var(--ink); }
+:root[data-theme='light'] .hanger:hover .hanger-card { background: var(--paper-glass-hi); }
+
+/* ===========================================================================
+   10 · Divers
+   =========================================================================== */
+
+:root[data-theme='light'] .page-hero-glow { display: none; }
+
+/* ===========================================================================
+   11 · Les objets : la vraie fenetre d'inventaire du jeu
+   ===========================================================================
+
+   En plein jour, l'inventaire prend le gris biseaute de Minecraft : fond
+   #C6C6C6, cases creusees #8B8B8B, texte gris fonce — exactement l'ecran
+   qu'on ouvre avec la touche E. */
+
+:root[data-theme='light'] .inv-window {
+  background: #C6C6C6;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  border: 3px solid #000000;
+  box-shadow: inset 3px 3px 0 #FFFFFF, inset -3px -3px 0 #555555, 0 6px 0 rgba(66, 52, 26, .16), 0 24px 50px rgba(66, 52, 26, .22);
+  color: #3F3F3F;
+}
+:root[data-theme='light'] .inv-window .inv-title { color: #3F3F3F; text-shadow: none; }
+:root[data-theme='light'] .inv-window :is(.inv-legend, .inv-empty, .inv-count, .inv-sort span, .blk-family) { color: #3F3F3F; }
+:root[data-theme='light'] .inv-grid { background: transparent; border-color: transparent; }
+:root[data-theme='light'] .inv-slot { background: #8B8B8B; border-color: #373737 #FFFFFF #FFFFFF #373737; }
+:root[data-theme='light'] .inv-slot.is-empty { background: #8B8B8B; }
+:root[data-theme='light'] button.inv-slot:hover { background: #A5A5A5; }
+:root[data-theme='light'] .inv-search input,
+:root[data-theme='light'] .inv-sort select {
+  background: #000000;
+  border-color: #A0A0A0;
+  color: #FFFFFF;
+  box-shadow: none;
+}
+:root[data-theme='light'] .inv-search input::placeholder { color: #A0A0A0; }
+:root[data-theme='light'] .inv-filters { background: rgba(0, 0, 0, .08); border-color: #555555; }
+:root[data-theme='light'] .inv-filter-group + .inv-filter-group { border-color: #8B8B8B; }
+:root[data-theme='light'] .inv-chip { background: #DADADA; border-color: #555555; color: #2A2A2A; }
+:root[data-theme='light'] .inv-chip:hover { background: #EDEDED; }
+:root[data-theme='light'] .inv-chip[aria-pressed='true'] { background: #8B8B8B; color: #FFFFFF; }
+:root[data-theme='light'] .inv-reset { color: #3F3F3F; }
+:root[data-theme='light'] .blk-tile { background: var(--paper-glass); border-color: var(--line); box-shadow: var(--paper-shadow); }
+:root[data-theme='light'] .blk-tile:hover { background: var(--paper-glass-hi); }
+:root[data-theme='light'] .blk-family { color: #5A5645; }
+:root[data-theme='light'] .blk-stage::after { background: rgba(66, 52, 26, .25); }
+:root[data-theme='light'] :is(.inv-tab, .fiche-use, .need-row) { box-shadow: var(--paper-shadow); }
+:root[data-theme='light'] :is(.need-row, .fiche-use):hover { background: #FFF3D9; }
+:root[data-theme='light'] .fiche-slot { background-color: #8B8B8B; border-color: #373737 #FFFFFF #FFFFFF #373737; }
+
+/* ===========================================================================
+   12 · Les cosmetiques : la garde-robe
+   =========================================================================== */
+
+:root[data-theme='light'] .ward-row {
+  background: var(--paper-glass);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border-color: var(--line);
+  box-shadow: var(--paper-shadow);
+}
+:root[data-theme='light'] .ward-count { color: #5A5645; }
+:root[data-theme='light'] .hanger-card { background: rgba(255, 255, 255, .7); }
+/* Les couleurs de rarete sont faites pour le noir : sur le papier, on les
+   fonce en gardant leur teinte. */
+:root[data-theme='light'] .hanger-unlock { color: color-mix(in srgb, var(--rarity-color) 50%, var(--ink)); }
+:root[data-theme='light'] .stage-rows { background: var(--line); }
+
+/* ===========================================================================
+   13 · L'accueil
+   =========================================================================== */
+
+:root[data-theme='light'] .hb-glass {
+  background: rgba(255, 251, 242, .86);
+  border-color: var(--line);
+  color: var(--ink);
+}
+:root[data-theme='light'] .hb-glass:hover { background: #FFF3D9; color: var(--ink); }

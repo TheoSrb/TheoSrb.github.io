@@ -1,0 +1,30 @@
+{
+  "_mode_emploi": [
+    "L'historique des versions du mod, affiché sur la page Télécharger (la plus récente en premier).",
+    "Pour publier une version : ajouter un bloc EN TÊTE de \"releases\". Champs :",
+    "  version       (obligatoire) le numéro du mod, ex. \"0.0.2\".",
+    "  label         (facultatif) le nom affiché, ex. \"Bêta 0.2\". Sinon, le numéro.",
+    "  channel       release (stable), beta ou alpha (expérimentale).",
+    "  minecraft     la version de Minecraft, ex. \"1.21.1\" : l'historique est trié par elle.",
+    "  neoforge      la version de NeoForge requise.",
+    "  terrablender  la version de TerraBlender requise.",
+    "  date          AAAA-MM-JJ.",
+    "  url           le lien de téléchargement de CE fichier (CurseForge, Modrinth...). Absent = la page CurseForge du mod.",
+    "  notes         le patch note, en trois listes : added (ajouts), changed (modifications), fixed (corrections).",
+    "Si \"notes\" est absent sur la version la plus récente, la page affiche à la place le contenu de la version, lu dans l'export du mod.",
+    "Les fichiers publiés sur CurseForge s'ajoutent tout seuls à l'historique (via CFWidget) ; un bloc écrit ici gagne toujours sur celui de CurseForge pour la même version."
+  ],
+  "curseforge": "https://www.curseforge.com/minecraft/mc-mods/operation-w-i-l-d",
+  "releases": [
+    {
+      "version": "0.0.1",
+      "label": "Bêta 0.1",
+      "channel": "beta",
+      "minecraft": "1.21.1",
+      "neoforge": "21.1.197",
+      "terrablender": "4.0.0",
+      "date": null,
+      "url": null
+    }
+  ]
+}

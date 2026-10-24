@@ -1,0 +1,20 @@
+{
+  "_mode_emploi": [
+    "EXEMPLES DE MISE EN PAGE UNIQUEMENT — chargés seulement avec ?demo dans l'adresse.",
+    "Chaque carte porte la mention « Exemple ». Les vrais avis vont dans data/community.json."
+  ],
+  "reviews": [
+    { "text": "Exemple d'avis : un texte de deux ou trois phrases, pour voir comment la carte se remplit et où les lignes se coupent.", "stars": 5, "author": "Exemple", "date": "2026-09-20", "version": "Bêta 0.1", "creature": "tiger" },
+    { "text": "Exemple d'avis plus court.", "stars": 4.5, "date": "2026-09-18", "version": "Bêta 0.1", "creature": "red_panda" },
+    { "text": "Exemple d'avis long : quand un joueur écrit beaucoup, la carte grandit un peu mais reste lisible, et le carrousel garde la même hauteur pour toutes les cartes. Les demi-étoiles se remplissent à moitié.", "stars": 3.5, "author": "Exemple", "date": "2026-09-15", "version": "Bêta 0.1", "creature": "crocodile" },
+    { "text": "Exemple d'avis avec une note moyenne.", "stars": 4, "author": "Exemple", "date": "2026-09-12", "creature": "kodiak" },
+    { "text": "Exemple d'avis sans pseudo : il s'affiche en « Anonyme ».", "stars": 5, "date": "2026-09-10", "creature": "elephant" }
+  ],
+  "creations": [
+    { "title": "Exemple de création à la une", "type": "build", "image": "assets/wallpapers/tiger.png", "author": "Exemple", "date": "2026-09-19", "text": "Une création mise à la une s'affiche en grand, en tête de la galerie.", "featured": true },
+    { "title": "Exemple de capture", "type": "screenshot", "image": "assets/wallpapers/kodiak.png", "author": "Exemple", "date": "2026-09-17" },
+    { "title": "Exemple de vidéo", "type": "video", "image": "assets/wallpapers/crocodile.png", "url": "https://www.youtube.com/@Operation_W.I.L.D_Studio", "author": "Exemple", "date": "2026-09-14" },
+    { "title": "Exemple de fan art", "type": "fanart", "image": "assets/wallpapers/red_panda.png", "author": "Exemple", "date": "2026-09-11" },
+    { "title": "Exemple de pack", "type": "pack", "image": "assets/wallpapers/elephant.png", "author": "Exemple", "date": "2026-09-08", "text": "Une description courte, sur deux lignes au plus." }
+  ]
+}

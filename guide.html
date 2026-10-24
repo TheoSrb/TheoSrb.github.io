@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="fr" data-theme="dark" data-booting>
+<head>
+<meta charset="utf-8">
+<!-- En local, les assets viennent du depot GitHub (js/remote-assets.js) : en premier. -->
+<script src="js/remote-assets.js?v=20261001l"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Le wiki n'a pas d'etape de construction : les fichiers sont servis tels
+     quels. Sans ces en-tetes, un navigateur garde volontiers l'ancien CSS
+     apres une modification, et la page semble ne pas avoir bouge. -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Guide du débutant - Operation W.I.L.D</title>
+<meta name="description" content="Bien démarrer dans Operation W.I.L.D : que faire en premier, quelle créature apprivoiser selon les besoins, les meilleures dans chaque domaine et ce qui rapporte le plus.">
+<link rel="icon" href="assets/logo.png" type="image/png">
+<meta name="theme-color" content="#0B0F0C">
+<link rel="apple-touch-icon" href="assets/logo.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Operation W.I.L.D">
+<meta property="og:title" content="Guide du débutant - Operation W.I.L.D">
+<meta property="og:description" content="Bien démarrer dans Operation W.I.L.D : que faire en premier, quelle créature apprivoiser selon les besoins, les meilleures dans chaque domaine et ce qui rapporte le plus.">
+<meta property="og:image" content="https://operation-wild-wiki.netlify.app/assets/og/site.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://operation-wild-wiki.netlify.app/assets/og/site.png">
+<script>
+  /* Theme, effets et langue avant le premier rendu : ni flash de fond, ni flash de texte.
+     La traduction elle-meme (js/i18n.js) leve le voile des qu'elle est prete. */
+  try {
+    var t = localStorage.getItem('ow-theme');
+    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+    var p = localStorage.getItem('ow-perf');
+    if (p === 'full' || p === 'lite') document.documentElement.setAttribute('data-perf', p);
+  } catch (e) {}
+  (function () {
+    var codes = ['fr', 'en', 'es', 'pt', 'ru'], l = null;
+    try { l = localStorage.getItem('ow-lang'); } catch (e) {}
+    if (codes.indexOf(l) < 0) {
+      l = 'en';
+      var list = navigator.languages || [navigator.language || 'en'];
+      for (var i = 0; i < list.length; i++) {
+        var k = String(list[i] || '').slice(0, 2).toLowerCase();
+        if (codes.indexOf(k) >= 0) { l = k; break; }
+      }
+    }
+    document.documentElement.lang = l;
+    if (l !== 'fr') {
+      document.documentElement.setAttribute('data-i18n-pending', '');
+      setTimeout(function () { document.documentElement.removeAttribute('data-i18n-pending'); }, 1800);
+    }
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=Barlow+Condensed:wght@600;700&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="css/tokens.css?v=20261001l">
+<link rel="stylesheet" href="css/base.css?v=20261021c">
+<link rel="stylesheet" href="css/motion.css?v=20261001l">
+<link rel="stylesheet" href="css/components.css?v=20261001l">
+<link rel="stylesheet" href="css/icons.css?v=20261001l">
+<link rel="stylesheet" href="css/search.css?v=20261001l">
+<link rel="stylesheet" href="css/pages.css?v=20261001l">
+<link rel="stylesheet" href="css/biome-world.css?v=20261021g">
+<link rel="stylesheet" href="css/wild.css?v=20261024b">
+<link rel="stylesheet" href="css/guide.css?v=20261001l">
+<link rel="stylesheet" href="css/ux.css?v=20261022a">
+<link rel="stylesheet" href="css/billy.css?v=20261020e">
+<link rel="stylesheet" href="css/theme-light.css?v=20261024b">
+<script src="js/loader.js?v=20261021c"></script>
+<!-- Apres les feuilles de style, jamais avant : un script lent a arriver ne doit
+     pas laisser la page s'afficher sans elles (sans @view-transition, css/ux.css,
+     la transition entre pages est abandonnee). Le decor de biome est ici, dans
+     l'en-tete : il se pose avant la premiere image, pour que la transition ait
+     toujours de quoi glisser. -->
+<script src="js/biome-config.js?v=20261010x"></script>
+<script src="js/biome-world.js?v=20261024b"></script>
+</head>
+<body data-page="guide" >
+
+<div data-site-header></div>
+
+<main class="page">
+  <section class="page-hero gd-hero">
+    <div class="page-hero-glow" aria-hidden="true"></div>
+    <div class="wrap stack" style="position:relative;gap:18px">
+      <span class="t-pixel t-accent">GUIDE DU DÉBUTANT</span>
+      <h1 class="t-display t-h1 anim-slide-left">Bien démarrer</h1>
+      <p class="t-lead" style="max-width:64ch">Que faire en premier, quelle créature apprivoiser selon les objectifs, laquelle
+        excelle dans chaque domaine, qui rapporte le plus de ressources : tout est calculé à partir des données du mod.</p>
+      <span data-gd-signs hidden></span>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap stack" style="gap:28px">
+      <div class="section-head">
+        <span class="t-pixel t-accent">01 · LE PARCOURS</span>
+        <h2 class="t-section">Que faire, et dans quel ordre</h2>
+        <span class="fill"></span>
+      </div>
+      <div class="gd-path" data-gd-map>
+        <svg class="gd-path-trail" data-trail-svg aria-hidden="true" preserveAspectRatio="none">
+          <path class="gd-trail-edge"></path>
+          <path class="gd-trail-bed"></path>
+          <path class="gd-trail"></path>
+        </svg>
+        <span class="gd-path-start" data-trail-start aria-hidden="true">
+          <svg viewBox="0 0 32 32"><path d="M15 1h2v10h-2zM15 21h2v10h-2zM1 15h10v2H1zM21 15h10v2H21zM13 11h6v2h-6zM13 19h6v2h-6zM11 13h2v6h-2zM19 13h2v6h-2zM15 15h2v2h-2z"/></svg>
+          <b>Départ</b>
+        </span>
+        <ol class="gd-journey" data-gd-journey></ol>
+        <span class="gd-path-end" data-trail-end aria-hidden="true">
+          <svg viewBox="0 0 16 16"><path d="M1 1h3v2H1zM12 1h3v2h-3zM3 3h3v2H3zM10 3h3v2h-3zM5 5h6v2H5zM6 7h4v2H6zM5 9h6v2H5zM3 11h3v2H3zM10 11h3v2h-3zM1 13h3v2H1zM12 13h3v2h-3z"/></svg>
+          <b>Le trésor : l’arène</b>
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap stack" style="gap:24px">
+      <div class="section-head">
+        <span class="t-pixel t-accent">02 · LA PREMIÈRE CRÉATURE</span>
+        <h2 class="t-section">Les priorités</h2>
+        <span class="fill"></span>
+      </div>
+      <p class="t-body" style="margin:0;max-width:74ch">Chaque priorité cochée entre dans le classement : chaque créature est notée sur chacune, d’après ses
+        statistiques, son apprivoisement, sa selle et son butin, et le classement se refait aussitôt.</p>
+      <div class="filter-group gd-needs" data-gd-needs role="group" aria-label="Priorités"></div>
+      <div data-gd-podium aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap stack" style="gap:34px">
+      <div class="section-head">
+        <span class="t-pixel t-accent">03 · LES RECORDS</span>
+        <h2 class="t-section">La meilleure dans chaque domaine</h2>
+        <span class="fill"></span>
+      </div>
+      <div class="gd-awards" data-gd-awards></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap stack" style="gap:24px">
+      <div class="section-head">
+        <span class="t-pixel t-accent">04 · LE FARM</span>
+        <h2 class="t-section">Qu’est-ce qui rapporte le plus&nbsp;?</h2>
+        <span class="fill"></span>
+      </div>
+      <p class="t-body" style="margin:0;max-width:74ch">Une ressource choisie, les créatures qui la fournissent sont classées par
+        quantité moyenne par chasse. Le chiffre à côté d’une ressource indique combien de recettes la demandent.</p>
+      <div data-gd-farm></div>
+    </div>
+  </section>
+
+</main>
+
+<div data-site-footer></div>
+
+<script src="js/attack-profiles.js?v=20261010x"></script>
+<script src="js/wiki-data.js?v=20261020a"></script>
+<script src="js/asset-list.js?v=20261023a"></script>
+<script src="js/site.js?v=20261024a"></script>
+<script src="js/block-icons.js?v=20261009a"></script>
+<script src="js/site-config.js?v=20261010x"></script>
+<script src="js/assets-config.js?v=20261001l"></script>
+<script src="js/ux.js?v=20261024d"></script>
+<script src="js/player.js?v=20261001l"></script>
+<script src="js/theme.js?v=20261001l"></script>
+<script src="js/perf.js?v=20261001l"></script>
+<script src="js/i18n.js?v=20261001l"></script>
+<script src="js/favorites.js?v=20261001l"></script>
+<script src="js/reveal.js?v=20261022a"></script>
+<script src="js/interactions.js?v=20261001l"></script>
+<script src="js/footer.js?v=20261001l"></script>
+<script src="js/search.js?v=20261024a"></script>
+<script src="js/header.js?v=20261001l"></script>
+<script src="js/billy.js?v=20261024a"></script>
+<script src="js/swing.js?v=20261021f"></script>
+<script src="js/wild.js?v=20261001l"></script>
+<script src="js/combat-data.js?v=20261010x"></script>
+<script src="js/taming-guides.js?v=20261010x"></script>
+<script src="js/guide.js?v=20261023a"></script>
+</body>
+</html>

@@ -1,0 +1,440 @@
+/* Mouvement, matiere et interactions partagees.
+
+   Trois choses vivent ici, et rien d'autre :
+     1. le systeme d'apparition au scroll (une transition, plus une animation) ;
+     2. les reflets dores, qui traversaient mal leur bouton ;
+     3. le vocabulaire d'interaction — survol, appui, repos — que toutes les
+        pages reutilisent au lieu de le redecrire chacune dans leur coin.
+
+   Regle de fond : tout ce qui bouge en continu passe par transform et opacity.
+   Le reste (couleur, ombre) ne s'anime qu'au survol, jamais en boucle. */
+
+/* ===========================================================================
+   1. Apparition au scroll
+   ===========================================================================
+
+   L'ancien systeme posait une animation CSS en pause sur chaque element et
+   attendait que l'IntersectionObserver la relance. Deux defauts : l'observer
+   ne repond qu'apres la premiere peinture, si bien que tout ce qui etait deja
+   a l'ecran demarrait en retard ; et le decalage etait calcule sur l'ordre du
+   document, pas sur l'ordre d'apparition.
+
+   Ici l'etat de depart est une simple transition. reveal.js pose .is-in, et
+   --reveal-delay porte le decalage, calcule par groupe. */
+
+/* translate et scale, et non transform : une carte qui s'incline vers le
+   curseur ([data-tilt]) ecrit dans transform, et les deux effets se battaient
+   pour la meme propriete — la derniere regle declaree gagnait, l'autre
+   disparaissait. Les proprietes independantes se composent, elles. */
+[data-reveal] {
+  opacity: 0;
+  translate: var(--reveal-x, 0) var(--reveal-y, 26px);
+  scale: var(--reveal-scale, 1);
+  transition:
+    opacity 640ms var(--ease-reveal) var(--reveal-delay, 0ms),
+    translate 720ms var(--ease-reveal) var(--reveal-delay, 0ms),
+    scale 720ms var(--ease-reveal) var(--reveal-delay, 0ms),
+    filter 720ms var(--ease-reveal) var(--reveal-delay, 0ms);
+  will-change: translate, scale, opacity;
+}
+
+[data-reveal='left']  { --reveal-x: -38px; --reveal-y: 0; }
+[data-reveal='right'] { --reveal-x: 38px;  --reveal-y: 0; }
+[data-reveal='pop']   { --reveal-y: 20px;  --reveal-scale: .94; }
+[data-reveal='zoom']  { --reveal-y: 0;     --reveal-scale: 1.06; }
+[data-reveal='blur']  { --reveal-y: 18px; filter: blur(10px); }
+
+[data-reveal].is-in {
+  opacity: 1;
+  translate: none;
+  scale: none;
+  filter: none;
+  /* Rendu, l'element n'a plus rien a promettre au compositeur. */
+  will-change: auto;
+}
+
+/* Une barre de statistique se remplit dans sa largeur, elle ne monte pas. */
+[data-reveal='bar'] {
+  opacity: 1;
+  translate: none;
+  scale: 0 1;
+  transform-origin: left center;
+  transition: scale 900ms var(--ease-reveal) var(--reveal-delay, 0ms);
+}
+[data-reveal='bar'].is-in { scale: 1 1; }
+
+/* ===========================================================================
+   2. Reflets dores
+   ===========================================================================
+
+   Le reflet etait un ruban de 38px translate en pourcentage — or un
+   pourcentage de transform se lit sur la largeur de l'element lui-meme, pas
+   sur celle du bouton. Le ruban parcourait donc 121px quoi qu'il arrive, et
+   s'arretait au milieu des boutons plus larges.
+
+   Le ruban fait desormais toute la largeur du bloc et porte son degrade a
+   l'interieur : translateX(-100%) -> translateX(100%) traverse exactement
+   deux fois la boite, quelle que soit sa taille. */
+
+@keyframes ow-gleam {
+  0%   { transform: translate3d(-100%, 0, 0); }
+  /* La course dure un tiers du cycle ; le reste est le temps de repos, hors
+     champ, qui espace les passages sans les rendre saccades. */
+  34%  { transform: translate3d(100%, 0, 0); }
+  100% { transform: translate3d(100%, 0, 0); }
+}
+
+.shine,
+.gilded::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    115deg,
+    rgba(255, 255, 255, 0) 38%,
+    rgba(255, 255, 255, var(--gleam-strength, .5)) 50%,
+    rgba(255, 255, 255, 0) 62%);
+  transform: translate3d(-100%, 0, 0);
+  animation: ow-gleam var(--gleam-duration, 5.2s) cubic-bezier(.4, 0, .2, 1) var(--gleam-delay, 1.2s) infinite;
+  pointer-events: none;
+  /* Sans cela le ruban scintille sur ses bords en fin de course sur Chromium. */
+  backface-visibility: hidden;
+}
+
+/* Un bloc dore : le reflet a besoin d'un cadre pour etre coupe proprement. */
+.gilded {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Un bouton qui porte un reflet a besoin exactement du meme cadre. Sans lui,
+   le ruban est absolu sans ancetre positionne : il se cale sur le premier
+   qu'il trouve — une section entiere, le plus souvent — et balaie bien au-dela
+   du bouton. Chaque bouton concerne le corrigeait jusqu'ici dans son coin ;
+   c'est la, aupres du reflet, que la regle appartient. */
+.btn:has(> .shine) {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.gilded > * { position: relative; z-index: 1; }
+
+/* Au survol, le reflet repasse tout de suite et plus vite : le bloc repond au
+   lieu d'attendre son tour dans le cycle. */
+.gilded:hover::after,
+.btn:hover > .shine {
+  animation-duration: 1.5s;
+  animation-delay: 0s;
+  --gleam-strength: .72;
+}
+
+/* Rarete legendaire : deux reflets decales, plus un halo qui respire. */
+.gilded-legendary::after { --gleam-strength: .62; --gleam-duration: 4.4s; }
+.gilded-legendary::before {
+  content: '';
+  position: absolute;
+  inset: -40%;
+  background: conic-gradient(
+    from 0deg,
+    rgba(255, 212, 137, 0) 0deg,
+    rgba(255, 212, 137, .30) 60deg,
+    rgba(255, 212, 137, 0) 130deg,
+    rgba(255, 212, 137, 0) 230deg,
+    rgba(255, 212, 137, .22) 290deg,
+    rgba(255, 212, 137, 0) 360deg);
+  animation: ow-orbit 9s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes ow-orbit { to { transform: rotate(1turn); } }
+
+/* ===========================================================================
+   4. Survol, appui, repos
+   =========================================================================== */
+
+/* Un bloc qui se souleve. Le relief dur du site est conserve : c'est l'ombre
+   portee qui s'allonge, pas un flou qui apparait. */
+.lift {
+  transition:
+    transform 260ms var(--ease-out),
+    box-shadow 260ms var(--ease-out),
+    border-color 200ms ease-out,
+    background-color 200ms ease-out;
+}
+.lift:hover { transform: translate3d(0, -5px, 0); }
+.lift:active { transform: translate3d(0, 1px, 0); transition-duration: 70ms; }
+
+/* Une carte qui s'incline vers le curseur. interactions.js pose --tilt-x et
+   --tilt-y ; sans eux la regle vaut l'identite, donc rien ne bouge sur tactile
+   ou en mouvement reduit, ou le script ne se branche pas. */
+[data-tilt] {
+  transform:
+    perspective(900px)
+    rotateX(var(--tilt-x, 0deg))
+    rotateY(var(--tilt-y, 0deg))
+    translate3d(0, var(--tilt-lift, 0), 0);
+  transform-style: preserve-3d;
+  transition: transform 320ms var(--ease-out), box-shadow 260ms var(--ease-out);
+}
+[data-tilt]:hover { --tilt-lift: -6px; transition-duration: 90ms; }
+[data-tilt]:active { --tilt-lift: 0px; }
+
+/* Un element pousse en avant du plan de la carte inclinee. */
+.tilt-pop { transform: translateZ(28px); }
+
+/* Suit le curseur : interactions.js pose --mx / --my en pourcentage. */
+.glow-follow { position: relative; overflow: hidden; isolation: isolate; }
+.glow-follow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    18rem 18rem at var(--mx, 50%) var(--my, 50%),
+    color-mix(in srgb, var(--glow-color, var(--accent)) 22%, transparent) 0%,
+    transparent 62%);
+  opacity: 0;
+  transition: opacity 260ms ease-out;
+  pointer-events: none;
+  z-index: 0;
+}
+.glow-follow:hover::before { opacity: 1; }
+.glow-follow > * { position: relative; z-index: 1; }
+
+/* Onde au clic, posee par site.js. Elle nait sous le doigt, pas au centre. */
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  background: radial-gradient(circle, rgba(255, 255, 255, .42) 0%, rgba(255, 255, 255, 0) 68%);
+  animation: ow-ripple 620ms var(--ease-out) forwards;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+@keyframes ow-ripple {
+  to { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+}
+
+/* Repos : de tres lentes derives, assez faibles pour ne pas attirer l'oeil
+   mais assez presentes pour que la page ne paraisse pas figee. */
+@keyframes ow-drift {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50%      { transform: translate3d(0, -6px, 0); }
+}
+@keyframes ow-drift-tilt {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50%      { transform: translate3d(0, -5px, 0) rotate(-1.4deg); }
+}
+@keyframes ow-heartbeat {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.045); }
+}
+
+.idle-drift { animation: ow-drift 7s ease-in-out var(--idle-delay, 0s) infinite; }
+.idle-tilt  { animation: ow-drift-tilt 9s ease-in-out var(--idle-delay, 0s) infinite; }
+.idle-beat  { animation: ow-heartbeat 3.4s ease-in-out var(--idle-delay, 0s) infinite; }
+
+/* Une icone qui s'anime seulement quand son bloc est survole : le repos reste
+   calme, et le survol donne le signe de vie. */
+.react-icon { transition: transform 320ms var(--ease-out), filter 320ms ease-out; }
+:is(.lift, .creature-card):hover .react-icon {
+  transform: translate3d(0, -3px, 0) scale(1.12) rotate(-4deg);
+  filter: drop-shadow(0 6px 10px rgba(5, 6, 4, .5));
+}
+
+/* Une fleche qui avance quand on survole son lien. */
+.link-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  transition: color 160ms ease-out, gap 200ms var(--ease-out);
+}
+.link-arrow::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 2px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right center;
+  transition: transform 300ms var(--ease-out);
+}
+.link-arrow:hover { gap: 13px; }
+.link-arrow:hover::after { transform: scaleX(1); transform-origin: left center; }
+
+/* ===========================================================================
+   5. Barre de progression de lecture
+   =========================================================================== */
+
+/* La barre traverse les trois couleurs du mod en descendant : le vert, le
+   bleu, puis l'orange. Elles sont ecrites en clair et non en jetons : aucun
+   des trois jetons de palette ne tombe sur ces valeurs, et les inventer ici
+   ferait croire a une teinte partagee alors qu'elles n'existent que pour
+   cette barre.
+
+   Une decoupe, et non un scaleX : mettre la barre a l'echelle ecrasait le
+   degrade avec elle, et les trois couleurs se retrouvaient tassees dans le
+   premier centimetre des le debut du defilement. Avec clip-path, le degrade
+   reste ancre sur toute la largeur de la fenetre et la barre le devoile — on
+   est dans le vert en haut de page, dans l'orange en bas. */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 95;
+  background: linear-gradient(90deg,
+              #566022 0%,
+              #70BADC 50%,
+              #D97733 100%);
+  clip-path: inset(0 calc(100% - var(--progress, 0) * 100%) 0 0);
+  pointer-events: none;
+  /* Pas de transition : la valeur est deja recalculee a chaque image. */
+}
+
+/* ===========================================================================
+   6. Marquee
+   ===========================================================================
+
+   Le defilement est entierement pilote par home.js, via l'API Web Animations :
+   la distance est mesuree en pixels sur une copie reelle, et le ralenti au
+   survol passe par `playbackRate`, qui change la vitesse sans deplacer la
+   bande. Une regle CSS qui modifiait `animation-duration` au survol faisait
+   sauter la piste, parce que la position courante etait reprojetee sur la
+   nouvelle duree. Il ne reste donc ici que la mise en page. */
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+
+/* ===========================================================================
+   7. Accessibilite
+   ===========================================================================
+
+   Mouvement reduit : rien ne bouge, mais rien ne disparait non plus. Les
+   elements a reveler sont poses en place, pas laisses a opacity 0. */
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal],
+  [data-reveal].is-in {
+    opacity: 1 !important;
+    translate: none !important;
+    scale: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
+  [data-reveal='bar'] { scale: 1 1 !important; }
+
+  .shine,
+  .gilded::after,
+  .gilded::before,
+  .idle-drift,
+  .idle-tilt,
+  .idle-beat { animation: none !important; }
+
+  .shine, .gilded::after { opacity: 0; }
+  .lift:hover { transform: none; }
+}
+
+/* Entree des cartes ajoutees (succes, table de sons) : elles montent et
+   apparaissent, en cascade par --i. */
+@keyframes ow-card-in {
+  from { opacity: 0; transform: translateY(12px) scale(.98); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ===========================================================================
+   Effets allegés : html[data-perf='lite'] (js/perf.js)
+
+   Pose automatiquement sur une machine qui peine, ou choisi dans le menu
+   Langue & affichage. Rien ne bouge de place, aucune couleur ne change : on
+   retire seulement ce qui coute le plus cher a chaque image.
+
+     - le flou des surfaces de verre (recalcule a chaque image, puisque le
+       decor derriere est anime) : les memes surfaces deviennent un peu plus
+       opaques, pour garder la lisibilite que le flou donnait ;
+     - les halos des particules, et une particule sur deux ;
+     - les melanges de calques (rais de lumiere, aurore, rafale) ;
+     - les grands calques qui respirent (voute, houle, brume, lianes) ;
+     - le decor anime des vignettes, fige sur sa premiere image.
+   =========================================================================== */
+
+html[data-perf='lite'] *,
+html[data-perf='lite'] *::before,
+html[data-perf='lite'] *::after {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Le verre, plus dense a la place du flou. */
+:root[data-perf='lite']:not([data-theme='light']) .bw-on main,
+html[data-perf='lite'] .bw-on main .on-media {
+  --panel: rgba(27, 42, 34, .84);
+  --raised: rgba(34, 54, 43, .88);
+  --raised-hi: rgba(44, 74, 59, .92);
+  --inset: rgba(8, 12, 9, .74);
+}
+html[data-perf='lite'] .hb-glass { background: rgba(12, 20, 15, .76); }
+html[data-perf='lite'] :is(.sim-panel, .verdict-card, .arch-card, .stage) { background: rgba(12, 20, 15, .86); }
+html[data-perf='lite'] .sim-tab { background: rgba(12, 20, 15, .84); }
+html[data-perf='lite'] .sim-cards { --card-base: rgba(8, 12, 9, .88); }
+html[data-perf='lite'] .cc-plate { background: rgba(10, 16, 12, .88); }
+html[data-perf='lite'] :is(.inv-tab, .blk-tile) { background: rgba(12, 20, 15, .84); }
+html[data-perf='lite'] .inv-window { background: rgba(27, 42, 34, .88); }
+html[data-perf='lite'] .ward-row { background: rgba(27, 42, 34, .84); }
+html[data-perf='lite'] .stage-btn { background: rgba(5, 6, 4, .82); }
+html[data-perf='lite'] .bw-on main :is(.marquee, .filter-group:not(:empty), .tabs, .animal-switcher-bar) { background: rgba(27, 42, 34, .82); }
+html[data-perf='lite'] .bw-on main .btn:not(.btn-accent):not([aria-pressed='true']) { background: rgba(12, 20, 15, .8); }
+html[data-perf='lite'] .site-header[data-overlay='true']:not([data-scrolled='true']) { background: rgba(5, 6, 4, .72); }
+html[data-perf='lite'] .ps-scrim { background: rgba(5, 6, 4, .92); -webkit-backdrop-filter: none; backdrop-filter: none; }
+:root[data-perf='lite'][data-theme='light'] { --paper-glass: rgba(255, 251, 242, .93); }
+:root[data-perf='lite'][data-theme='light'] .sim-cards { --card-base: rgba(255, 251, 242, .94); }
+
+/* Les particules : sans halo, une sur deux. */
+html[data-perf='lite'] .hb-particles i { box-shadow: none !important; }
+html[data-perf='lite'] .hb-particles i:nth-child(2n) { display: none; }
+
+/* Les melanges de calques. */
+html[data-perf='lite'] :is(.hb-rays, .hb-aurora, .hb-gust) { mix-blend-mode: normal; }
+html[data-perf='lite'] .hb-rays { opacity: .5; animation: none; }
+html[data-perf='lite'] .hb-gust { display: none; }
+html[data-perf='lite'] .bw-scene.fx-glint .hb-water::after { mix-blend-mode: normal; animation: none; opacity: .5; }
+
+/* Les grands calques qui respirent. */
+html[data-perf='lite'] :is(.bw-scene.fx-sway .hb-ceiling, .bw-scene.fx-bob .hb-mid, .hb-mist, .hb-vine, .hb-corner, .hb-aurora, .hb-reflect) { animation: none !important; }
+html[data-perf='lite'] .hb-reflect > i { animation: none !important; }
+html[data-perf='lite'] .hb-corner-r { transform: scaleX(-1); }
+
+/* La troupe de l'accueil entre en scene, puis ne respire plus. */
+html[data-perf='lite'] .hb-cast { animation: ow-cast 1200ms cubic-bezier(.16, .9, .2, 1) 600ms both; }
+
+/* Les vignettes : decor fige. */
+html[data-perf='lite'] .bw-scene.is-mini *,
+html[data-perf='lite'] .bw-scene.is-mini *::before,
+html[data-perf='lite'] .bw-scene.is-mini *::after { animation-play-state: paused !important; }
+
+/* ===========================================================================
+   Toujours : ce qui ne se voit pas ne s'anime pas
+   =========================================================================== */
+
+/* Une vignette de biome sortie de l'ecran (carte, bandeau d'une fiche) met
+   ses animations en pause : on ne la voit pas, elle ne coute rien. */
+.bw-scene.is-paused *,
+.bw-scene.is-paused *::before,
+.bw-scene.is-paused *::after { animation-play-state: paused !important; }
+
+/* Chaque scene est une boite fermee : ce qui s'y passe n'invalide jamais la
+   mise en page du reste de la page. */
+.bw-scene { contain: strict; }
+
+.bw-veil { will-change: opacity; }

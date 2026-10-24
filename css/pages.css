@@ -1,0 +1,1127 @@
+/* Page-specific composition. Everything colour-related still resolves through
+   the tokens, so both themes follow without a second set of rules. */
+
+/* ===========================================================================
+   Ambient canvas
+   =========================================================================== */
+
+.ambient-canvas {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 6;
+  opacity: .55;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+/* The embers are lit sparks: on a cream ground they would only muddy it. */
+:root[data-theme='light'] .ambient-canvas { display: none; }
+
+/* ===========================================================================
+   Accueil — les chiffres du mod
+   ===========================================================================
+
+   Cinq panneaux de chene suspendus a leurs chaines, qui se balancent a peine.
+   Le chiffre y est ecrit en blanc, cerne de brun sur quatre cotes ; seul le
+   filet sous le chiffre garde la couleur de son domaine. */
+
+.section-stats { padding-top: 64px; }
+
+.sign-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 46px clamp(10px, 1.5vw, 24px);
+  padding-top: 46px;
+}
+
+/* Le balancement est pilote par js/home.js (initSignPhysics) : un pendule
+   que la souris pousse. Le point d'accroche est en haut des chaines. */
+.sign {
+  position: relative;
+  transform-origin: 50% -42px;
+  will-change: transform;
+}
+
+/* Deux chaines de maillons, accrochees hors champ. */
+.sign-chains {
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  top: -44px;
+  height: 46px;
+  background:
+    repeating-linear-gradient(180deg, #8A8A8A 0 6px, #3A3A3A 6px 8px, transparent 8px 10px) left / 4px 100% no-repeat,
+    repeating-linear-gradient(180deg, #8A8A8A 0 6px, #3A3A3A 6px 8px, transparent 8px 10px) right / 4px 100% no-repeat;
+}
+
+.sign-board {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: clamp(160px, 14.4vw, 212px);
+  padding: 20px 12px 16px;
+  text-align: center;
+  background:
+    repeating-linear-gradient(180deg, transparent 0 24px, rgba(30, 16, 5, .5) 24px 26px),
+    linear-gradient(90deg, rgba(0, 0, 0, .07) 0 12%, transparent 12% 40%, rgba(0, 0, 0, .05) 40% 55%, transparent 55%),
+    #775530;
+  border: 4px solid #33210F;
+  box-shadow:
+    inset 0 0 0 2px #93703F,
+    inset 0 -5px 0 rgba(0, 0, 0, .16),
+    0 16px 30px rgba(0, 0, 0, .38);
+}
+
+.sign-value {
+  /* Une boite de hauteur fixe : « Bêta 0.1 », ecrit plus petit, ne doit pas
+     rendre son panneau plus court que les autres. */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: clamp(54px, 5.2vw, 80px);
+  font-family: var(--font-display);
+  font-size: clamp(50px, 5vw, 78px);
+  line-height: 1;
+  letter-spacing: .01em;
+  white-space: nowrap;
+  color: #FFFFFF;
+  text-shadow:
+    3px 0 0 #2A1708, -3px 0 0 #2A1708, 0 3px 0 #2A1708, 0 -3px 0 #2A1708,
+    3px 3px 0 #2A1708, -3px 3px 0 #2A1708, 3px -3px 0 #2A1708, -3px -3px 0 #2A1708,
+    0 7px 0 rgba(42, 23, 8, .45);
+}
+/* « Bêta 0.1 » n'a pas la largeur d'un nombre. */
+.sign-value.is-long { font-size: clamp(32px, 3vw, 46px); }
+
+/* Un filet de la couleur du chiffre, entre le nombre et son nom. */
+.sign-rule {
+  width: 46%;
+  height: 4px;
+  margin: 12px 0 10px;
+  background: var(--glow, #F2A32C);
+  box-shadow: 0 2px 0 #2A1708;
+}
+
+.sign-key {
+  font-family: var(--font-condensed);
+  font-size: clamp(17px, 1.4vw, 21px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #FFFFFF;
+  /* Sur un bois sombre, le nom est ecrit en blanc, avec une ombre d'encre
+     dessous. */
+  text-shadow: 0 2px 0 #1E0F04;
+}
+
+@media (max-width: 720px) {
+  .sign-row { gap: 44px 12px; }
+  .sign-board { width: 42vw; }
+  .sign-value { height: 50px; font-size: 46px; }
+  .sign-value.is-long { font-size: 28px; }
+  .sign-key { font-size: 14px; letter-spacing: .06em; }
+}
+
+
+/* ===========================================================================
+   Accueil — bandeau defilant
+   ===========================================================================
+
+   Une bande de verre posee de travers, dans la matiere du lecteur du theme
+   principal : le vert translucide des panneaux, flou et un peu sature, cerne
+   d'un trait d'encre, un reflet clair en haut. Les betes y defilent, la tete
+   et le nom ; au survol, la tete bondit et le nom prend la couleur de
+   l'espece. */
+
+.marquee {
+  position: relative;
+  z-index: 3;
+  overflow: hidden;
+  margin: 90px -3% 36px;
+  background: rgba(27, 42, 34, .58);
+  -webkit-backdrop-filter: blur(8px) saturate(1.15);
+  backdrop-filter: blur(8px) saturate(1.15);
+  border-top: 2px solid var(--border-strong);
+  border-bottom: 2px solid var(--border-strong);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 14px 26px rgba(0, 0, 0, .35);
+  transform: rotate(-2.2deg);
+}
+:root[data-theme='light'] .marquee { background: rgba(27, 42, 34, .66); }
+
+.marquee-run {
+  display: flex;
+  gap: 40px;
+  padding-right: 40px;
+}
+
+.marquee-item {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 17px 0;
+}
+
+.marquee-head {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  transition: transform 380ms var(--ease-snap);
+}
+
+.marquee-name {
+  font-family: var(--font-display);
+  font-size: clamp(24px, 2.5vw, 34px);
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #F7F4EC;
+  text-shadow: 0 3px 0 rgba(5, 6, 4, .6);
+  transition: color 220ms ease, translate 320ms var(--ease-snap);
+}
+
+.marquee-item:hover .marquee-head { transform: translateY(-5px) rotate(-8deg) scale(1.18); }
+.marquee-item:hover .marquee-name { color: var(--ink); translate: 0 -4px; }
+
+@media (max-width: 720px) {
+  .marquee { margin-top: 70px; }
+  .marquee-head { width: 30px; height: 30px; }
+}
+
+/* ===========================================================================
+   Cartes de creature
+   ===========================================================================
+
+   La carte du bestiaire. Elle s'incline vers le curseur ([data-tilt]) et
+   s'eclaire la ou il passe (.glow-follow) ; le portrait, lui, sort du plan de
+   la carte, ce qui donne au relief son epaisseur. */
+
+.home-creature-grid {
+  grid-template-columns: repeat(auto-fill, minmax(238px, 1fr));
+}
+
+.mystery {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 168px;
+}
+/* La silhouette occupe tout le cadre du mystere, plus grande qu'une tete de
+   carte ordinaire : c'est elle qui intrigue. */
+.mystery .mystery-silhouette { width: 100%; height: 100%; }
+.creature-card-soon .creature-card-portrait { height: auto; padding-top: 10px; }
+.mystery-light {
+  position: absolute;
+  inset: -12% 8%;
+  background: radial-gradient(closest-side, rgba(255, 255, 255, .26), rgba(170, 190, 255, .08) 60%, transparent);
+  animation: mystery-glow 3.2s ease-in-out infinite alternate;
+}
+@keyframes mystery-glow { from { opacity: .55; transform: scale(.94); } to { opacity: 1; transform: scale(1.04); } }
+.mystery-silhouette {
+  position: relative;
+  filter:
+    brightness(0)
+    drop-shadow(0 0 1px rgba(255, 255, 255, .7))
+    drop-shadow(0 0 12px rgba(190, 205, 255, .35)) !important;
+}
+.mystery-mark {
+  position: absolute;
+  font-family: var(--font-display);
+  font-size: 84px;
+  line-height: 1;
+  color: #FFFFFF;
+  text-shadow: 3px 3px 0 #000, 0 0 22px rgba(255, 255, 255, .7);
+  animation: mystery-beat 2.4s ease-in-out infinite;
+}
+@keyframes mystery-beat { 0%, 100% { transform: scale(1); } 12% { transform: scale(1.18); } 24% { transform: scale(1); } }
+.mystery-tag { color: var(--text-faint); letter-spacing: .1em; }
+:is(.creature-card-soon, .upcoming-tile):hover .mystery-silhouette { animation: mystery-shiver 360ms steps(3) 2; }
+@keyframes mystery-shiver { 0%, 100% { translate: 0 0; } 33% { translate: -3px 1px; } 66% { translate: 3px -1px; } }
+@media (prefers-reduced-motion: reduce) {
+  .mystery-light, .mystery-mark, .mystery-silhouette { animation: none !important; }
+}
+
+/* ===========================================================================
+   Bestiaire — la bascule carrousel / cartes
+   =========================================================================== */
+
+.bestiary-head-side {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+}
+
+.view-switch {
+  position: relative;
+  display: inline-grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2px;
+  padding: 4px;
+  background: var(--inset);
+  border: 2px solid var(--border-strong);
+  box-shadow: var(--shadow-block-sm), var(--bevel);
+}
+
+/* Le curseur glisse sous les deux libelles : les deux options partagent la
+   meme largeur (grille 1fr 1fr), sinon il faudrait le mesurer en JS. */
+.view-switch-thumb {
+  position: absolute;
+  z-index: 0;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc((100% - 10px) / 2);
+  background: var(--accent);
+  transition: transform 380ms var(--ease-snap);
+}
+.view-switch[data-active='cards'] .view-switch-thumb { transform: translateX(calc(100% + 2px)); }
+
+.view-switch-option {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  height: 34px;
+  padding: 0 16px;
+  border: 0;
+  background: none;
+  cursor: var(--cur-point);
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  transition: color 220ms var(--ease-out);
+}
+.view-switch-option:hover { color: var(--text-strong); }
+.view-switch-option[aria-pressed='true'],
+.view-switch-option[aria-pressed='true']:hover { color: var(--on-accent); }
+
+.view-switch-glyph {
+  width: 13px;
+  height: 13px;
+  flex: 0 0 auto;
+}
+
+/* Une ellipse en perspective : le pictogramme dit la meme chose que le mode. */
+.view-switch-glyph-ring {
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  transform: perspective(16px) rotateX(56deg);
+}
+
+.view-switch-glyph-cards {
+  background:
+    linear-gradient(currentColor 0 0) 0 0 / 5px 5px no-repeat,
+    linear-gradient(currentColor 0 0) 100% 0 / 5px 5px no-repeat,
+    linear-gradient(currentColor 0 0) 0 100% / 5px 5px no-repeat,
+    linear-gradient(currentColor 0 0) 100% 100% / 5px 5px no-repeat;
+}
+
+.bestiary-modes[data-mode='ring'] .home-creature-grid { display: none; }
+.bestiary-modes[data-mode='cards'] .creature-ring { display: none; }
+
+/* La bascule : le mode sortant s'efface en reculant, le mode entrant remonte.
+   Les deux temps sont enchaines par le JS — display ne se transitionne pas, il
+   faut bien attendre que le premier soit fini pour echanger. */
+.bestiary-modes {
+  transition: opacity 220ms ease-in, transform 220ms ease-in;
+}
+.bestiary-modes.is-swapping {
+  opacity: 0;
+  transform: scale(.985) translateY(10px);
+}
+.bestiary-modes.is-swapped .creature-ring,
+.bestiary-modes.is-swapped .home-creature-grid {
+  animation: bestiary-enter 620ms var(--ease-out) backwards;
+}
+
+@keyframes bestiary-enter {
+  from { opacity: 0; transform: translateY(22px) scale(.97); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ===========================================================================
+   Bestiaire — le carrousel
+   ===========================================================================
+
+   Un tambour, pas un defile d'images : les betes sont posees sur les faces d'un
+   cylindre (rotateY puis translateZ du rayon), et c'est le cylindre entier qui
+   tourne sur son axe Y. Une face ne couvre pas toute la scene, et la
+   perspective est courte : sans ces deux choses, la bete de devant reste bien
+   a plat et la rotation ne se voit pas — elle se devine.
+
+   --panel-w, --panel-h, --ring-radius et --ring-perspective sont ecrits par le
+   JS : ils dependent de la taille reelle de la scene, qu'une feuille de style
+   ne peut pas connaitre. */
+
+.ring-stage {
+  position: relative;
+  height: clamp(580px, 63vw, 860px);
+  /* Les faces voisines depassent la scene de plusieurs dizaines de pixels :
+     sans cela, elles poussaient une barre de defilement horizontale. */
+  overflow: hidden;
+  /* Pas de fond ni de cadre : les rendus sont detoures, les betes flottent sur
+     la page comme le casting du cadre d'ouverture. */
+  cursor: var(--cur-grab);
+  /* Le geste horizontal est au tambour, le vertical reste a la page. */
+  touch-action: pan-y;
+  user-select: none;
+  outline: none;
+}
+.ring-stage.is-dragging { cursor: var(--cur-grabbing); }
+/* Pendant le tour, les commandes disent qu'elles ne repondent pas. Sans ce
+   retrait, un clic refuse passait pour un clic rate. */
+.ring-stage.is-locked { cursor: var(--cur-default); }
+.ring-stage.is-locked .ring-nav {
+  pointer-events: none;
+}
+.ring-stage.is-locked .ring-nav { opacity: .4; }
+
+.ring-scene {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 74%;
+  z-index: 1;
+  perspective: var(--ring-perspective, 1300px);
+  perspective-origin: 50% 50%;
+  /* Le recul de camera pendant la rotation : la scene s'eloigne au moment ou
+     le tambour est de profil, puis revient. C'est lui qui fait passer le saut
+     d'un changement d'image a un mouvement d'appareil. */
+  transform-origin: 50% 46%;
+  will-change: transform;
+}
+.ring-stage.is-turning .ring-scene { animation: ring-dolly 960ms ease-in-out; }
+
+/* La camera recule et bascule au moment ou le tambour est de profil. Le
+   perspective() est ecrit dans la transformation elle-meme : la propriete
+   perspective de .ring-scene ne sert qu'a ses enfants, elle ne projette pas la
+   scene, et le rotateX serait reste un cisaillement plat sans lui. */
+@keyframes ring-dolly {
+  0% { transform: none; }
+  46% { transform: perspective(1400px) rotateX(4.5deg) scale(.84) translateY(18px); }
+  100% { transform: none; }
+}
+
+.ring-drum {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  /* --ring-z vaut -(--ring-radius), ecrit tel quel par le JS : Chrome garde la
+     valeur de repli quand ce meme calcul est ecrit en calc(-1 * var(...)) ici,
+     et le tambour restait plante a 800px de la camera. */
+  transform: translateZ(var(--ring-z, -800px)) rotateY(var(--ring-angle, 0deg));
+  transition: transform 960ms ease-in-out;
+}
+/* Pendant le glissement, le tambour suit le doigt : une transition ici le
+   ferait courir apres lui avec une seconde de retard. */
+.ring-stage.is-dragging .ring-drum { transition: none; }
+
+.ring-panel {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--panel-w, 60%);
+  height: var(--panel-h, 100%);
+  margin: calc(var(--panel-h, 100%) / -2) 0 0 calc(var(--panel-w, 60%) / -2);
+  transform: rotateY(var(--panel-angle)) translateZ(var(--ring-radius, 800px));
+  /* Les faces du fond tournent le dos a la camera : sans cela, on verrait les
+     betes de derriere traverser celle de devant. */
+  backface-visibility: hidden;
+  /* Au repos, seule la bete de face existe. Pendant le tour, les deux se
+     croisent : la sortante perd son opacite en meme temps qu'elle part, la
+     suivante se revele des la premiere image. Aucun des deux ne demarre en
+     retard — c'est le croisement qui porte le mouvement, pas un relais.
+
+     Les courbes ne sont pas symetriques pour autant : la sortante part en
+     ease-in, elle tient un instant avant de lacher ; l'entrante monte en
+     ease-out, elle se revele vite puis se pose. A mi-tour, les deux sont aux
+     trois quarts — le tambour se voit tourner a travers elles. */
+  opacity: 0;
+  transition: opacity 620ms ease-in;
+}
+.ring-panel.is-front {
+  opacity: 1;
+  transition: opacity 820ms ease-out;
+}
+
+/* Le tapis roulant vertical : une bete attend au-dessus du cadre, descend se
+   poser quand c'est son tour, et continue vers le bas quand elle le cede. Le
+   mouvement traverse donc le cadre de haut en bas, toujours dans le meme sens,
+   au lieu de faire l'aller-retour d'un ressort.
+
+   Trois etats, et non deux : sans .is-leaving, une face sortante remonterait
+   la ou elle attendait, et le tapis repartirait en arriere. */
+/* Deux etages de transformation, sur deux elements : l'enveloppe porte la
+   respiration, qui ne s'arrete jamais, et l'image porte le tapis roulant, qui
+   se joue en transition. Sur un seul element, la boucle infinie ecraserait la
+   transition a chaque tour. */
+.ring-panel-float {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.ring-panel.is-front .ring-panel-float {
+  animation: ring-breathe calc(4800ms + var(--panel-i, 0) * 280ms) ease-in-out infinite;
+}
+
+@keyframes ring-breathe {
+  0%, 100% { transform: none; }
+  50% { transform: translateY(-16px) scale(1.028); }
+}
+
+.ring-panel-art {
+  transform: translateY(-46px) scale(1.05);
+  transition: transform 640ms ease-in;
+}
+.ring-panel.is-leaving .ring-panel-art { transform: translateY(46px) scale(1.05); }
+.ring-panel.is-front .ring-panel-art {
+  transform: none;
+  transition: transform 880ms var(--ease-out);
+}
+
+.ring-panel-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* contain, et non cover : les rendus sont deja des gros plans cadres au
+     millimetre, et un recadrage supplementaire coupait la gueule de la bete. */
+  object-fit: contain;
+  object-position: 50% 50%;
+  filter: drop-shadow(0 26px 30px rgba(5, 6, 4, .55));
+}
+
+/* L'eclat de rotation : une lame de lumiere a la couleur de la bete balaie la
+   scene dans le sens du tour, et disparait avec lui. Ce n'est pas un voile —
+   il n'existe que pendant les 960 ms du mouvement, et rien ne subsiste dessus
+   une fois la bete posee. */
+.ring-flare {
+  position: absolute;
+  inset: -20% -34%;
+  z-index: 4;
+  opacity: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  filter: blur(30px);
+  background: linear-gradient(74deg,
+              rgba(0, 0, 0, 0) 38%,
+              color-mix(in srgb, var(--ring-color, #F2A32C) 78%, #FFFFFF) 50%,
+              rgba(0, 0, 0, 0) 62%);
+}
+.ring-stage.is-turning .ring-flare { animation: ring-flare-sweep 960ms ease-in-out; }
+.ring-stage[data-ring-dir='prev'].is-turning .ring-flare { animation-name: ring-flare-sweep-prev; }
+
+@keyframes ring-flare-sweep {
+  0% { opacity: 0; transform: translateX(-52%); }
+  34% { opacity: .9; }
+  100% { opacity: 0; transform: translateX(52%); }
+}
+
+@keyframes ring-flare-sweep-prev {
+  0% { opacity: 0; transform: translateX(52%); }
+  34% { opacity: .9; }
+  100% { opacity: 0; transform: translateX(-52%); }
+}
+
+.ring-stage.is-turning .ring-aura { animation: ring-aura-pulse 960ms ease-in-out; }
+
+@keyframes ring-aura-pulse {
+  0%, 100% { transform: none; }
+  46% { transform: scale(1.16); }
+}
+
+/* Le halo prend la couleur de la bete affichee. Il passe derriere le tambour :
+   devant, ce serait un voile de plus sur le rendu. */
+.ring-aura {
+  position: absolute;
+  left: -6%;
+  right: -6%;
+  top: -4%;
+  height: 86%;
+  z-index: 0;
+  pointer-events: none;
+  transition: background 900ms ease-in-out;
+}
+
+/* --- Le nom et le bouton --------------------------------------------------- */
+
+.ring-hud {
+  position: absolute;
+  z-index: 5;
+  left: 0;
+  right: 0;
+  bottom: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(14px, 2vw, 22px);
+  padding: 0 clamp(16px, 8vw, 96px);
+  text-align: center;
+  /* Le tambour doit rester attrapable a la souris sous le titre. */
+  pointer-events: none;
+}
+
+.ring-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(44px, 8.4vw, 104px);
+  line-height: .84;
+  text-transform: uppercase;
+  color: var(--text-strong);
+  text-shadow: 0 6px 0 rgba(5, 6, 4, .45),
+               0 0 52px color-mix(in srgb, var(--ring-color, #F2A32C) 52%, transparent);
+}
+
+.ring-title { position: relative; }
+/* L'etoile « Nouveau ! » (css/creature-card.css, .cc-new) au coin du nom. */
+.ring-title .ring-new { right: -64px; top: -46px; width: 86px; }
+.ring-title .ring-new[hidden] { display: none; }
+@media (max-width: 720px) { .ring-title .ring-new { right: -40px; top: -38px; width: 64px; } .ring-new .cc-new-text { font-size: 11px; } }
+.ring-title-letters {
+  display: inline-flex;
+  perspective: 620px;
+}
+
+.ring-letter {
+  display: inline-block;
+  animation: ring-letter-in 640ms var(--ease-snap) backwards;
+  animation-delay: calc(var(--i) * 34ms);
+}
+
+@keyframes ring-letter-in {
+  from { opacity: 0; transform: translate3d(44px, 68%, 0) rotateX(-84deg) scale(.78); filter: blur(13px); }
+  to { opacity: 1; transform: none; filter: blur(0); }
+}
+
+/* Le nom entre du cote d'ou vient la rotation : sinon revenir en arriere a
+   exactement l'air d'avancer. */
+.ring-stage[data-ring-dir='prev'] .ring-letter { animation-name: ring-letter-in-prev; }
+
+@keyframes ring-letter-in-prev {
+  from { opacity: 0; transform: translate3d(-44px, 68%, 0) rotateX(-84deg) scale(.78); filter: blur(13px); }
+  to { opacity: 1; transform: none; filter: blur(0); }
+}
+
+.ring-cta {
+  pointer-events: auto;
+  animation: ring-cta-in 560ms var(--ease-snap) 200ms backwards;
+  transition: scale 220ms var(--ease-out);
+}
+.ring-cta-arrow { display: inline-block; transition: transform 260ms var(--ease-out); }
+/* Au survol, le bouton se dandine comme un bloc qu'on vient de poser, puis
+   reste un rien plus gros ; la fleche, elle, pousse vers la droite en boucle.
+
+   L'animation d'entree reste dans la liste, identique : une animation qui
+   quitte la liste puis y revient est rejouee depuis le debut, et le bouton
+   disparaissait au depart de la souris. Le dandinement, lui, n'a pas de
+   remplissage : il finit sur la taille de survol, que `scale` tient ensuite,
+   et d'ou la transition le ramene en douceur. */
+.ring-cta:hover {
+  scale: 1.05;
+  animation:
+    ring-cta-in 560ms var(--ease-snap) 200ms backwards,
+    ring-cta-wobble 620ms var(--ease-out);
+}
+.ring-cta:hover .ring-cta-arrow { animation: ring-cta-nudge 700ms ease-in-out infinite; }
+@keyframes ring-cta-wobble {
+  0% { rotate: 0deg; scale: 1; }
+  20% { rotate: -3deg; scale: 1.08; }
+  40% { rotate: 2.5deg; scale: 1.05; }
+  60% { rotate: -1.5deg; }
+  80% { rotate: .8deg; }
+  100% { rotate: 0deg; scale: 1.05; }
+}
+@keyframes ring-cta-nudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(7px); } }
+
+@keyframes ring-cta-in {
+  from { opacity: 0; transform: translateY(18px) scale(.94); }
+  to { opacity: 1; transform: none; }
+}
+
+/* --- Les commandes --------------------------------------------------------- */
+
+.ring-nav {
+  position: absolute;
+  z-index: 6;
+  top: 37%;
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 78px;
+  padding: 0;
+  background: var(--inset);
+  border: 2px solid var(--border-strong);
+  box-shadow: var(--shadow-block), var(--bevel);
+  color: var(--text-strong);
+  font-family: var(--font-condensed);
+  font-size: 40px;
+  line-height: 1;
+  cursor: var(--cur-point);
+  transform: translateY(-50%);
+  transition: background 220ms var(--ease-out), border-color 220ms var(--ease-out),
+              color 220ms var(--ease-out), transform 300ms var(--ease-snap);
+}
+.ring-nav-prev { left: 0; }
+.ring-nav-next { right: 0; }
+.ring-nav:hover {
+  background: var(--ring-color, var(--accent));
+  border-color: var(--ring-color, var(--accent));
+  color: var(--inset-deep);
+}
+.ring-nav-prev:hover { transform: translateY(-50%) translateX(-5px); }
+.ring-nav-next:hover { transform: translateY(-50%) translateX(5px); }
+.ring-nav:active { transform: translateY(-50%) scale(.94); }
+
+@media (max-width: 720px) {
+  .ring-nav { width: 40px; height: 58px; font-size: 30px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ring-drum { transition-duration: 240ms; }
+  .ring-panel { transition: opacity 240ms linear; }
+  .ring-panel-art,
+  .ring-panel.is-front .ring-panel-art { transform: none; transition: none; }
+  .ring-scene { animation: none !important; }
+  .ring-panel.is-front .ring-panel-float { animation: none; }
+  .ring-flare { display: none; }
+  .ring-aura { animation: none !important; }
+  .ring-letter { animation: none; }
+  .ring-cta, .ring-cta:hover, .ring-cta:hover .ring-cta-arrow { animation: none; }
+  .bestiary-modes { transition: none; }
+  .bestiary-modes.is-swapped .creature-ring,
+  .bestiary-modes.is-swapped .home-creature-grid { animation: none; }
+}
+
+/* ===========================================================================
+   Accueil — « Le reste du mod » : l'accordeon
+   ===========================================================================
+
+   Six bandes cote a cote. Fermees, elles ne montrent que leur icone et leur
+   titre ecrit sur la tranche ; celle qu'on survole s'ouvre en grand. Chacune
+   a pour fond le biome dans lequel sa page s'ouvre (une mini-scene du monde
+   des biomes), et a l'ouverture les objets de l'onglet viennent s'y poser. */
+
+.acc {
+  display: flex;
+  gap: 10px;
+  height: clamp(400px, 34vw, 540px);
+}
+.acc-item {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  isolation: isolate;
+  border: 2px solid var(--border-strong);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, .3);
+  color: inherit;
+  transition: flex-grow 650ms cubic-bezier(.2, .8, .2, 1);
+}
+.acc-item.is-open { flex-grow: 5; }
+.acc-back { position: absolute; inset: 0; z-index: -1; }
+
+/* Le biome d'arrivee, assombri tant que la bande est fermee. */
+.acc-scene { position: absolute; inset: 0; }
+.acc-scene .bw-scene { transition: transform 900ms var(--ease-out), filter 500ms ease; filter: saturate(.7) brightness(.7); }
+.acc-item.is-open .acc-scene .bw-scene { filter: none; transform: scale(1.03); }
+/* La scene est faite pour le plein ecran : on ramene ses pieces a l'echelle
+   de la bande, et on retire ce qui n'a de sens qu'en grand. */
+.bw-scene.is-mini :is(.hb-sides, .hb-corner, .hb-vines) { display: none; }
+.bw-scene.is-mini :is(.hb-sun, .hb-sun-halo) { width: min(30vh, 26vw); }
+.bw-scene.is-mini .hb-sun-halo {
+  box-shadow: 0 0 0 8px rgba(var(--sun-glow), .2), 0 0 0 18px rgba(var(--sun-glow), .1), 0 0 70px 20px rgba(var(--sun-glow), .3);
+}
+.bw-scene.is-mini .hb-reflect { width: 24%; }
+.acc-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgba(5, 6, 4, .88) 0%, rgba(5, 6, 4, .25) 50%, transparent 75%);
+}
+
+/* Fermee : l'icone en haut, le titre sur la tranche. */
+.acc-spine {
+  position: absolute;
+  left: 50%;
+  top: 22px;
+  bottom: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  transform: translateX(-50%);
+  transition: opacity 250ms ease;
+}
+.acc-spine > span:last-child {
+  margin-top: auto;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-family: var(--font-display);
+  font-size: 30px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #FFFFFF;
+  text-shadow: 2px 2px 0 #000;
+}
+.acc-spine-icon {
+  width: 44px;
+  height: 44px;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, .5));
+}
+.acc-item.is-open .acc-spine { opacity: 0; }
+
+/* Ouverte : l'embleme en haut a droite, le texte en bas a gauche. */
+.acc-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 420px;
+  padding: 30px 32px;
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 250ms ease, transform 400ms var(--ease-out);
+}
+.acc-item.is-open .acc-content { opacity: 1; transform: none; transition-delay: 260ms; }
+
+/* L'embleme de l'onglet : ses objets, qui arrivent un a un a l'ouverture,
+   puis flottent. */
+.acc-emblem {
+  position: absolute;
+  right: 7%;
+  top: 9%;
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  animation: ow-bob 3s ease-in-out infinite alternate;
+}
+.acc-emblem-sprite {
+  width: clamp(84px, 8vw, 124px);
+  aspect-ratio: 1;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  rotate: var(--tilt);
+  filter:
+    drop-shadow(0 0 1px rgba(255, 255, 255, .75))
+    drop-shadow(0 0 14px color-mix(in srgb, var(--c) 60%, transparent))
+    drop-shadow(0 16px 16px rgba(0, 0, 0, .5));
+  opacity: 0;
+  translate: 0 36px;
+  scale: .7;
+  transition: opacity 300ms ease, translate 600ms var(--ease-snap), scale 600ms var(--ease-snap);
+}
+.acc-emblem-sprite.is-hero { width: clamp(150px, 14vw, 210px); }
+.acc-item.is-open .acc-emblem-sprite {
+  opacity: 1;
+  translate: 0 0;
+  scale: 1;
+  transition-delay: calc(300ms + var(--k) * 110ms);
+}
+
+.acc-kicker { font-family: var(--font-pixel); font-size: 10px; color: var(--accent); text-shadow: 2px 2px 0 rgba(0, 0, 0, .6); }
+.acc-title {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 3.8vw, 58px);
+  line-height: .92;
+  text-transform: uppercase;
+  color: #FFFFFF;
+  text-shadow: 3px 3px 0 rgba(0, 0, 0, .55);
+}
+.acc-desc { max-width: 44ch; font-size: 15px; line-height: 1.55; color: #E6E1D4; text-shadow: 0 2px 8px rgba(0, 0, 0, .7); }
+.acc-meta { font-family: var(--font-pixel); font-size: 9px; color: rgba(255, 255, 255, .7); }
+/* Le bouton d'entree.
+
+   Il arrive avec un petit rebond quand la bande s'ouvre. Au survol du bouton
+   lui-meme (et non de toute la bande, qui l'aurait laisse decale en
+   permanence) : il se souleve sur une ombre plus haute, s'eclaircit et luit,
+   un reflet le traverse, et la fleche pousse vers la droite en boucle. Au
+   clic, il s'enfonce. L'arrivee passe par `scale`, le survol par
+   `transform` : les deux ne se marchent pas dessus. */
+.acc-go {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 4px;
+  padding: 11px 18px;
+  overflow: hidden;
+  background: var(--accent);
+  border: 2px solid var(--border-strong);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, .45);
+  font-family: var(--font-condensed);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #171A16;
+  transition:
+    transform 240ms var(--ease-snap),
+    box-shadow 240ms var(--ease-out),
+    background 200ms ease,
+    letter-spacing 240ms var(--ease-out);
+}
+.acc-item.is-open .acc-go { animation: acc-go-pop 560ms var(--ease-snap) 520ms backwards; }
+@keyframes acc-go-pop {
+  from { opacity: 0; scale: .7; }
+  to { opacity: 1; scale: 1; }
+}
+/* Le reflet : une bande claire, rangee a gauche, qui traverse au survol. */
+.acc-go::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, .6) 50%, transparent 70%);
+  translate: -130% 0;
+  pointer-events: none;
+}
+.acc-go-arrow { display: inline-block; transition: transform 240ms var(--ease-out); }
+.acc-go:hover {
+  transform: translateY(-3px);
+  background: var(--accent-hover);
+  letter-spacing: .09em;
+  box-shadow: 0 7px 0 rgba(0, 0, 0, .45), 0 0 22px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+.acc-go:hover::before { animation: acc-go-shine 750ms ease-out; }
+.acc-go:hover .acc-go-arrow { animation: acc-go-nudge 700ms ease-in-out infinite; }
+.acc-go:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, .45);
+  transition-duration: 80ms;
+}
+@keyframes acc-go-shine { from { translate: -130% 0; } to { translate: 130% 0; } }
+@keyframes acc-go-nudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(7px); } }
+@media (prefers-reduced-motion: reduce) {
+  .acc-item.is-open .acc-go, .acc-go:hover::before, .acc-go:hover .acc-go-arrow { animation: none; }
+}
+
+@media (max-width: 900px) {
+  .acc { flex-direction: column; height: auto; }
+  .acc-item { flex: none; height: 84px; transition: height 500ms var(--ease-out); }
+  .acc-item.is-open { height: 440px; }
+  .acc-spine { top: 0; bottom: 0; left: 20px; flex-direction: row; transform: none; }
+  .acc-spine > span:last-child { writing-mode: horizontal-tb; transform: none; margin: 0; }
+  .acc-content { min-width: 0; padding: 22px; }
+  .acc-emblem-sprite { width: 64px; }
+  .acc-emblem-sprite.is-hero { width: 110px; }
+}
+@media (max-width: 640px) {
+  .section-head-note { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .acc-emblem { animation: none; }
+}
+
+/* ===========================================================================
+   Accueil — bande son
+   =========================================================================== */
+
+.home-music {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  align-items: start;
+}
+
+.player-card { --glow-color: var(--accent); }
+
+.player-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* L'egaliseur ne bat que pendant la lecture : au repos ses barres restent
+   basses et immobiles, ce qui evite de promettre un son qui ne joue pas. */
+.player-equaliser {
+  margin-left: auto;
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 26px;
+}
+.player-equaliser i {
+  display: block;
+  width: 3px;
+  height: 100%;
+  background: var(--accent);
+  opacity: .3;
+  transform: scaleY(.18);
+  transform-origin: bottom center;
+  transition: transform 200ms ease-out, opacity 200ms ease-out;
+}
+.player-equaliser[data-playing='true'] i {
+  opacity: .95;
+  animation: ow-equalise 620ms ease-in-out infinite alternate;
+}
+.player-equaliser[data-playing='true'] i:nth-child(1) { animation-duration: 540ms; }
+.player-equaliser[data-playing='true'] i:nth-child(2) { animation-duration: 760ms; }
+.player-equaliser[data-playing='true'] i:nth-child(3) { animation-duration: 460ms; }
+.player-equaliser[data-playing='true'] i:nth-child(4) { animation-duration: 820ms; }
+.player-equaliser[data-playing='true'] i:nth-child(5) { animation-duration: 600ms; }
+
+.player-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* La barre est cliquable : elle grandit au survol pour le dire. */
+.player-seek {
+  position: relative;
+  height: 12px;
+  cursor: var(--cur-point);
+  transition: height 180ms var(--ease-out);
+}
+.player-seek:hover { height: 16px; }
+
+.player-seek-knob {
+  position: absolute;
+  top: 50%;
+  left: var(--bar-width, 0%);
+  width: 12px;
+  height: 12px;
+  transform: translate(-50%, -50%) scale(0);
+  background: var(--accent);
+  border: 2px solid var(--border-strong);
+  transition: transform 180ms var(--ease-snap);
+  pointer-events: none;
+}
+.player-seek:hover .player-seek-knob { transform: translate(-50%, -50%) scale(1); }
+
+.player-button {
+  width: 52px;
+  height: 52px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent);
+  color: var(--on-accent);
+  border: 2px solid var(--border-strong);
+  box-shadow: var(--shadow-block);
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 20px;
+  cursor: var(--cur-point);
+  transition: background var(--dur-2) ease-out, transform var(--dur-1) ease-out,
+              box-shadow var(--dur-1) ease-out;
+}
+.player-button:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: var(--shadow-block-lg); }
+.player-button:active { transform: translateY(2px); box-shadow: var(--shadow-block-sm); }
+.player-button[aria-disabled='true'] {
+  background: var(--rule);
+  color: var(--text-faint);
+  cursor: var(--cur-no);
+  box-shadow: none;
+  transform: none;
+}
+
+/* ===========================================================================
+   Page hero (creatures, items, cosmetics, music, simulator)
+   =========================================================================== */
+
+.page-hero {
+  position: relative;
+  padding: 120px 0 0;
+  overflow: hidden;
+}
+
+.page-hero-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(110% 80% at 20% 0%, var(--hero-a, #2C4A3B) 0%, var(--hero-b, #1B2A22) 48%, var(--canvas) 100%);
+}
+
+.page-hero-ray {
+  position: absolute;
+  top: -30%;
+  left: 12%;
+  width: 30%;
+  height: 150%;
+  background: linear-gradient(100deg, rgba(255, 209, 138, 0), rgba(255, 209, 138, .26) 48%, rgba(255, 209, 138, 0) 64%);
+  mix-blend-mode: screen;
+  animation: ow-ray 17s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* On cream, the tinted wash and the light ray both turn to mud. */
+:root[data-theme='light'] .page-hero-glow {
+  background: linear-gradient(180deg, var(--raised) 0%, var(--canvas) 70%);
+}
+:root[data-theme='light'] .page-hero-ray { display: none; }
+
+/* ===========================================================================
+   Filter bar
+   =========================================================================== */
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.filter-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* ===========================================================================
+   Creature grid (dictionary)
+   =========================================================================== */
+
+.creature-grid {
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+/* ===========================================================================
+   Upcoming tiles
+   =========================================================================== */
+
+.upcoming-grid {
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+}
+
+.upcoming-tile {
+  background: var(--panel);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.upcoming-head {
+  width: 100%;
+  height: 96px;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}

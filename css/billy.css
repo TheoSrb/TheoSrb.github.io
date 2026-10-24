@@ -1,0 +1,629 @@
+/* B.I.L.L.Y (js/billy.js) — le guide du wiki.
+
+   Rien d'inedit : la pancarte et l'en-tete reprennent la planche des
+   compteurs (css/wild.css, .counter), le panneau la fenetre de la recherche
+   (css/search.css : bord franc, ombre dure, liseré ambre sous le champ), les
+   suggestions la bande de verre penchee des filtres.
+
+   Mobile : tout ce qui bouge en boucle ne touche qu'a transform et opacity
+   (aucun recalcul de page), et le panneau est opaque — pas de flou pose sur le
+   decor anime. */
+
+.billy {
+  --billy-lift: 0px;
+  --billy-wood: #775530;
+  --billy-wood-edge: #33210F;
+  --billy-wood-hi: #93703F;
+  --billy-ink: #2A1708;
+  position: fixed;
+  right: 18px;
+  bottom: calc(18px + var(--billy-lift));
+  z-index: 125;
+  transition: bottom 260ms var(--ease-out);
+}
+
+/* ===========================================================================
+   La pancarte : Billy depasse par-dessus une planche
+   =========================================================================== */
+
+.billy-fab {
+  position: relative;
+  display: block;
+  width: 78px;
+  height: 92px;
+  padding: 0;
+  background: none;
+  border: 0;
+  cursor: var(--cur-point, pointer);
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 180ms ease-out, transform 260ms var(--ease-snap);
+}
+.billy:not(.is-ready) .billy-fab { opacity: 0; }
+
+/* Deux etages : la monture (.billy-fab-pop) glisse au survol, avec une
+   transition dans les deux sens ; la tete (.billy-fab-head) garde sa boucle,
+   mise en pause sur place au survol — rien ne saute. */
+.billy-fab-pop {
+  position: absolute;
+  left: 50%;
+  bottom: 30px;
+  width: 70px;
+  margin-left: -35px;
+  transform-origin: 50% 100%;
+  transition: transform 420ms var(--ease-snap);
+  pointer-events: none;
+}
+.billy-fab-head {
+  display: block;
+  width: 100%;
+  height: auto;
+  transform-origin: 50% 100%;
+  transform: translateY(8px) rotate(-4deg);
+  filter: drop-shadow(0 4px 0 rgba(5, 6, 4, .45));
+  animation: billy-peek 6.4s var(--ease-out) infinite;
+  pointer-events: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+/* Il se cache derriere la planche, puis repasse la tete. */
+@keyframes billy-peek {
+  0%, 62%, 100% { transform: translateY(8px) rotate(-4deg); }
+  70% { transform: translateY(20px) rotate(-2deg); }
+  78% { transform: translateY(0) rotate(5deg); }
+  86% { transform: translateY(6px) rotate(-3deg); }
+}
+
+.billy-fab-plate {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  background:
+    repeating-linear-gradient(180deg, transparent 0 17px, rgba(30, 16, 5, .5) 17px 19px),
+    linear-gradient(90deg, rgba(0, 0, 0, .07) 0 12%, transparent 12% 40%, rgba(0, 0, 0, .05) 40% 55%, transparent 55%),
+    var(--billy-wood);
+  border: 3px solid var(--billy-wood-edge);
+  box-shadow: inset 0 0 0 2px var(--billy-wood-hi), inset 0 -4px 0 rgba(0, 0, 0, .16), 0 5px 0 rgba(5, 6, 4, .55), 0 12px 22px rgba(0, 0, 0, .35);
+  transform: rotate(-3deg);
+  transition: transform 260ms var(--ease-snap);
+}
+.billy-fab-name {
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  letter-spacing: .04em;
+  color: #FFFFFF;
+  text-shadow: 2px 0 0 var(--billy-ink), -2px 0 0 var(--billy-ink), 0 2px 0 var(--billy-ink), 0 -2px 0 var(--billy-ink), 0 3px 0 rgba(42, 23, 8, .45);
+}
+
+@media (hover: hover) {
+  .billy-fab:hover .billy-fab-pop { transform: translateY(-12px) rotate(8deg); }
+  .billy-fab:hover .billy-fab-head { animation-play-state: paused; }
+  .billy-fab:hover .billy-fab-plate { transform: rotate(-1deg) translateY(-2px); }
+}
+.billy-fab:active .billy-fab-plate { transform: rotate(-3deg) translateY(2px); box-shadow: inset 0 0 0 2px var(--billy-wood-hi), 0 2px 0 rgba(5, 6, 4, .55); }
+.billy-fab:focus-visible { outline: none; }
+.billy-fab:focus-visible .billy-fab-plate { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* Panneau ouvert : la pancarte s'efface. */
+.billy.is-open .billy-fab { opacity: 0; transform: translateY(18px) scale(.86); pointer-events: none; }
+
+/* ---- la bulle d'accroche ------------------------------------------------------------------ */
+
+.billy-tease {
+  position: absolute;
+  right: 86px;
+  bottom: 44px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: max-content;
+  max-width: min(260px, calc(100vw - 130px));
+  margin: 0;
+  padding: 10px 10px 10px 14px;
+  background: var(--panel);
+  border: 2px solid var(--border-strong);
+  border-left: 4px solid var(--accent);
+  box-shadow: 0 4px 0 var(--shadow-ink), var(--bevel);
+  font-family: var(--font-condensed);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  color: var(--text-strong);
+  cursor: var(--cur-point, pointer);
+  opacity: 0;
+  transform: translateX(10px) rotate(-1.5deg);
+  transform-origin: 100% 50%;
+  transition: opacity 200ms ease-out, transform 320ms var(--ease-snap);
+}
+.billy-tease.is-in { opacity: 1; transform: rotate(-1.5deg); }
+.billy-tease[hidden] { display: none; }
+/* La pointe, en marches de pixels, vers Billy. */
+.billy-tease::after {
+  content: '';
+  position: absolute;
+  right: -10px;
+  bottom: 10px;
+  width: 8px;
+  height: 8px;
+  background: var(--panel);
+  border-top: 2px solid var(--border-strong);
+  border-right: 2px solid var(--border-strong);
+  box-shadow: 4px 0 0 -2px var(--border-strong);
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+.billy-tease-x {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--rule);
+  color: var(--text-faint);
+  cursor: var(--cur-point, pointer);
+}
+.billy-tease-x svg { width: 9px; height: 9px; shape-rendering: crispEdges; }
+.billy-tease-x:hover { color: var(--on-accent); background: var(--accent); border-color: var(--accent); }
+
+/* ===========================================================================
+   Le panneau
+   =========================================================================== */
+
+.billy-panel {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  width: min(410px, calc(100vw - 32px));
+  height: min(640px, calc(100vh - var(--header-h, 64px) - 40px - var(--billy-lift)));
+  background: var(--panel);
+  border: 2px solid var(--border-strong);
+  box-shadow: 0 6px 0 var(--shadow-ink), var(--shadow-lift), inset 0 1px 0 var(--bevel-top);
+  opacity: 0;
+  transform: translateY(22px) scale(.94);
+  transform-origin: 100% 100%;
+  transition: opacity 190ms ease-out, transform 340ms var(--ease-snap);
+}
+.billy-panel[hidden] { display: none; }
+.billy.is-open .billy-panel { opacity: 1; transform: none; }
+.billy.is-closing .billy-panel { opacity: 0; transform: translateY(14px) scale(.97); transition-duration: 150ms, 190ms; transition-timing-function: ease-in; }
+
+/* ---- l'en-tete : la planche, Billy qui deborde ------------------------------------------- */
+
+.billy-head {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+  margin: -10px -8px 0;
+  padding: 12px 12px 11px 98px;
+  background:
+    repeating-linear-gradient(180deg, transparent 0 22px, rgba(30, 16, 5, .5) 22px 24px),
+    linear-gradient(90deg, rgba(0, 0, 0, .07) 0 12%, transparent 12% 40%, rgba(0, 0, 0, .05) 40% 55%, transparent 55%),
+    var(--billy-wood);
+  border: 4px solid var(--billy-wood-edge);
+  box-shadow: inset 0 0 0 2px var(--billy-wood-hi), inset 0 -5px 0 rgba(0, 0, 0, .16), 0 6px 0 rgba(5, 6, 4, .5);
+  transform: rotate(-1.2deg);
+}
+.billy-head-pp {
+  position: absolute;
+  left: 8px;
+  bottom: 2px;
+  width: 84px;
+  height: auto;
+  transform: rotate(-6deg);
+  transform-origin: 50% 100%;
+  filter: drop-shadow(0 4px 0 rgba(5, 6, 4, .45));
+  pointer-events: none;
+}
+.billy.is-open .billy-head-pp { animation: billy-hello 700ms var(--ease-snap) 120ms both; }
+@keyframes billy-hello {
+  from { transform: translateY(26px) rotate(4deg); opacity: 0; }
+  60% { transform: translateY(-6px) rotate(-9deg); opacity: 1; }
+  to { transform: rotate(-6deg); }
+}
+/* Pendant qu'il reflechit, il hoche la tete. */
+.billy.is-busy .billy-head-pp { animation: billy-think 900ms ease-in-out infinite alternate; }
+@keyframes billy-think {
+  from { transform: rotate(-8deg) translateY(0); }
+  to { transform: rotate(-2deg) translateY(-3px); }
+}
+
+.billy-id { flex: 1; min-width: 0; }
+.billy-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: .02em;
+  color: #FFFFFF;
+  text-shadow:
+    2px 0 0 var(--billy-ink), -2px 0 0 var(--billy-ink), 0 2px 0 var(--billy-ink), 0 -2px 0 var(--billy-ink),
+    2px 2px 0 var(--billy-ink), -2px 2px 0 var(--billy-ink), 2px -2px 0 var(--billy-ink), -2px -2px 0 var(--billy-ink),
+    0 4px 0 rgba(42, 23, 8, .45);
+}
+.billy-sub {
+  margin: 5px 0 0;
+  font-family: var(--font-condensed);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #FFFFFF;
+  text-shadow: 0 2px 0 #1E0F04;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.billy-tools { display: flex; gap: 6px; flex: 0 0 auto; }
+.billy-tool {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: rgba(30, 16, 5, .45);
+  border: 2px solid var(--billy-wood-edge);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 2px 0 rgba(5, 6, 4, .45);
+  color: #FFFFFF;
+  cursor: var(--cur-point, pointer);
+  transition: background 130ms ease-out, color 130ms ease-out, transform 180ms var(--ease-snap);
+}
+.billy-tool svg { width: 15px; height: 15px; shape-rendering: crispEdges; }
+.billy-tool:hover { background: var(--accent); color: var(--on-accent); transform: translateY(-2px); }
+.billy-tool:active { transform: translateY(1px); }
+.billy-tool:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---- la conversation ------------------------------------------------------------------- */
+
+.billy-log {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px 16px 14px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--rule) transparent;
+}
+
+.billy-msg { display: flex; gap: 9px; align-items: flex-start; max-width: 100%; }
+.billy-msg.is-user { justify-content: flex-end; }
+.billy-msg.is-fresh { animation: billy-in 300ms var(--ease-snap) both; }
+@keyframes billy-in { from { opacity: 0; transform: translateY(8px); } }
+
+.billy-msg-pp {
+  flex: 0 0 auto;
+  width: 34px;
+  height: auto;
+  margin-top: 2px;
+  filter: drop-shadow(0 2px 0 rgba(5, 6, 4, .5));
+}
+.billy-msg-body { display: flex; flex-direction: column; gap: 8px; min-width: 0; max-width: calc(100% - 43px); }
+
+.billy-bubble {
+  padding: 10px 13px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.billy-msg.is-bot .billy-bubble {
+  background: var(--raised);
+  border: 2px solid var(--border-strong);
+  border-left: 4px solid var(--accent);
+  box-shadow: 0 4px 0 var(--shadow-ink), var(--bevel);
+  color: var(--text-body);
+}
+.billy-msg.is-user .billy-bubble {
+  max-width: 84%;
+  background: var(--accent);
+  border: 2px solid var(--border-strong);
+  box-shadow: 0 4px 0 var(--shadow-ink), inset 0 1px 0 rgba(255, 255, 255, .3);
+  color: var(--on-accent);
+  font-weight: 600;
+  transform: rotate(.6deg);
+}
+.billy-bubble p { margin: 0; }
+.billy-bubble p + p, .billy-bubble p + ul, .billy-bubble ul + p { margin-top: 8px; }
+.billy-bubble strong { color: var(--text-strong); font-weight: 700; }
+.billy-msg.is-user .billy-bubble strong { color: inherit; }
+.billy-bubble ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+.billy-bubble li { position: relative; padding-left: 16px; }
+/* La puce : une case de 6 px, comme partout sur le site. */
+.billy-bubble li::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: .62em;
+  width: 6px;
+  height: 6px;
+  background: var(--accent);
+  box-shadow: 1px 1px 0 var(--shadow-ink);
+}
+.billy-bubble kbd {
+  padding: 1px 5px;
+  background: var(--inset);
+  border: 1px solid var(--rule);
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  color: var(--text-soft);
+}
+
+/* Billy ecrit. */
+.billy-dots { display: inline-flex; gap: 5px; padding: 6px 2px; }
+.billy-dots i { width: 7px; height: 7px; background: var(--accent); animation: billy-dot 640ms ease-in-out infinite alternate; }
+.billy-dots i:nth-child(2) { animation-delay: 110ms; }
+.billy-dots i:nth-child(3) { animation-delay: 220ms; }
+@keyframes billy-dot { from { opacity: .25; transform: translateY(3px); } to { opacity: 1; transform: translateY(-3px); } }
+.billy-caret {
+  display: inline-block;
+  width: 8px;
+  height: 14px;
+  margin-left: 3px;
+  vertical-align: -2px;
+  background: var(--accent);
+  animation: billy-blink 900ms steps(1) infinite;
+}
+@keyframes billy-blink { 50% { opacity: 0; } }
+
+/* ---- les boutons « j'y vais » ---------------------------------------------------------- */
+
+.billy-links { display: flex; flex-direction: column; gap: 6px; }
+.billy-go {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 6px 12px 6px 7px;
+  background: var(--inset);
+  border: 2px solid var(--border-strong);
+  box-shadow: 0 3px 0 var(--shadow-ink), var(--bevel);
+  color: var(--text-strong);
+  font-family: var(--font-condensed);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: transform 200ms var(--ease-snap), border-color 140ms ease-out, background 140ms ease-out;
+}
+.billy-go span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.billy-go b { font-family: var(--font-pixel); font-size: 12px; color: var(--accent-text); transition: transform 200ms var(--ease-snap); }
+.billy-go-icon, .billy-go-glyph {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+.billy-go-glyph { color: var(--accent-text); }
+.billy-go-glyph svg { width: 13px; height: 13px; shape-rendering: crispEdges; }
+.billy-go:hover { transform: translateY(-2px); border-color: var(--accent); background: var(--raised-hi); }
+.billy-go:hover b { transform: translateX(3px); }
+.billy-go:active { transform: translateY(1px); box-shadow: 0 1px 0 var(--shadow-ink); }
+.billy-go:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---- le depart : une barre qui se remplit, le temps d'annuler -------------------------- */
+
+.billy-trip {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 2px 10px;
+  padding: 10px 12px 14px;
+  overflow: hidden;
+  background: var(--accent);
+  border: 2px solid var(--border-strong);
+  box-shadow: 0 4px 0 var(--shadow-ink), inset 0 1px 0 rgba(255, 255, 255, .3);
+  color: var(--on-accent);
+  transform: rotate(-.8deg);
+  animation: billy-in 300ms var(--ease-snap) both;
+}
+.billy-trip.is-gone { opacity: .6; }
+.billy-trip-kicker { grid-column: 1; font-family: var(--font-pixel); font-size: 8px; letter-spacing: .06em; text-transform: uppercase; }
+.billy-trip-to {
+  grid-column: 1;
+  font-family: var(--font-condensed);
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.billy-trip-stop {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  padding: 7px 10px;
+  background: var(--on-accent);
+  border: 2px solid var(--border-strong);
+  color: var(--accent-soft);
+  font-family: var(--font-condensed);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  cursor: var(--cur-point, pointer);
+  transition: transform 180ms var(--ease-snap);
+}
+.billy-trip-stop:hover { transform: translateY(-2px); }
+.billy-trip-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 5px; background: rgba(23, 26, 22, .25); }
+.billy-trip-bar > i {
+  position: absolute;
+  inset: 0;
+  background: var(--on-accent);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  transition-property: transform;
+  transition-timing-function: linear;
+}
+
+/* ---- les suggestions : la bande de verre penchee des filtres -------------------------- */
+
+.billy-suggest {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  flex: 0 0 auto;
+  margin: 0 14px 12px;
+  padding: 9px;
+  background: var(--inset);
+  border: 2px solid var(--border-strong);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 4px 0 var(--shadow-ink);
+  transform: rotate(-1deg);
+}
+.billy-suggest[hidden] { display: none; }
+.billy-chip {
+  padding: 7px 10px;
+  background: var(--raised);
+  border: 2px solid var(--border-strong);
+  box-shadow: 0 2px 0 var(--shadow-ink), var(--bevel);
+  color: var(--text-soft);
+  font-family: var(--font-condensed);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  text-align: left;
+  cursor: var(--cur-point, pointer);
+  transition: transform 200ms var(--ease-snap), background 140ms ease-out, color 140ms ease-out;
+}
+.billy-chip:hover { transform: translateY(-2px); background: var(--accent); color: var(--on-accent); }
+.billy-chip:active { transform: translateY(1px); }
+.billy-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---- le champ ------------------------------------------------------------------------------ */
+
+.billy-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 8px 8px 8px 14px;
+  background: var(--inset);
+  border-top: 2px solid var(--border-strong);
+}
+.billy-input {
+  flex: 1;
+  min-width: 0;
+  height: 42px;
+  background: transparent;
+  border: 0;
+  outline: none;
+  color: var(--text-strong);
+  font-family: var(--font-body);
+  /* 16 px : en dessous, iOS zoome la page au focus. */
+  font-size: 16px;
+}
+.billy-input::placeholder { color: var(--text-faint); }
+.billy-send {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  background: var(--accent);
+  border: 2px solid var(--border-strong);
+  box-shadow: 0 3px 0 var(--shadow-ink), inset 0 1px 0 rgba(255, 255, 255, .3);
+  color: var(--on-accent);
+  cursor: var(--cur-point, pointer);
+  transition: transform 180ms var(--ease-snap), background 130ms ease-out;
+}
+.billy-send svg { width: 18px; height: 18px; shape-rendering: crispEdges; }
+.billy-send:hover { background: var(--accent-hover); transform: translateY(-2px); }
+.billy-send:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--shadow-ink); }
+.billy-send:disabled { opacity: .5; transform: none; cursor: default; }
+.billy-send:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.billy-beam {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -2px;
+  height: 2px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  transition: transform 420ms var(--ease-out);
+}
+.billy-bar:focus-within .billy-beam { transform: scaleX(1); }
+
+.billy-foot {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 0 12px 9px;
+  background: var(--inset);
+  font-family: var(--font-pixel);
+  font-size: 7px;
+  letter-spacing: .04em;
+  text-align: center;
+  color: var(--text-dim);
+}
+
+/* ===========================================================================
+   Telephone : le panneau monte du bas, toute la largeur
+   =========================================================================== */
+
+@media (max-width: 640px) {
+  .billy { right: 10px; bottom: calc(10px + var(--billy-lift)); }
+  .billy-fab { width: 66px; height: 80px; }
+  .billy-fab-pop { width: 60px; margin-left: -30px; bottom: 26px; }
+  .billy-fab-plate { height: 34px; }
+  .billy-fab-name { font-size: 9px; }
+  .billy-tease { right: 74px; bottom: 36px; }
+
+  .billy-panel {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    height: min(86vh, calc(100vh - 54px));
+    height: min(86dvh, calc(100dvh - 54px));
+    border-bottom: 0;
+    transform: translateY(40px);
+    transform-origin: 50% 100%;
+  }
+  .billy.is-closing .billy-panel { transform: translateY(30px); }
+  .billy-head { margin: -12px -4px 0; padding-left: 88px; }
+  .billy-head-pp { width: 76px; }
+  .billy-title { font-size: 26px; }
+  .billy-bar { padding-bottom: max(8px, env(safe-area-inset-bottom)); }
+}
+
+/* Le panneau couvre la page sur telephone : elle ne defile plus dessous. */
+@media (max-width: 640px) {
+  html.billy-open { overflow: hidden; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .billy-fab-pop { transition: none; }
+  .billy-fab-head, .billy.is-open .billy-head-pp, .billy.is-busy .billy-head-pp, .billy-dots i, .billy-caret { animation: none; }
+  .billy-msg.is-fresh, .billy-trip { animation: none; }
+}
+
+/* Theme clair : le panneau suit les jetons ; seules les ombres s'adoucissent. */
+:root[data-theme='light'] .billy-msg.is-bot .billy-bubble { box-shadow: 0 4px 0 rgba(60, 40, 20, .22); }
+:root[data-theme='light'] .billy-panel { box-shadow: 0 6px 0 rgba(60, 40, 20, .25), 0 24px 64px rgba(60, 40, 20, .25); }
+
+/* A l'impression, Billy reste au bureau. */
+@media print { .billy { display: none; } }

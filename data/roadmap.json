@@ -1,0 +1,47 @@
+{
+  "_mode_emploi": [
+    "La feuille de route affichée sur l'accueil (section « Ce qui arrive ensuite »), de haut en bas.",
+    "Chaque étape est un bloc de \"steps\". Champs :",
+    "  title    (obligatoire) le nom de l'étape, ex. \"Tribus et bannières\".",
+    "  version  (facultatif) la version visée, ex. \"Bêta 0.2\".",
+    "  date     (facultatif) un libellé libre, ex. \"Octobre 2026\" ou \"Été 2027\".",
+    "  status   done (terminé), current (en cours) ou planned (prévu).",
+    "  progress (facultatif, pour current) l'avancement en pourcentage, de 0 à 100.",
+    "  text     une ou deux phrases de présentation.",
+    "  tags     (facultatif) une liste de mots-clés courts, ex. [\"Créatures\", \"Biome\"].",
+    "Les 5 premières étapes sont visibles ; les suivantes se déplient d'un clic (réglable avec \"visible\")."
+  ],
+  "visible": 5,
+  "steps": [
+    {
+      "title": "Lancement du projet",
+      "version": "",
+      "date": "25/04/2021",
+      "status": "done",
+      "text": "Création de l'univers d'Operation W.I.L.D.",
+      "tags": [
+        "Lancement"
+      ]
+    },
+    {
+      "title": "Lancement initial",
+      "version": "Bêta 0.1",
+      "date": "Septembre 2026",
+      "status": "current",
+      "progress": 60,
+      "text": "Première version d'Operation W.I.L.D rendue publique.",
+      "tags": [
+        "Lancement"
+      ]
+    },
+    {
+      "title": "Plonger dans les profondeurs",
+      "version": "Bêta 0.2",
+      "status": "planned",
+      "text": "",
+      "tags": [
+        "Mise à jour"
+      ]
+    }
+  ]
+}

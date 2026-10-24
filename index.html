@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="fr" data-theme="dark" data-booting>
+
+<head>
+  <meta charset="utf-8">
+  <!-- En local, les assets viennent du depot GitHub (js/remote-assets.js) : en premier. -->
+  <script src="js/remote-assets.js?v=20261001l"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Operation W.I.L.D - Wiki</title>
+  <meta name="description"
+    content="Le wiki d'Operation W.I.L.D : créatures, biomes, objets, cosmétiques et mécaniques du mod Minecraft NeoForge.">
+  <link rel="icon" href="assets/logo.png" type="image/png">
+<meta name="theme-color" content="#0B0F0C">
+<link rel="apple-touch-icon" href="assets/logo.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Operation W.I.L.D">
+<meta property="og:title" content="Operation W.I.L.D - Wiki">
+<meta property="og:description" content="Le wiki d'Operation W.I.L.D, le mod Minecraft de créatures à apprivoiser.">
+<meta property="og:image" content="https://operation-wild-wiki.netlify.app/assets/og/site.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://operation-wild-wiki.netlify.app/assets/og/site.png">
+  <script>
+    /* Theme, effets et langue avant le premier rendu : ni flash de fond, ni flash de texte.
+     La traduction elle-meme (js/i18n.js) leve le voile des qu'elle est prete. */
+    try {
+      var t = localStorage.getItem('ow-theme');
+      if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      var p = localStorage.getItem('ow-perf');
+      if (p === 'full' || p === 'lite') document.documentElement.setAttribute('data-perf', p);
+    } catch (e) {}
+    (function () {
+      var codes = ['fr', 'en', 'es', 'pt', 'ru'], l = null;
+      try { l = localStorage.getItem('ow-lang'); } catch (e) {}
+      if (codes.indexOf(l) < 0) {
+        l = 'en';
+        var list = navigator.languages || [navigator.language || 'en'];
+        for (var i = 0; i < list.length; i++) {
+          var k = String(list[i] || '').slice(0, 2).toLowerCase();
+          if (codes.indexOf(k) >= 0) { l = k; break; }
+        }
+      }
+      document.documentElement.lang = l;
+      if (l !== 'fr') {
+        document.documentElement.setAttribute('data-i18n-pending', '');
+        setTimeout(function () { document.documentElement.removeAttribute('data-i18n-pending'); }, 1800);
+      }
+    })();
+  </script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=Barlow+Condensed:wght@600;700&family=Silkscreen&display=swap">
+  <link rel="stylesheet" href="css/tokens.css?v=20261001l">
+  <link rel="stylesheet" href="css/base.css?v=20261021c">
+  <link rel="stylesheet" href="css/motion.css?v=20261001l">
+  <link rel="stylesheet" href="css/components.css?v=20261001l">
+  <link rel="stylesheet" href="css/icons.css?v=20261001l">
+<link rel="stylesheet" href="css/search.css?v=20261001l">
+  <link rel="stylesheet" href="css/pages.css?v=20261001l">
+  <link rel="stylesheet" href="css/creature-card.css?v=20261023a">
+  <link rel="stylesheet" href="css/biome-world.css?v=20261021g">
+  <link rel="stylesheet" href="css/wild.css?v=20261024b">
+  <link rel="stylesheet" href="css/news.css?v=20261010x">
+  <link rel="stylesheet" href="css/community.css?v=20261001l">
+  <link rel="stylesheet" href="css/ux.css?v=20261022a">
+  <link rel="stylesheet" href="css/roadmap.css?v=20261001l">
+<link rel="stylesheet" href="css/billy.css?v=20261020e">
+<link rel="stylesheet" href="css/theme-light.css?v=20261024b">
+  <script src="js/loader.js?v=20261021c"></script>
+  <!-- Apres les feuilles de style, jamais avant : un script lent a arriver ne doit
+       pas laisser la page s'afficher sans elles (sans @view-transition, css/ux.css,
+       la transition entre pages est abandonnee). Le decor de biome est ici, dans
+       l'en-tete : il se pose avant la premiere image, pour que la transition ait
+       toujours de quoi glisser. -->
+  <script src="js/biome-config.js?v=20261010x"></script>
+  <script src="js/biome-world.js?v=20261024b"></script>
+</head>
+
+<body data-page="home" data-header-overlay data-header-framed>
+
+  <div data-site-header></div>
+
+  <main class="page">
+    <canvas class="ambient-canvas" data-embers aria-hidden="true"></canvas>
+
+    <section class="home-stage on-media" data-biome-hero aria-label="Operation W.I.L.D">
+      <h1 class="hb-logo">
+        <img src="assets/wordmark.png" alt="Operation W.I.L.D" width="2048" height="584">
+      </h1>
+      <!-- La nouveaute, en haut a droite : cachee tant que js/news.js n'a rien a montrer -->
+      <div class="hb-news" data-news hidden role="region" aria-label="Nouvelle créature"></div>
+      <img class="hb-cast" src="assets/key-art-cast.png" alt="" width="2560" height="1440" fetchpriority="high" style="background:url('assets/thumbs/key-art-cast.png') center / 100% 100% no-repeat" onload="this.style.background=''">
+      <p class="hb-count"><strong><b data-hero-count>9</b> créatures</strong><span>à apprivoiser, monter, faire évoluer
+          et personnaliser</span></p>
+      <div class="hb-foot">
+        <div class="hb-cta">
+          <a class="btn btn-lg hb-glass" href="#bestiary">Explorer le bestiaire</a>
+          <a class="btn btn-accent btn-lg" href="download.html">Télécharger</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-stats">
+      <div class="wrap">
+        <div class="stat-board" data-hero-stats></div>
+      </div>
+    </section>
+
+    <div class="marquee on-media">
+      <div class="marquee-track" data-marquee></div>
+    </div>
+
+    <section class="section" id="bestiary">
+      <div class="wrap stack" style="gap:34px">
+        <div class="section-head" data-reveal="left">
+          <div class="stack" style="gap:12px">
+            <span class="t-pixel t-accent">01 · BESTIAIRE</span>
+            <h2 class="t-display t-h2">Les créatures</h2>
+          </div>
+          <div class="bestiary-head-side">
+            <div class="view-switch" role="group" aria-label="Affichage du bestiaire" data-view-switch>
+              <span class="view-switch-thumb" aria-hidden="true"></span>
+              <button type="button" class="view-switch-option" data-view-option="ring" aria-pressed="true">
+                <span class="view-switch-glyph view-switch-glyph-ring" aria-hidden="true"></span>
+                Carrousel
+              </button>
+              <button type="button" class="view-switch-option" data-view-option="cards" aria-pressed="false">
+                <span class="view-switch-glyph view-switch-glyph-cards" aria-hidden="true"></span>
+                Cartes
+              </button>
+            </div>
+            <a class="link-arrow" href="creatures.html">Dictionnaire complet</a>
+          </div>
+        </div>
+        <div class="bestiary-modes" data-bestiary data-mode="ring">
+          <div class="creature-ring" data-creature-ring></div>
+          <div class="grid home-creature-grid" data-creatures></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Les avis des joueurs : caches tant que data/community.json est vide -->
+    <section class="section home-reviews" data-home-reviews hidden aria-label="Avis des joueurs"></section>
+
+    <section class="section">
+      <div class="wrap stack" style="gap:34px">
+        <div class="section-head" data-reveal="left">
+          <div class="stack" style="gap:12px">
+            <span class="t-pixel t-accent">02 · EXPLORER</span>
+            <h2 class="t-display t-h2">Le reste du mod</h2>
+          </div>
+        </div>
+        <div class="acc" data-rail></div>
+      </div>
+    </section>
+
+    <!-- 03 · La feuille de route : data/roadmap.json -->
+    <section class="section home-roadmap" data-roadmap hidden aria-label="Feuille de route"></section>
+
+    <section class="section">
+      <div class="wrap home-music">
+        <div class="stack" data-reveal="left" style="gap:16px">
+          <span class="t-pixel t-accent">04 · BANDE SON</span>
+          <h2 class="t-display t-h2">La musique</h2>
+          <p class="t-lead" style="max-width:46ch">Thème principal et thèmes de boss, composés pour le mod. Chaque boss
+            laisse son disque en mourant.</p>
+          <a class="link-arrow" href="music.html">Toutes les pistes</a>
+        </div>
+
+        <div class="panel panel-pad stack player-card glow-follow" data-reveal style="gap:18px">
+          <div class="player-head">
+            <img class="crisp react-icon" src="assets/ui/red_panda_music.png" alt="" width="46" height="46">
+            <div>
+              <div class="t-sub" style="font-size:22px">Thème principal</div>
+              <div class="t-pixel" style="margin-top:5px;color:var(--text-faint)">OPERATION W.I.L.D</div>
+            </div>
+            <span class="player-equaliser" data-audio-equaliser aria-hidden="true">
+              <i></i><i></i><i></i><i></i><i></i>
+            </span>
+          </div>
+
+          <div class="player-controls">
+            <button type="button" class="player-button" data-audio-toggle
+              aria-label="Lire le thème principal"><svg class="px-ico" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 2h2v12H4zM6 3h2v10H6zM8 5h2v6H8zM10 7h2v2h-2z"/></svg></button>
+            <div class="grow stack" style="gap:9px">
+              <div class="bar-track player-seek" data-audio-seek role="presentation">
+                <span class="bar-fill" data-audio-bar style="--bar-color:var(--accent)"></span>
+                <span class="player-seek-knob" aria-hidden="true"></span>
+              </div>
+              <div style="display:flex;justify-content:space-between" class="t-pixel">
+                <span data-audio-time>0:00</span><span data-audio-duration>0:00</span>
+              </div>
+            </div>
+          </div>
+          <audio data-audio src="assets/music/main-theme.mp3" preload="metadata"></audio>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div data-site-footer></div>
+
+  <script src="js/attack-profiles.js?v=20261010x"></script>
+  <script src="js/wiki-data.js?v=20261020a"></script>
+  <script src="js/asset-list.js?v=20261023a"></script>
+  <script src="js/site.js?v=20261024a"></script>
+  <script src="js/block-icons.js?v=20261009a"></script>
+<script src="js/site-config.js?v=20261010x"></script>
+<script src="js/assets-config.js?v=20261001l"></script>
+<script src="js/ux.js?v=20261024d"></script>
+<script src="js/gyro.js?v=20261001l"></script>
+<script src="js/player.js?v=20261001l"></script>
+  <script src="js/theme.js?v=20261001l"></script>
+  <script src="js/perf.js?v=20261001l"></script>
+  <script src="js/i18n.js?v=20261001l"></script>
+  <script src="js/favorites.js?v=20261001l"></script>
+  <script src="js/reveal.js?v=20261022a"></script>
+  <script src="js/interactions.js?v=20261001l"></script>
+  <script src="js/footer.js?v=20261001l"></script>
+  <script src="js/search.js?v=20261024a"></script>
+  <script src="js/header.js?v=20261001l"></script>
+  <script src="js/billy.js?v=20261024a"></script>
+  <script src="js/embers.js?v=20261021f"></script>
+  <script src="js/swing.js?v=20261021f"></script>
+  <script src="js/creature-card.js?v=20261023a"></script>
+  <script src="js/upcoming.js?v=20261010x"></script>
+  <script src="js/news.js?v=20261023a"></script>
+  <script src="js/community.js?v=20261001l"></script>
+  <script src="js/roadmap.js?v=20261001l"></script>
+  <script src="js/home.js?v=20261010x"></script>
+</body>
+
+</html>

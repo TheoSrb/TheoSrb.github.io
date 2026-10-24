@@ -1,0 +1,56 @@
+{
+  "_mode_emploi": [
+    "Les avis et les créations de la communauté affichés sur le wiki (accueil + page Communauté).",
+    "AVIS : ajouter un bloc dans \"reviews\". Champs :",
+    "  text      (obligatoire) le commentaire, tel que le joueur l'a écrit.",
+    "  stars     (obligatoire) la note sur 5, par demi-étoiles : 0, 0.5, 1 ... 4.5, 5.",
+    "  author    (facultatif) un pseudo ; absent ou vide = « Anonyme ».",
+    "  date      (facultatif) AAAA-MM-JJ.",
+    "  version   (facultatif) la version du mod testée, ex. \"Bêta 0.1\".",
+    "  creature  (facultatif) la créature préférée du joueur, par son identifiant : tiger, kodiak, crocodile...",
+    "CRÉATIONS : ajouter un bloc dans \"creations\". Champs :",
+    "  title     (obligatoire) le titre.",
+    "  type      (obligatoire) screenshot, build, video, fanart, pack, server ou other.",
+    "  image     (conseillé) une image : déposer le fichier dans assets/community/ et écrire \"assets/community/nom.png\", ou une adresse https.",
+    "  url       (facultatif) un lien : vidéo YouTube, page, téléchargement...",
+    "  author    (facultatif) le pseudo de l'auteur.",
+    "  date      (facultatif) AAAA-MM-JJ.",
+    "  text      (facultatif) une courte description.",
+    "  featured  (facultatif) true pour la mettre à la une, en grand, en tête de la galerie.",
+    "Tant que les deux listes sont vides, le carrousel de l'accueil reste caché et la page Communauté affiche un appel à participer.",
+    "Pour voir le rendu avec des exemples : ajouter ?demo à l'adresse (les exemples viennent de data/community.demo.json et sont marqués comme tels)."
+  ],
+  "reviews": [
+    {
+      "text": "Un mod avec énormément de contenu, une attention particulière aux détails, de belles interfaces, de beaux modèles et de belles textures, le tout réalisé par un solo dev sur plusieurs années. Probablement l’un des meilleurs mods de contenu actuellement en cours de développement.",
+      "stars": 5,
+      "version": "Bêta-Testing",
+      "creature": "tiger"
+    },
+    {
+      "text": "De nouveaux animaux avec leurs propres animations et compétences, qu’on peut dompter pour combattre en PvP contre d’autres guildes : j’adore !",
+      "stars": 4.5,
+      "version": "Bêta-Testing",
+      "creature": "red_panda"
+    },
+    {
+      "text": "Operation W.I.L.D est très intéressant à prendre en main. Le mod offre plein de possibilités, du domptage d’un animal à la création d’une tribu. La difficulté peut être élevée, mais cela en vaudra la peine lorsque vous aurez dompté votre premier animal. Les fonctionnalités liées à chaque animal sont bien pensées, surtout pour le kangourou, qui est un coup de cœur.",
+      "stars": 4.0,
+      "version": "Bêta-Testing",
+      "creature": "kangaroo"
+    },
+    {
+      "text": "Operation W.I.L.D est un mod avec un grand potentiel. Je me suis bien amusé ! Les modèles et les fonctionnalités sont très bien travaillés, j’ai hâte de voir la suite.",
+      "stars": 5.0,
+      "version": "Bêta-Testing",
+      "creature": "crocodile"
+    },
+    {
+      "text": "Un mod super intéressant avec des fonctionnalités qu’on ne voit pas sur d’autres mods. Petit coup de cœur pour le gorille, qui est très sympa à manier, avec la fonctionnalité d’amélioration de statistiques qui est facile à prendre en main.",
+      "stars": 5.0,
+      "version": "Bêta-Testing",
+      "creature": "gorilla"
+    }
+  ],
+  "creations": []
+}

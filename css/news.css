@@ -1,0 +1,260 @@
+/* La nouveaute de l'accueil (js/news.js), dans le hero.
+
+   Discrete : pas de carte, pas de fond. Le rendu solo de la bete, qui se
+   fond vers le bas dans son bouton, et l'etoile « Nouveau ! » collee dans son
+   coin comme un tampon. A droite du logo, en miroir du chiffre des creatures ;
+   sous le logo quand la place manque (.is-compact).
+
+   Les entrees ne jouent que sur le mouvement : tout est lisible meme si
+   l'animation ne demarre jamais (onglet en arriere-plan).
+
+   Chaque mouvement a sa propriete, pour qu'aucun n'ecrase l'autre : l'entree
+   sur `transform` du bloc, la lente flottaison sur `translate` du cadre, le
+   survol sur `scale` de la bete et de l'etoile, l'arrivee d'une bete du
+   carrousel sur son propre `transform`. */
+
+.hb-news {
+  --side: clamp(10px, 1.6vw, 36px);
+  position: absolute;
+  z-index: 5;
+  right: var(--side);
+  top: calc(var(--header-h) + 3vh);
+  /* Toute la place libre a droite du logo : moitie de la scene, moins la
+     demi-largeur du logo (min(780px, 86vw, 90vh), css/biome-world.css), moins
+     la marge. */
+  width: clamp(130px, calc(50% - min(390px, 43vw, 45vh) - var(--side) - 6px), 380px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  container-type: inline-size;
+  /* Penchee vers la gauche, vers le logo. */
+  rotate: -6deg;
+  transform-origin: 50% 60%;
+  animation: hb-news-in 900ms cubic-bezier(.22, 1, .36, 1) 900ms backwards;
+}
+.hb-news[hidden] { display: none; }
+@keyframes hb-news-in { from { transform: translateY(-18px); } }
+
+/* ---- la bete ---------------------------------------------------------------------- */
+
+/* Le cadre : les betes s'y empilent (une seule visible a la fois), l'etoile
+   reste collee dans son coin quand elles defilent. */
+.hb-news-reel {
+  position: relative;
+  display: grid;
+  /* La respiration : la bete se souleve et s'etire d'un rien, en continu
+     (translate / scale, joues par la carte graphique). */
+  transform-origin: 50% 100%;
+  animation: hb-news-float 3.4s ease-in-out 1.8s infinite alternate;
+}
+/* La bete, un cinquieme plus grande que le bloc, ancree sur son bord droit
+   (elle deborde vers la gauche, jamais hors de l'ecran). */
+.hb-news-reel { width: 120%; align-self: flex-end; }
+@keyframes hb-news-float {
+  from { translate: 0 0; scale: 1 1; }
+  to { translate: 0 -5px; scale: 1.015 1.03; }
+}
+.hb-news-art {
+  grid-area: 1 / 1;
+  display: block;
+  width: 100%;
+}
+.hb-news-art[hidden] { display: none; }
+/* La suivante entre en glissant depuis la droite, deja visible : seul le
+   mouvement s'anime. */
+.hb-news-art.is-in { animation: hb-news-swap 560ms var(--ease-snap); }
+@keyframes hb-news-swap { from { transform: translateX(18%) rotate(5deg) scale(.88); } }
+.hb-news-solo {
+  display: block;
+  /* Le rendu a des marges transparentes sur les cotes : il deborde du bloc
+     pour que la bete, elle, en prenne toute la largeur. js/news.js mesure la
+     bete et regle --solo-w et --solo-x ; a defaut, un cadrage moyen. */
+  width: var(--solo-w, 128%);
+  margin: 0 0 0 var(--solo-x, -14%);
+  height: auto;
+  max-width: none;
+  /* Le rendu est coupe en bas : il se fond plutot que de s'arreter net. */
+  -webkit-mask: linear-gradient(180deg, #000 62%, transparent 97%);
+  mask: linear-gradient(180deg, #000 62%, transparent 97%);
+  /* Le meme contre-jour que la troupe du hero. */
+  filter: drop-shadow(0 0 1px #FFF0A0) drop-shadow(0 -4px 16px rgba(255, 236, 150, .45));
+  transform-origin: 50% 85%;
+  transition: scale 380ms var(--ease-snap);
+}
+/* Au survol, la bete grandit et l'etoile claque : ils grossissent sans se
+   deplacer, pour que la zone survolee ne fuie jamais sous le curseur. */
+.hb-news:is(:hover, :focus-within) .hb-news-solo { scale: 1.07; }
+.hb-news:is(:hover, :focus-within) .hb-news-burst { scale: 1.12; }
+
+/* ---- l'etoile ---------------------------------------------------------------------- */
+
+/* Dans le coin haut droit : a gauche, elle mordrait sur le logo. */
+.hb-news-burst {
+  position: absolute;
+  right: -4%;
+  top: -12%;
+  width: 38cqi;
+  max-width: 128px;
+  min-width: 58px;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  rotate: -8deg;
+  transition: scale 300ms cubic-bezier(.34, 1.56, .64, 1);
+  animation: hb-news-pop 700ms cubic-bezier(.34, 1.56, .64, 1) 1300ms backwards;
+}
+@keyframes hb-news-pop { from { transform: scale(.55) rotate(-40deg); } }
+/* Elle claque de nouveau a chaque bete qui arrive. */
+.hb-news-burst.is-bump { animation: hb-news-bump 460ms cubic-bezier(.34, 1.56, .64, 1); }
+@keyframes hb-news-bump { from { transform: scale(.78) rotate(-16deg); } }
+.hb-news-star {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  animation: hb-news-spin 24s linear infinite;
+}
+/* En `transform` : sur un <svg>, `rotate` seul reste hors de la carte graphique. */
+@keyframes hb-news-spin { to { transform: rotate(360deg); } }
+.hb-news-star-back { fill: #171A16; transform: translate(6px, 7px); }
+.hb-news-star-front { fill: #FFE14D; stroke: #171A16; stroke-width: 6; stroke-linejoin: miter; }
+.hb-news-burst-text {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 1px;
+  font-family: var(--font-display);
+  font-size: clamp(13px, 8cqi, 26px);
+  line-height: 1;
+  text-transform: uppercase;
+  color: #B84A38;
+  text-shadow: 1px 1px 0 #171A16;
+  animation: hb-news-throb 1.6s ease-in-out 2s infinite;
+}
+.hb-news-burst-text i { font-style: normal; font-size: 1.2em; color: #171A16; text-shadow: none; }
+@keyframes hb-news-throb { 50% { scale: 1.08; } }
+
+/* ---- le bouton ---------------------------------------------------------------------- */
+
+.hb-news-btn {
+  position: relative;
+  z-index: 1;
+  flex-direction: column;
+  gap: 3px;
+  height: auto !important;
+  min-height: 48px;
+  margin-top: -14%;
+  padding: 8px 22px 7px;
+  font-size: clamp(15px, 6cqi, 19px);
+  line-height: 1;
+}
+.hb-news-btn small {
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  opacity: .8;
+}
+
+/* ---- les tetes des nouveautes (plusieurs a la fois) ----------------------------------- */
+
+/* Une tete par bete nouvelle, sous le bouton : celle en cours a sa couleur et
+   sa jauge, qui se remplit jusqu'a la bete suivante. */
+.hb-news-picks {
+  --news-dwell: 6s;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+.hb-news-pick {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 2px solid #171A16;
+  border-radius: 4px;
+  background-color: #2A2E26;
+  background-size: 82% auto;
+  background-position: center;
+  background-repeat: no-repeat;
+  box-shadow: 0 3px 0 #171A16;
+  cursor: pointer;
+  opacity: .62;
+  transition: opacity 200ms ease, translate 200ms var(--ease-snap);
+}
+.hb-news-pick:is(:hover, :focus-visible) { opacity: 1; translate: 0 -2px; }
+.hb-news-pick.is-current { opacity: 1; background-color: var(--pick); translate: 0 -3px; }
+/* La jauge : une barre sous la tete, en `scale` (carte graphique). */
+.hb-news-pick > i {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  bottom: 2px;
+  height: 3px;
+  background: #FFE14D;
+  box-shadow: 0 1px 0 #171A16;
+  transform-origin: 0 50%;
+  scale: 0 1;
+}
+.hb-news-pick.is-current > i { animation: hb-news-tick var(--news-dwell) linear; }
+@keyframes hb-news-tick { from { scale: 0 1; } to { scale: 1 1; } }
+/* On regarde, on vise une tete : la bete en cours reste. */
+.hb-news:is(:hover, :focus-within) .hb-news-pick > i { animation-play-state: paused; }
+
+/* ---- sous le logo, quand la place manque a droite ------------------------------------- */
+
+.hb-news.is-compact {
+  position: relative;
+  right: auto;
+  top: auto;
+  width: auto;
+  rotate: -3deg;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  margin-top: 1.6vh;
+  container-type: normal;
+}
+.hb-news.is-compact { flex-wrap: wrap; justify-content: center; }
+.hb-news.is-compact .hb-news-reel { width: clamp(168px, 50.4vw, 240px); align-self: auto; }
+.hb-news.is-compact .hb-news-picks { flex-basis: 100%; margin-top: 2px; }
+.hb-news.is-compact .hb-news-pick { width: 28px; height: 28px; }
+.hb-news.is-compact .hb-news-burst { width: 58px; min-width: 0; right: auto; left: -14%; top: -20%; }
+.hb-news.is-compact .hb-news-burst-text { font-size: 12px; }
+.hb-news.is-compact .hb-news-btn { margin-top: 0; }
+
+/* ---- en vignette, dans le coin libre du logo (telephone court) ------------------------ */
+
+.hb-news.is-corner {
+  top: var(--corner-top, 50%);
+  right: 8px;
+  width: var(--corner-w, 110px);
+  rotate: -5deg;
+}
+.hb-news.is-corner .hb-news-burst { width: 50px; min-width: 0; right: -2%; top: -24%; }
+.hb-news.is-corner .hb-news-burst-text { font-size: 10px; }
+.hb-news.is-corner .hb-news-btn {
+  min-height: 34px;
+  margin-top: -10%;
+  padding: 5px 10px 4px;
+  font-size: 12px;
+  letter-spacing: .05em;
+}
+.hb-news.is-corner .hb-news-btn small { font-size: 7px; }
+.hb-news.is-corner .hb-news-picks { gap: 4px; margin-top: 6px; }
+.hb-news.is-corner .hb-news-pick { width: 20px; height: 20px; border-width: 1px; box-shadow: 0 2px 0 #171A16; }
+.hb-news.is-corner .hb-news-pick > i { height: 2px; left: 1px; right: 1px; bottom: 1px; }
+
+/* Moins d'animations : rien ne defile tout seul (la jauge ne court plus), les
+   tetes restent pour choisir. */
+@media (prefers-reduced-motion: reduce) {
+  .hb-news, .hb-news-reel, .hb-news-art, .hb-news-burst, .hb-news-star, .hb-news-burst-text,
+  .hb-news-pick > i { animation: none !important; }
+  .hb-news-solo, .hb-news-burst, .hb-news-pick { transition: none; }
+}
+html[data-perf='lite'] :is(.hb-news-star, .hb-news-reel) { animation: none; }

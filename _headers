@@ -1,0 +1,20 @@
+# Netlify : combien de temps un navigateur garde chaque fichier.
+#
+# Sans ce fichier, chaque retour sur le site redemande chaque image au serveur.
+# - assets/ (images, sons, modeles) : gardes un jour sans rien demander, puis
+#   affiches tout de suite depuis le cache pendant que le navigateur verifie en
+#   arriere-plan (stale-while-revalidate). Une image remplacee apparait donc au
+#   plus tard a la visite suivante.
+# - js/ et css/ : les pages les appellent avec ?v=..., qu'on change a chaque
+#   modification : l'adresse change, le navigateur telecharge la nouvelle.
+# - les pages .html et data/ restent verifiees a chaque visite (reglage Netlify
+#   par defaut) : une mise en ligne se voit tout de suite.
+
+/assets/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/js/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/css/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800

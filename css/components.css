@@ -1,0 +1,1091 @@
+/* Shared components: site chrome, buttons, chips, cards, tables, modals. */
+
+/* ===========================================================================
+   Site header
+   =========================================================================== */
+
+.site-header {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 90;
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 20px;
+  background: var(--header-bg);
+  border-bottom: 2px solid var(--border-strong);
+  backdrop-filter: blur(8px);
+  transition: background 150ms ease-out;
+}
+
+/* Over a hero, the bar is translucent until the page scrolls. */
+.site-header[data-overlay='true']:not([data-scrolled='true']) {
+  background: var(--header-bg-overlay);
+}
+
+.site-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+  color: var(--text-strong);
+}
+.site-brand:hover { color: var(--accent-soft); }
+.site-brand img { display: block; image-rendering: pixelated; }
+.site-brand span {
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.site-pagetitle {
+  flex: 0 0 auto;
+  padding: 5px 10px;
+  background: var(--raised);
+  border: 2px solid var(--border-strong);
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  color: var(--text-bright);
+}
+
+.site-nav {
+  display: flex;
+  align-items: stretch;
+  height: var(--header-h);
+  margin-left: 4px;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex: 1 1 auto;
+}
+
+.site-nav a {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  padding: 0 12px;
+  font-family: var(--font-condensed);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text-body);
+  border-bottom: 3px solid transparent;
+  transition: background var(--dur-1) ease-out, color var(--dur-1) ease-out;
+}
+.site-nav a:hover { background: var(--raised); color: var(--text-strong); }
+.site-nav a[aria-current='page'] {
+  color: var(--text-strong);
+  border-bottom-color: var(--accent-text);
+}
+
+.icon-button,
+.search-button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 36px;
+  flex: 0 0 auto;
+  background: var(--inset);
+  border: 2px solid var(--rule);
+  color: var(--text-muted);
+  cursor: var(--cur-point);
+  box-shadow: var(--bevel);
+  transition: color var(--dur-1) ease-out, border-color var(--dur-1) ease-out, transform 160ms var(--ease-out);
+}
+.search-button {
+  padding: 0 11px;
+  font-family: var(--font-condensed);
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.search-button:hover { color: var(--text-strong); border-color: var(--border-soft); }
+
+.icon-button {
+  width: 36px;
+  justify-content: center;
+  padding: 0;
+}
+/* Une icone en balise <i> (css/icons.css) se mesure en em : dans un bouton
+   d'en-tete, elle vaut les 17 px des SVG voisins. */
+.ow-glyph { font-size: 17px; }
+.icon-button:hover {
+  color: var(--accent-soft);
+  border-color: var(--border-soft);
+  transform: rotate(-18deg);
+}
+
+.kbd {
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  color: var(--text-faint);
+  border: 1px solid var(--rule);
+  padding: 2px 4px;
+}
+
+/* ---------------------------------------------------------------------------
+   La barre et son tiroir
+
+   Sur grand ecran, .site-tools est un `display: contents` : la boite
+   disparait et ses enfants sont les blocs de la barre, exactement comme
+   lorsqu'ils y etaient ecrits directement. Rien ne change donc au-dessus de
+   900 px — c'est la meme barre qu'avant, au pixel pres.
+
+   La barre porte huit blocs de largeur fixe. Les seuils ci-dessous les
+   retirent dans l'ordre de leur utilite, pour que la navigation ne soit jamais
+   rognee : c'est elle qui compte, pas le rappel du raccourci clavier.
+   --------------------------------------------------------------------------- */
+
+.site-tools { display: contents; }
+.burger { display: none; }
+
+@media (max-width: 1400px) { .kbd { display: none; } }
+@media (max-width: 1330px) { .site-pagetitle { display: none; } }
+@media (max-width: 1180px) { .search-label { display: none; } }
+@media (max-width: 1000px) { .site-brand span { display: none; } }
+
+/* ---------------------------------------------------------------------------
+   Sous 900 px : la meme barre, pliee
+
+   Six liens de navigation, la recherche, les favoris, quatorze langues, le
+   theme et le bouton de telechargement ne tiennent pas sur la largeur d'un
+   telephone : la barre les rognait, et le rail defilait sous le pouce sans
+   qu'on sache qu'il y avait autre chose.
+
+   Ils descendent donc tous dans un panneau, derriere un bouton a trois
+   barres. Le panneau est la meme boite qu'a l'ecran large : aucun element
+   n'est ecrit deux fois.
+   --------------------------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .burger { display: flex; margin-left: auto; }
+
+  .site-tools {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    z-index: 4;
+    /* Une grille en lignes qui se remplissent : la recherche, puis les liens,
+       puis les trois boutons cote a cote, puis le telechargement. */
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    gap: 10px;
+    padding: 14px;
+    background: var(--panel);
+    border-bottom: 2px solid var(--border-strong);
+    box-shadow: 0 14px 0 rgba(0, 0, 0, .35);
+    /* Un panneau plus haut que l'ecran se fait defiler, il ne deborde pas. */
+    max-height: calc(100dvh - var(--header-h));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    /* Ferme : replie vers le haut, sans transition de hauteur (qui ne
+       s'anime pas) mais par un glissement franc. */
+    visibility: hidden;
+    opacity: 0;
+    translate: 0 -10px;
+    transition: opacity 160ms ease-out, translate 220ms var(--ease-snap), visibility 0s linear 220ms;
+  }
+  .site-header.nav-open .site-tools {
+    visibility: visible;
+    opacity: 1;
+    translate: 0 0;
+    transition: opacity 160ms ease-out, translate 220ms var(--ease-snap), visibility 0s;
+  }
+
+  /* Les liens : une colonne de lignes pleines, pas un rail qui defile. */
+  .site-tools .site-nav {
+    flex: 1 0 100%;
+    flex-direction: column;
+    height: auto;
+    margin-left: 0;
+    overflow: visible;
+  }
+  .site-tools .site-nav a {
+    padding: 11px 12px;
+    font-size: 17px;
+    border-bottom: 2px solid var(--hairline);
+    border-left: 3px solid transparent;
+  }
+  .site-tools .site-nav a[aria-current='page'] {
+    border-bottom-color: var(--hairline);
+    border-left-color: var(--accent-text);
+    background: var(--raised);
+  }
+
+  /* Le .grow de la barre large n'a plus rien a pousser. */
+  .site-tools .grow { display: none; }
+
+  /* La recherche en premier, pleine largeur : c'est ce qu'on vient chercher. */
+  .site-tools .search-button {
+    order: -1;
+    flex: 1 0 100%;
+    height: 44px;
+    justify-content: flex-start;
+    padding: 0 14px;
+  }
+  .site-tools .search-label { display: inline; font-size: 15px; }
+
+  /* Favoris, langue et theme se partagent une ligne ; leurs menus s'ouvrent
+     sous eux, alignes a gauche du panneau. */
+  .site-tools .hmenu,
+  .site-tools [data-theme-toggle] { flex: 0 0 auto; }
+  .site-tools .hmenu-panel { right: auto; left: 0; width: min(280px, calc(100vw - 40px)); }
+
+  /* Le telechargement ferme le panneau, pleine largeur : c'est l'action. */
+  .site-tools .header-download { flex: 1 0 100%; height: 44px !important; justify-content: center; }
+}
+
+/* ===========================================================================
+   Buttons
+   =========================================================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 15px;
+  background: var(--panel);
+  color: var(--text-body);
+  border: 2px solid var(--border-strong);
+  box-shadow: 0 3px 0 var(--shadow-ink);
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  cursor: var(--cur-point);
+  transition: background var(--dur-2) ease-out, color var(--dur-2) ease-out,
+              transform var(--dur-1) ease-out, box-shadow var(--dur-1) ease-out;
+}
+.btn:hover { background: var(--raised); color: var(--text-strong); }
+.btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--shadow-ink); }
+
+.btn-accent {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.btn-accent:hover { background: var(--accent-hover); color: var(--on-accent); }
+
+.btn-accent[aria-disabled='true'],
+.btn[aria-disabled='true'] {
+  background: var(--rule);
+  color: var(--text-faint);
+  cursor: var(--cur-no);
+  box-shadow: none;
+}
+.btn[aria-disabled='true']:active { transform: none; }
+
+.btn-lg {
+  height: 52px;
+  padding: 0 26px;
+  font-size: 19px;
+  letter-spacing: .09em;
+  box-shadow: var(--shadow-block-lg);
+}
+.btn-lg:active { transform: translateY(2px); box-shadow: var(--shadow-block); }
+
+/* A tab / filter pill: pressed state fills with the accent. */
+.btn-toggle { height: 38px; padding: 0 14px; }
+.btn-toggle[aria-pressed='true'] {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.btn-toggle[aria-pressed='true']:hover { background: var(--accent-hover); }
+
+.btn-count {
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  opacity: .9;
+  margin-left: 6px;
+}
+
+.btn-close {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--inset);
+  border: 2px solid var(--rule);
+  color: var(--text-body);
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 19px;
+  cursor: var(--cur-point);
+  transition: background var(--dur-2) ease-out, color var(--dur-2) ease-out;
+}
+/* --blood est sombre dans les deux themes : l'encre qui s'y pose doit donc
+   rester claire, et non suivre la rampe de texte du theme. */
+.btn-close:hover { background: var(--blood); color: #F7F4EC; }
+
+.btn-square {
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: var(--panel);
+  border: 2px solid var(--border-strong);
+  box-shadow: var(--shadow-block);
+  color: var(--text-bright);
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 22px;
+  cursor: var(--cur-point);
+  transition: background 150ms ease-out, transform 150ms var(--ease-out), box-shadow 150ms ease-out;
+}
+.btn-square:hover { background: var(--raised); transform: translateY(-2px); }
+.btn-square:active { transform: translateY(2px); box-shadow: var(--shadow-block-sm); }
+
+/* Le comportement au survol (fleche qui avance, filet qui se tire) est dans
+   css/motion.css ; ici, seule la lettre. */
+.link-arrow {
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+/* Le reflet qui traverse un appel a l'action vit dans css/motion.css : sa
+   largeur doit suivre celle du bouton, sinon il s'arrete en chemin. */
+
+/* ===========================================================================
+   Chips and badges
+   =========================================================================== */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: var(--inset);
+  border: 1px solid var(--rule);
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  color: var(--text-body);
+}
+
+/* --chip-ink is set alongside --tier-color by contrastInk(), so a badge stays
+   legible whether its colour is amber or the near-black abyss blue. */
+.chip-tier {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  background: var(--tier-color, var(--accent));
+  color: var(--chip-ink, #171A16);
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  border: 2px solid var(--border-strong);
+  box-shadow: 0 2px 0 var(--shadow-ink);
+}
+
+.chip-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 10px;
+  background: var(--raised);
+  border: 2px solid var(--border-strong);
+  font-family: var(--font-condensed);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--text-bright);
+}
+
+.swatch {
+  width: 11px;
+  height: 11px;
+  flex: 0 0 auto;
+  background: var(--swatch-color, var(--accent));
+  border: 1px solid var(--border-strong);
+}
+
+/* ===========================================================================
+   Cards and panels
+   =========================================================================== */
+
+.panel {
+  background: var(--panel);
+  border: 2px solid var(--border-strong);
+  box-shadow: var(--shadow-block);
+}
+
+.panel-raised {
+  background: var(--raised);
+  border: 2px solid var(--border-strong);
+  box-shadow: var(--shadow-block), var(--bevel);
+}
+
+.panel-pad { padding: 22px; }
+
+.panel-accent-top {
+  position: relative;
+  overflow: hidden;
+}
+.panel-accent-top::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: var(--accent-line, var(--accent));
+}
+
+/* Card lift on hover: the surface brightens and the hard shadow deepens. */
+.card-lift {
+  transition: transform 180ms var(--ease-out), border-color 180ms ease-out, box-shadow 180ms ease-out, background 160ms ease-out;
+}
+.card-lift:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 9px 0 var(--shadow-ink), var(--bevel);
+}
+
+/* Icon well: the sunken square a sprite sits in. */
+.slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  background: var(--inset);
+  border: 1px solid var(--rule);
+}
+.slot img { image-rendering: pixelated; object-fit: contain; }
+.slot-30 { width: 30px; height: 30px; }
+.slot-30 img { width: 22px; height: 22px; }
+.slot-44 { width: 44px; height: 44px; }
+.slot-44 img { width: 30px; height: 30px; }
+.slot-58 { width: 58px; height: 58px; }
+.slot-58 img { width: 42px; height: 42px; }
+
+/* Une icone que le mod ne livre pas encore : on montre l icone de categorie —
+   viande, minerai, outil — plutot que rien.
+
+   Elle etait affichee a 40 %, ce qui delavait des pages entieres : la fiche des
+   objets en compte plus de cent trente. A 68 %, l icone reste lisible et se
+   distingue quand meme d une vraie icone, d autant qu un petit repere l annonce
+   dans son coin. Au survol elle revient a pleine opacite, pour qu on puisse la
+   regarder sans deviner. */
+.sprite-placeholder {
+  opacity: .68;
+  filter: saturate(.6);
+  transition: opacity 200ms ease-out, filter 200ms ease-out;
+}
+:hover > .sprite-placeholder,
+.slot:hover .sprite-placeholder,
+tr:hover .sprite-placeholder { opacity: 1; filter: none; }
+
+/* Le repere : un angle coupe en bas a droite de la case, discret mais constant,
+   qui dit "cette icone est approximative" sans texte ni info-bulle. */
+.slot:has(.sprite-placeholder) { position: relative; }
+.slot:has(.sprite-placeholder)::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  border: 4px solid transparent;
+  border-right-color: var(--text-dim);
+  border-bottom-color: var(--text-dim);
+  opacity: .8;
+  pointer-events: none;
+}
+
+/* ===========================================================================
+   Stat bars
+   =========================================================================== */
+
+.bar-track {
+  display: block;
+  height: 10px;
+  background: var(--inset);
+  border: 1px solid var(--rule);
+  overflow: hidden;
+}
+.bar-track-sm { height: 6px; }
+.bar-fill {
+  display: block;
+  height: 100%;
+  transform-origin: left;
+  background: var(--bar-color, var(--accent));
+  width: var(--bar-width, 0%);
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid var(--hairline);
+}
+.stat-row dt, .stat-row .k {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text-muted);
+}
+.stat-row dd, .stat-row .v {
+  margin: 0;
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 17px;
+  color: var(--text-bright);
+  text-align: right;
+}
+
+/* ===========================================================================
+   Tables
+   =========================================================================== */
+
+.table {
+  border: 2px solid var(--border-strong);
+  background: var(--panel);
+  box-shadow: var(--shadow-block);
+}
+
+.table-head {
+  display: flex;
+  padding: 12px 18px;
+  background: var(--inset);
+}
+.table-head span {
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  color: var(--text-muted);
+}
+
+.table-row {
+  display: flex;
+  align-items: center;
+  padding: 11px 18px;
+  border-bottom: 1px solid var(--hairline);
+  transition: background var(--dur-2) ease-out, transform var(--dur-2) ease-out;
+}
+.table-row:hover { background: var(--raised); transform: translateX(4px); }
+.table-row:last-child { border-bottom: 0; }
+
+.table-note {
+  padding: 12px 18px;
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  color: var(--text-dim);
+}
+
+.cell-num {
+  text-align: right;
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text-body);
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+/* Tables are dense; let them scroll inside their own box on narrow screens. */
+.table-scroll {
+  overflow-x: auto;
+}
+.table-scroll > * { min-width: 720px; }
+
+/* ===========================================================================
+   Modals
+   =========================================================================== */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.modal[hidden] { display: none; }
+
+.modal-scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--scrim-deep);
+  backdrop-filter: blur(7px);
+  animation: ow-fade 200ms ease-out both;
+  border: 0;
+  padding: 0;
+  cursor: var(--cur-default);
+}
+
+.modal-card {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: min(880px, 94vw);
+  max-height: 88vh;
+  overflow: auto;
+  padding: 28px;
+  background: var(--panel);
+  border: 2px solid var(--border-strong);
+  box-shadow: 0 10px 0 var(--shadow-ink), var(--shadow-lift);
+  animation: ow-rise 300ms var(--ease-reveal) both;
+}
+
+.modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+/* ===========================================================================
+   Menus de l'en-tete : favoris, langue
+   =========================================================================== */
+
+.hmenu { position: relative; flex: 0 0 auto; }
+.hmenu-button { position: relative; }
+.lang-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 9px;
+  background: var(--inset);
+  border: 2px solid var(--rule);
+  color: var(--text-muted);
+  cursor: var(--cur-point);
+  box-shadow: var(--bevel);
+  transition: color var(--dur-1) ease-out, border-color var(--dur-1) ease-out;
+}
+.lang-button:hover, .hmenu.is-open .lang-button { color: var(--text-strong); border-color: var(--border-soft); }
+.lang-code { font-family: var(--font-pixel); font-size: 9px; color: var(--text-strong); }
+.lang-button svg:last-child { transition: transform 200ms var(--ease-out); }
+.hmenu.is-open .lang-button svg:last-child { transform: rotate(180deg); }
+.fav-button:hover { transform: rotate(-12deg) scale(1.05); }
+.hmenu.is-open .fav-button { color: #F5C842; border-color: var(--border-soft); transform: none; }
+.fav-count {
+  position: absolute;
+  right: -7px;
+  top: -7px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  display: grid;
+  place-items: center;
+  background: #F5C842;
+  border: 2px solid var(--border-strong);
+  font-family: var(--font-pixel);
+  font-size: 7px;
+  line-height: 1;
+  color: #171A16;
+}
+
+.hmenu-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 280px;
+  padding: 10px;
+  background: var(--panel);
+  border: 2px solid var(--border-strong);
+  box-shadow: var(--shadow-lift);
+  opacity: 0;
+  transform: translateY(-8px) scale(.97);
+  transform-origin: 90% 0;
+  transition: opacity 150ms ease-out, transform 220ms var(--ease-snap);
+}
+.hmenu-panel::before {
+  content: '';
+  position: absolute;
+  right: 12px;
+  top: -8px;
+  width: 12px;
+  height: 12px;
+  background: var(--panel);
+  border-left: 2px solid var(--border-strong);
+  border-top: 2px solid var(--border-strong);
+  transform: rotate(45deg);
+}
+.hmenu.is-open .hmenu-panel { opacity: 1; transform: none; pointer-events: auto; }
+/* Ferme, le menu n'existe plus : ni visible, ni cliquable. */
+.hmenu-panel[hidden] { display: none; }
+.hmenu:not(.is-open) .hmenu-panel { pointer-events: none; visibility: hidden; transition: opacity 150ms ease-out, transform 220ms var(--ease-snap), visibility 0s linear 160ms; }
+.hmenu-kicker { padding: 2px 6px 6px; font-family: var(--font-pixel); font-size: 8px; color: var(--text-dim); }
+.hmenu-note { padding: 8px 6px 2px; font-size: 11.5px; line-height: 1.4; color: var(--text-faint); border-top: 1px solid var(--hairline); margin-top: 4px; }
+
+.lang-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  text-align: left;
+  color: var(--text-strong);
+  cursor: var(--cur-point);
+  transition: background 120ms ease-out, border-color 120ms ease-out, translate 160ms var(--ease-snap);
+}
+.lang-option:hover, .lang-option:focus-visible { background: var(--raised); outline: none; translate: 2px 0; }
+.lang-option.is-current { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.lang-badge {
+  display: grid;
+  place-items: center;
+  flex: 0 0 34px;
+  height: 26px;
+  overflow: hidden;
+  background: var(--inset);
+  border: 2px solid var(--border-strong);
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .25);
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  color: var(--accent-text);
+}
+.lang-badge.is-auto { color: var(--text-muted); }
+.lang-badge svg { width: 14px; height: 14px; }
+.lang-badge .lang-flag-big { display: block; width: 26px; height: 18px; image-rendering: pixelated; }
+.lang-flag { display: block; width: 20px; height: 14px; image-rendering: pixelated; box-shadow: 0 0 0 1px rgba(0, 0, 0, .55); }
+.lang-text { display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0; }
+.lang-text b { font-family: var(--font-condensed); font-weight: 700; font-size: 16px; letter-spacing: .02em; }
+.lang-text small { font-size: 11.5px; color: var(--text-faint); }
+.lang-check { font-family: var(--font-pixel); font-size: 10px; color: var(--accent-text); }
+
+/* Quatorze langues : la liste defile, avec la barre du site. */
+.lang-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: min(46vh, 340px);
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) var(--inset);
+  overscroll-behavior: contain;
+}
+.lang-list::-webkit-scrollbar { width: 10px; }
+.lang-list::-webkit-scrollbar-track { background: var(--inset); border: 1px solid var(--rule); }
+.lang-list::-webkit-scrollbar-thumb { background: var(--accent); border: 2px solid var(--inset); }
+.lang-list::-webkit-scrollbar-thumb:hover { background: var(--accent-hover); }
+
+.fav-panel { width: 300px; }
+.fav-list { display: flex; flex-direction: column; gap: 3px; max-height: 360px; overflow-y: auto; }
+.fav-row { display: flex; align-items: center; gap: 4px; }
+.fav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  padding: 6px 8px;
+  border-left: 3px solid var(--c);
+  background: var(--inset);
+  color: var(--text-strong);
+  transition: background 120ms ease-out, translate 160ms var(--ease-snap);
+}
+.fav-link:hover { background: var(--raised); translate: 2px 0; color: var(--text-strong); }
+.fav-head { flex: 0 0 28px; height: 28px; background-size: contain; background-position: center; background-repeat: no-repeat; }
+.fav-name { font-family: var(--font-condensed); font-weight: 700; font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fav-remove {
+  display: grid;
+  place-items: center;
+  flex: 0 0 30px;
+  height: 40px;
+  background: transparent;
+  border: 0;
+  color: var(--text-faint);
+  cursor: var(--cur-point);
+}
+.fav-remove:hover { color: var(--blood); }
+.fav-all { padding: 8px 6px 2px; font-family: var(--font-condensed); font-weight: 700; font-size: 14px; color: var(--link); }
+.fav-empty { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 8px 8px; text-align: center; }
+.fav-empty-star { color: #F5C842; animation: pe-bob 1.8s ease-in-out infinite alternate; }
+.fav-empty-star svg { width: 28px; height: 28px; }
+.fav-empty-star i { font-size: 28px; }
+.fav-empty b { font-family: var(--font-condensed); font-size: 16px; color: var(--text-strong); }
+.fav-empty small { font-size: 12.5px; line-height: 1.4; color: var(--text-faint); }
+
+
+/* Les menus de la barre (favoris, langue) prennent la largeur du telephone,
+   accroches sous la barre : depuis le tiroir, un panneau de 280 px ancre a son
+   bouton sortirait de l'ecran. Ils passent devant le tiroir, qui reste ouvert
+   derriere eux. */
+@media (max-width: 760px) {
+  .hmenu-panel {
+    position: fixed;
+    left: 10px;
+    right: 10px;
+    top: calc(var(--header-h) + 6px);
+    z-index: 6;
+    width: auto;
+  }
+  .hmenu-panel::before { display: none; }
+}
+
+/* ===========================================================================
+   L'etoile des favoris (js/favorites.js), et la notification
+   =========================================================================== */
+
+.fav-star {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  background: rgba(8, 12, 9, .72);
+  border: 2px solid rgba(0, 0, 0, .8);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12);
+  color: rgba(255, 255, 255, .7);
+  cursor: var(--cur-point);
+  transition: color 140ms ease-out, background 140ms ease-out, transform 200ms var(--ease-snap);
+}
+.fav-star svg { width: 18px; height: 18px; fill: currentColor; shape-rendering: crispEdges; }
+.fav-star i { font-size: 18px; }
+.fav-star:hover { color: #FFFFFF; transform: scale(1.1) rotate(-8deg); }
+.fav-star:focus-visible { outline: 2px solid #F5C842; outline-offset: 2px; }
+.fav-star[aria-pressed='true'] { color: #F5C842; background: rgba(40, 30, 6, .82); }
+.fav-star[aria-pressed='true'] svg,
+.fav-star[aria-pressed='true'] i { filter: drop-shadow(0 0 4px rgba(245, 200, 66, .6)); }
+.fav-star.is-pop { animation: fav-pop 420ms var(--ease-snap); }
+@keyframes fav-pop { 0% { transform: scale(1); } 40% { transform: scale(1.4) rotate(-14deg); } 100% { transform: scale(1); } }
+
+/* Sur une carte : dans le coin, visible au survol, toujours la si favorite. */
+.cc .fav-star { position: absolute; right: 10px; top: 10px; z-index: 6; opacity: 0; transform: translateY(-4px); }
+.cc:hover .fav-star, .cc:focus-within .fav-star, .cc .fav-star[aria-pressed='true'] { opacity: 1; transform: none; }
+@media (hover: none) { .cc .fav-star { opacity: 1; transform: none; } }
+
+.ow-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 26px;
+  z-index: 140;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: var(--panel);
+  border: 2px solid var(--border-strong);
+  box-shadow: var(--shadow-lift);
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--text-strong);
+  opacity: 0;
+  transform: translate(-50%, 16px);
+  pointer-events: none;
+  transition: opacity 180ms ease-out, transform 260ms var(--ease-snap);
+}
+.ow-toast svg { width: 18px; height: 18px; fill: #F5C842; shape-rendering: crispEdges; }
+.ow-toast.is-in { opacity: 1; transform: translate(-50%, 0); }
+
+/* ===========================================================================
+   Footer
+   =========================================================================== */
+
+.site-footer {
+  position: relative;
+  margin-top: 112px;
+  background: var(--inset);
+  border-top: 2px solid var(--border-strong);
+  padding: 48px 0 40px;
+}
+
+/* Les passants (js/footer.js) : une bete marche sur le bord du pied de page.
+   La planche defile par paliers (steps) et la bete traverse par transform :
+   rien ne se redessine. */
+.cameo-lane { position: absolute; left: 0; right: 0; top: 0; height: 0; z-index: 2; pointer-events: none; }
+.cameo {
+  position: absolute;
+  left: 0;
+  bottom: calc(var(--g) * var(--k) * -1px + 1px);
+  pointer-events: auto;
+  animation: cameo-cross var(--time) linear both;
+}
+.cameo-sheet {
+  display: block;
+  width: calc(var(--w) * var(--k) * 1px);
+  height: calc(var(--h) * var(--k) * 1px);
+  overflow: hidden;
+  filter: drop-shadow(0 3px 0 rgba(0, 0, 0, .35));
+}
+.cameo.is-leftward .cameo-sheet { transform: scaleX(-1); }
+.cameo-sheet img {
+  display: block;
+  width: calc(var(--n) * var(--w) * var(--k) * 1px);
+  height: 100%;
+  max-width: none;
+  image-rendering: pixelated;
+  animation: cameo-walk var(--step) steps(var(--n)) infinite;
+}
+.cameo:hover, .cameo:hover .cameo-sheet img { animation-play-state: paused; }
+@keyframes cameo-cross { from { transform: translateX(var(--from)); } to { transform: translateX(var(--to)); } }
+@keyframes cameo-walk { to { transform: translateX(calc(var(--n) * var(--w) * var(--k) * -1px)); } }
+@media (prefers-reduced-motion: reduce) { .cameo-lane { display: none; } }
+
+.site-footer-inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+}
+.footer-columns section {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.footer-columns a {
+  font-family: var(--font-condensed);
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+/* ===========================================================================
+   Hero
+   =========================================================================== */
+
+.hero {
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  border-bottom: 2px solid var(--border-strong);
+}
+
+.hero-media {
+  position: absolute;
+  inset: -6%;
+  background-size: cover;
+  background-position: center 40%;
+  animation: ow-pan 34s ease-in-out infinite alternate;
+}
+
+/* Le fondu atterrit sur le fond de page, pour que le hero se raccorde dans les
+   deux themes. Les trois arrets viennent des jetons : le hero, les bannieres de
+   creature et les entetes de page partagent ainsi le meme voile. */
+.hero-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg,
+    var(--media-veil-top) 0%,
+    var(--media-veil-mid) 34%,
+    var(--media-veil-low) 78%,
+    var(--canvas) 100%);
+}
+
+.hero-scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(180deg, rgba(0, 0, 0, .16) 0 2px, rgba(0, 0, 0, 0) 2px 4px);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+.scroll-cue {
+  position: absolute;
+  bottom: 16px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  color: var(--text-bright);
+  animation: ow-cue 2.6s ease-in-out infinite;
+}
+
+/* ===========================================================================
+   Counter strip
+   =========================================================================== */
+
+.counters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 2px;
+  background: var(--border-strong);
+  border: 2px solid var(--border-strong);
+}
+
+.counter {
+  background: var(--panel);
+  padding: 14px 16px;
+  transition: background var(--dur-2) ease-out, transform var(--dur-2) ease-out;
+}
+.counter:hover { background: var(--raised); transform: translateY(-3px); }
+.counter .value {
+  font-family: var(--font-display);
+  font-size: 33px;
+  line-height: .92;
+  color: var(--counter-color, var(--text-strong));
+}
+.counter .key {
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  color: var(--text-muted);
+  margin-top: 7px;
+}
+
+/* ===========================================================================
+   Media queries
+   =========================================================================== */
+
+@media (max-width: 860px) {
+  .section { padding-top: 64px; }
+  .split { grid-template-columns: 1fr !important; }
+  .site-footer { margin-top: 72px; }
+}
+
+/* Sur telephone, la barre elle-meme se resserre : il ne lui reste que la
+   marque et le bouton du tiroir. */
+@media (max-width: 560px) {
+  .site-header { gap: 8px; padding: 0 12px; }
+  .lang-button { padding: 0 8px; gap: 0; }
+}
+
+/* Les liens exterieurs du pied de page : des pastilles d'icone, dans le
+   vocabulaire des boutons du site (bloc, biseau, ombre franche). */
+.footer-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.footer-link {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  background: var(--inset);
+  border: 2px solid var(--border-strong);
+  box-shadow: inset 0 1px 0 var(--bevel-top), 0 3px 0 var(--shadow-ink);
+  color: var(--text-muted);
+  transition: translate 140ms var(--ease-snap), color 140ms ease-out, background 140ms ease-out, box-shadow 140ms ease-out;
+}
+.footer-link svg { width: 20px; height: 20px; fill: currentColor; shape-rendering: crispEdges; }
+/* Les logos de marque sont des balises <i> masquees (css/icons.css) : leur
+   taille suit la police, on la fixe ici comme on fixait celle du SVG. */
+.footer-link i { font-size: 20px; }
+.footer-link:hover { translate: 0 -3px; color: var(--text-strong); background: var(--raised); box-shadow: inset 0 1px 0 var(--bevel-top), 0 6px 0 var(--shadow-ink); }
+.footer-link[data-social='curseforge']:hover { color: #F16436; }
+.footer-link[data-social='youtube']:hover { color: #FF4B4B; }
+.footer-link[data-social='discord']:hover { color: #8CA0FF; }
+.footer-link.is-empty { opacity: .45; cursor: var(--cur-no); }
+.footer-link.is-empty:hover { translate: 0; color: var(--text-muted); background: var(--inset); }

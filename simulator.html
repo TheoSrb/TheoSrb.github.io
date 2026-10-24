@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="fr" data-theme="dark" data-booting>
+<head>
+<meta charset="utf-8">
+<!-- En local, les assets viennent du depot GitHub (js/remote-assets.js) : en premier. -->
+<script src="js/remote-assets.js?v=20261001l"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Le wiki n'a pas d'etape de construction : les fichiers sont servis tels
+     quels. Sans ces en-tetes, un navigateur garde volontiers l'ancien CSS
+     apres une modification, et la page semble ne pas avoir bouge. -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Mécaniques - Operation W.I.L.D</title>
+<meta name="description" content="Comparaison des créatures d'Operation W.I.L.D, Piste Sauvage et courbe de niveau.">
+<link rel="icon" href="assets/logo.png" type="image/png">
+<meta name="theme-color" content="#0B0F0C">
+<link rel="apple-touch-icon" href="assets/logo.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Operation W.I.L.D">
+<meta property="og:title" content="Mécaniques - Operation W.I.L.D">
+<meta property="og:description" content="Comparaison des créatures d'Operation W.I.L.D, Piste Sauvage et courbe de niveau.">
+<meta property="og:image" content="https://operation-wild-wiki.netlify.app/assets/og/site.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://operation-wild-wiki.netlify.app/assets/og/site.png">
+<script>
+  /* Theme, effets et langue avant le premier rendu : ni flash de fond, ni flash de texte.
+     La traduction elle-meme (js/i18n.js) leve le voile des qu'elle est prete. */
+  try {
+    var t = localStorage.getItem('ow-theme');
+    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+    var p = localStorage.getItem('ow-perf');
+    if (p === 'full' || p === 'lite') document.documentElement.setAttribute('data-perf', p);
+  } catch (e) {}
+  (function () {
+    var codes = ['fr', 'en', 'es', 'pt', 'ru'], l = null;
+    try { l = localStorage.getItem('ow-lang'); } catch (e) {}
+    if (codes.indexOf(l) < 0) {
+      l = 'en';
+      var list = navigator.languages || [navigator.language || 'en'];
+      for (var i = 0; i < list.length; i++) {
+        var k = String(list[i] || '').slice(0, 2).toLowerCase();
+        if (codes.indexOf(k) >= 0) { l = k; break; }
+      }
+    }
+    document.documentElement.lang = l;
+    if (l !== 'fr') {
+      document.documentElement.setAttribute('data-i18n-pending', '');
+      setTimeout(function () { document.documentElement.removeAttribute('data-i18n-pending'); }, 1800);
+    }
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=Barlow+Condensed:wght@600;700&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="css/tokens.css?v=20261001l">
+<link rel="stylesheet" href="css/base.css?v=20261021c">
+<link rel="stylesheet" href="css/motion.css?v=20261001l">
+<link rel="stylesheet" href="css/components.css?v=20261001l">
+<link rel="stylesheet" href="css/icons.css?v=20261001l">
+<link rel="stylesheet" href="css/search.css?v=20261001l">
+<link rel="stylesheet" href="css/pages.css?v=20261001l">
+<link rel="stylesheet" href="css/simulator.css?v=20261024k">
+<link rel="stylesheet" href="css/aspect.css?v=20261001l">
+<link rel="stylesheet" href="css/wild-trail.css?v=20261001l">
+<link rel="stylesheet" href="css/tribes.css?v=20261024b">
+<link rel="stylesheet" href="css/biome-world.css?v=20261021g">
+<link rel="stylesheet" href="css/wild.css?v=20261024b">
+<link rel="stylesheet" href="css/ux.css?v=20261022a">
+<link rel="stylesheet" href="css/billy.css?v=20261020e">
+<link rel="stylesheet" href="css/theme-light.css?v=20261024b">
+<!-- Atelier des versions (temporaire) : cartes des combattants et courbe de niveau. -->
+<link rel="stylesheet" href="css/sim-v-base.css?v=20261024h">
+<link rel="stylesheet" href="css/sim-v-curve.css?v=20261024e">
+<script src="js/loader.js?v=20261021c"></script>
+<!-- Apres les feuilles de style, jamais avant : un script lent a arriver ne doit
+     pas laisser la page s'afficher sans elles (sans @view-transition, css/ux.css,
+     la transition entre pages est abandonnee). Le decor de biome est ici, dans
+     l'en-tete : il se pose avant la premiere image, pour que la transition ait
+     toujours de quoi glisser. -->
+<script src="js/biome-config.js?v=20261010x"></script>
+<script src="js/biome-world.js?v=20261024b"></script>
+</head>
+<body data-page="simulator">
+
+<div data-site-header></div>
+
+<main class="page">
+  <!-- En-tete : le titre suit l'onglet ouvert ------------------------------------ -->
+  <section class="page-hero simulator-hero">
+    <div class="page-hero-glow" aria-hidden="true"></div>
+    <div class="wrap stack" style="position:relative;gap:18px">
+      <span class="t-pixel t-accent">MÉCANIQUES</span>
+      <h1 class="t-display t-h1 anim-slide-left" data-title>Mécaniques</h1>
+      <p class="t-lead" style="max-width:64ch" data-subtitle></p>
+      <nav class="sim-tabs" data-tabs role="tablist" aria-label="Mécaniques du mode"></nav>
+    </div>
+  </section>
+
+  <!-- Combat ------------------------------------------------------------------ -->
+  <section class="section-tight sim-cards" id="combat" data-panel="combat" role="tabpanel" data-card-style="aura">
+    <div class="wrap stack" style="gap:34px">
+
+      <!-- 1. L'arene -->
+      <div class="sim-step">
+        <div class="sim-step-head">
+          <span class="sim-step-num">1</span>
+          <div class="stack" style="gap:4px">
+            <span class="t-pixel t-accent" data-roster-label></span>
+            <h2 class="sim-step-title">L'arène</h2>
+          </div>
+          <span class="fill"></span>
+          <button type="button" class="btn" data-reset-roster>Réinitialiser</button>
+        </div>
+        <div class="duel" data-roster></div>
+      </div>
+
+      <!-- 2. Le mode -->
+      <div class="sim-step">
+        <div class="sim-step-head">
+          <span class="sim-step-num">2</span>
+          <div class="stack" style="gap:4px">
+            <span class="t-pixel t-accent">MODE DE COMBAT</span>
+            <h2 class="sim-step-title">Quel aspect doit primer&nbsp;?</h2>
+          </div>
+        </div>
+        <p class="t-body sim-step-lead">
+          Le mode change le poids de chaque statistique dans le calcul.
+          Un tank gagne en Survie, un assassin gagne en DPS.
+          <span data-run-hint></span>
+        </p>
+        <div class="aspect" data-modes role="group" aria-label="Mode de combat"></div>
+      </div>
+
+      <!-- 3. Le verdict -->
+      <div class="sim-step" data-results hidden>
+        <div class="sim-step-head">
+          <span class="sim-step-num">3</span>
+          <div class="stack" style="gap:4px">
+            <span class="t-pixel t-accent" data-ranking-label></span>
+            <h2 class="sim-step-title">Le verdict</h2>
+          </div>
+        </div>
+
+        <div class="podium" data-podium></div>
+        <p class="podium-margin" data-margin></p>
+
+        <!-- Le classement et le profil, puis la fiche d'une bete a la fois :
+             a cinq, tout montrer d'un coup noyait la lecture. -->
+        <div class="verdict-board">
+          <div class="sim-panel stack" style="gap:14px">
+            <span class="t-pixel">CLASSEMENT · D'OÙ VIENNENT LES POINTS</span>
+            <div class="rank-list" data-ranking></div>
+            <div class="bd-legend" data-ranking-legend></div>
+          </div>
+          <div class="sim-panel stack" style="gap:14px">
+            <span class="t-pixel">PROFIL COMPARÉ</span>
+            <svg viewBox="-34 0 388 300" class="radar" data-radar role="img"
+                 aria-label="Profil comparé des combattants"></svg>
+            <div class="radar-legend" data-radar-legend></div>
+          </div>
+        </div>
+
+        <article class="focus" data-focus-card>
+          <div class="verdict-banner focus-banner" data-focus-banner></div>
+          <div class="focus-body">
+            <div class="focus-col">
+              <span class="t-pixel">TOUS SES CHIFFRES</span>
+              <div data-focus-stats></div>
+            </div>
+            <div class="focus-col">
+              <span class="t-pixel">QUI TOMBE LE PREMIER</span>
+              <div class="focus-duels" data-focus-duels></div>
+              <span class="t-small">
+                Temps pour abattre l'autre : autant de coups qu'il en faut pour vider
+                ses PV, au rythme du combo de l'attaquant. Chaque coup vaut un tiers des
+                dégâts du combo, puis passe par la protection de la cible (Tank −20 %,
+                puis armure) ; un assassin place un coup à ×1,25 sur dix.
+              </span>
+            </div>
+            <div class="focus-col" data-focus-verdict></div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Piste Sauvage ------------------------------------------------------------ -->
+  <section class="section-tight" id="trail" data-panel="trail" role="tabpanel" hidden>
+    <div class="wrap stack" style="gap:24px">
+      <div class="filter-group" data-trail-picker></div>
+      <div class="trail-layout">
+        <div class="sim-panel trail-board">
+          <div data-trail-planner></div>
+          <p class="t-small trail-help">
+            Un nœud au cadre doré se débloque d’un clic : comme en jeu, le nœud qui y mène doit d’abord être acquis.
+            Les « ? » se révèlent quand la créature atteint le niveau demandé, réglable avec le curseur de niveau.
+          </p>
+        </div>
+
+        <div class="stack" style="gap:20px">
+          <a class="trail-hero" data-trail-hero></a>
+          <div class="sim-panel stack" style="gap:14px">
+            <span class="t-pixel">PROGRESSION</span>
+            <div class="trail-count">
+              <span data-owned>0</span>
+              <small>/ <span data-total>0</span> nœuds</small>
+            </div>
+            <div class="bar-track" style="height:12px"><span class="bar-fill" data-progress></span></div>
+            <p class="t-small" style="margin:-2px 0 0">
+              Atteignable à ce niveau : <strong data-trail-atlevel>—</strong>
+            </p>
+            <dl class="stack" style="gap:0;margin:0" data-ledger></dl>
+          </div>
+          <div class="sim-panel stack" style="gap:12px">
+            <span class="t-pixel">CAPACITÉS DÉBLOQUÉES</span>
+            <div class="stack" style="gap:8px" data-unlocked></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Archetypes & niveaux --------------------------------------------------------- -->
+  <section class="section-tight" id="stats" data-panel="stats" role="tabpanel" hidden>
+    <div class="wrap stack" style="gap:30px">
+      <div class="stack" style="gap:16px">
+        <div class="section-head">
+          <span class="t-pixel t-accent">ARCHÉTYPES DU MOD</span>
+          <h2 class="t-section">Sept façons de se battre</h2>
+          <span class="fill"></span>
+        </div>
+        <div class="arch-grid" data-archetypes></div>
+      </div>
+
+      <div class="stats-split">
+        <div class="sim-panel stack curve-panel" style="gap:16px" data-curve-panel>
+          <span class="t-pixel">COURBE DE NIVEAU</span>
+          <div class="xp xp-big" data-xp>
+            <output class="xp-level" data-curve-level>1</output>
+            <span class="xp-track"><span class="xp-fill" data-curve-xp></span></span>
+            <input type="range" min="1" max="50" step="1" value="1" data-curve-slider aria-label="Niveau">
+          </div>
+          <span class="t-pixel" style="color:var(--text-faint)">NIVEAU MAXIMUM : <span data-max-level>50</span></span>
+          <dl class="stack" style="gap:0;margin:0" data-level-rows></dl>
+          <div class="curve" data-curve></div>
+        </div>
+
+        <div class="sim-panel stack" style="gap:16px">
+          <span class="t-pixel">CLASSEMENT DU BESTIAIRE</span>
+          <div class="stack" style="gap:9px" data-dps-ranking></div>
+          <span class="t-small">Dégâts par seconde au niveau 1, aucun point placé, au rythme réel du combo.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Succes ----------------------------------------------------------------------- -->
+  <section class="section-tight" id="achievements" data-panel="achievements" role="tabpanel" hidden>
+    <div class="wrap stack" style="gap:24px">
+      <div class="adv-top">
+        <div class="adv-summary sim-panel" data-adv-summary></div>
+        <div class="adv-help sim-panel">
+          <span class="t-pixel">COMMENT ÇA MARCHE</span>
+          <p class="t-body">Chaque succès du mode se débloque en apprivoisant une créature pour la première fois.
+            Les succès cochés comme obtenus restent enregistrés dans ce navigateur.</p>
+          <div class="filter-group" data-adv-filters role="group" aria-label="Filtrer les succès"></div>
+        </div>
+      </div>
+      <div class="adv-grid" data-adv-grid></div>
+    </div>
+  </section>
+
+  <!-- Tribus ------------------------------------------------------------------------ -->
+  <!-- Formules : l'encyclopedie des mecaniques -->
+  <section class="section-tight" id="formulas" data-panel="formulas" role="tabpanel" hidden>
+    <div class="wrap" data-formulas></div>
+  </section>
+
+  <section class="section-tight" id="tribes" data-panel="tribes" role="tabpanel" hidden>
+    <div class="wrap" data-tribes></div>
+  </section>
+
+  <!-- Quetes ----------------------------------------------------------------------- -->
+  <section class="section-tight" id="quests" data-panel="quests" role="tabpanel" hidden>
+    <div class="wrap stack" style="gap:20px">
+      <div class="quest-board" data-quests></div>
+    </div>
+  </section>
+</main>
+
+<div data-site-footer></div>
+
+<script src="js/attack-profiles.js?v=20261010x"></script>
+<script src="js/wiki-data.js?v=20261020a"></script>
+<script src="js/asset-list.js?v=20261023a"></script>
+<script src="js/site.js?v=20261024a"></script>
+<script src="js/block-icons.js?v=20261009a"></script>
+<script src="js/site-config.js?v=20261010x"></script>
+<script src="js/assets-config.js?v=20261001l"></script>
+<script src="js/ux.js?v=20261024d"></script>
+<script src="js/player.js?v=20261001l"></script>
+<script src="js/theme.js?v=20261001l"></script>
+<script src="js/perf.js?v=20261001l"></script>
+<script src="js/i18n.js?v=20261001l"></script>
+<script src="js/favorites.js?v=20261001l"></script>
+<script src="js/reveal.js?v=20261022a"></script>
+<script src="js/interactions.js?v=20261001l"></script>
+<script src="js/footer.js?v=20261001l"></script>
+<script src="js/search.js?v=20261024a"></script>
+<script src="js/header.js?v=20261001l"></script>
+<script src="js/billy.js?v=20261024a"></script>
+<script src="js/swing.js?v=20261021f"></script>
+<script src="js/wild.js?v=20261001l"></script>
+<script src="js/wild-trail.js?v=20261001l"></script>
+<script src="js/tribes.js?v=20261024b"></script>
+<script src="js/combat-data.js?v=20261010x"></script>
+<script src="js/quest-data.js?v=20261001l"></script>
+<script src="js/sim-versions.js?v=20261024m"></script>
+<script src="js/simulator.js?v=20261024g"></script>
+</body>
+</html>

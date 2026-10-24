@@ -1,0 +1,6 @@
+# Netlify : le wiki est un site statique, publie tel quel (aucune construction).
+# Seule la fonction de Billy (fonctions/billy.mjs) est preparee par Netlify.
+# Deploiement : connecteur ou CLI Netlify — le glisser-deposer n'embarque pas la fonction.
+[build]
+  publish = "."
+  functions = "fonctions"

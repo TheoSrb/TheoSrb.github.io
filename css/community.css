@@ -1,0 +1,441 @@
+/* La communaute (js/community.js) : les etoiles, les avis, le carrousel de
+   l'accueil, et la page Communaute.
+
+   Un avis est une note epinglee sur un panneau sombre du site — un clou, la
+   couleur de la bete preferee en tete, penchee d'un rien comme posee a la
+   main. Les creations sont des vignettes a bord franc, comme les cartes du
+   site, avec leur type en pastille. */
+
+/* ===========================================================================
+   Les etoiles
+   =========================================================================== */
+
+.stars {
+  --s: 18px;
+  --st-empty: rgba(0, 0, 0, .35);
+  --star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 16'%3E%3Cpath d='M7 1h2v2H7zM6 3h4v2H6zM1 5h14v2H1zM3 7h10v2H3zM4 9h8v2H4zM3 11h4v2H3zM9 11h4v2H9zM2 13h3v2H2zM11 13h3v2h-3z'/%3E%3C/svg%3E");
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+  height: var(--s);
+  vertical-align: middle;
+}
+.stars.is-lg { --s: 24px; }
+/* Une etoile : son creux sombre, puis son remplissage (entier ou moitie). */
+.st {
+  position: relative;
+  display: block;
+  width: calc(var(--s) * 18 / 16);
+  height: var(--s);
+}
+.st::before,
+.st b {
+  content: '';
+  position: absolute;
+  inset: 0;
+  -webkit-mask: var(--star) 0 0 / 100% 100% no-repeat;
+  mask: var(--star) 0 0 / 100% 100% no-repeat;
+}
+.st::before { background: var(--st-empty); }
+.st b {
+  background: linear-gradient(180deg, #FFE27A 0 45%, #F2A32C 45%);
+  /* La moitie gauche seulement pour une demi-etoile (l'etoile occupe les
+     16 premieres cases sur 18). */
+  clip-path: inset(0 calc(100% - var(--f) * 16 / 18 * 100%) 0 0);
+}
+/* Les etincelles : cinq cases qui jaillissent de l'etoile qui s'allume. */
+.st u {
+  position: absolute;
+  left: 44%;
+  top: 44%;
+  width: calc(var(--s) / 6);
+  height: calc(var(--s) / 6);
+  background: #FFE27A;
+  box-shadow: 0 0 4px rgba(255, 190, 60, .9);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Au premier passage a l'ecran, les etoiles s'allument une a une, de gauche a
+   droite, en une seconde : un rebond, puis la gerbe. L'etat de repos est
+   plein : sans animation, la note reste lisible. */
+.stars.is-filling .st b {
+  animation: st-pop 460ms cubic-bezier(.34, 1.56, .64, 1) both;
+  animation-delay: calc(var(--k) * 180ms);
+}
+@keyframes st-pop {
+  0% { opacity: 0; transform: scale(.2) rotate(-25deg); }
+  60% { opacity: 1; transform: scale(1.3) rotate(6deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}
+.stars.is-filling .st u {
+  animation: st-spark 620ms cubic-bezier(.2, .8, .3, 1) both;
+  animation-delay: calc(var(--k) * 180ms + 140ms);
+}
+.st u:nth-of-type(1) { --dx: -120%; --dy: -150%; }
+.st u:nth-of-type(2) { --dx: 130%; --dy: -140%; }
+.st u:nth-of-type(3) { --dx: 170%; --dy: 40%; }
+.st u:nth-of-type(4) { --dx: -160%; --dy: 60%; }
+.st u:nth-of-type(5) { --dx: 10%; --dy: -210%; }
+@keyframes st-spark {
+  0% { opacity: 1; transform: translate(0, 0) scale(1); }
+  100% { opacity: 0; transform: translate(calc(var(--dx) * 3), calc(var(--dy) * 3)) scale(.4); }
+}
+
+/* ===========================================================================
+   Une carte d'avis : la note epinglee
+   =========================================================================== */
+
+.rv-card {
+  --r: -1deg;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 22px 20px 16px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .05), transparent 45%),
+    #15221B;
+  color: var(--text-body);
+  border: 2px solid var(--border-strong);
+  border-top: 5px solid var(--ink, var(--accent));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 6px 0 rgba(5, 6, 4, .6), 0 16px 30px rgba(0, 0, 0, .3);
+  rotate: var(--r);
+  transition: rotate 260ms var(--ease-snap), translate 260ms var(--ease-snap), box-shadow 220ms ease-out;
+}
+.rv-card:nth-child(4n+2) { --r: .8deg; }
+.rv-card:nth-child(4n+3) { --r: -.5deg; }
+.rv-card:nth-child(4n+4) { --r: 1.1deg; }
+.rv-card:hover { rotate: 0deg; translate: 0 -4px; box-shadow: 0 10px 0 rgba(5, 6, 4, .5), 0 22px 40px rgba(0, 0, 0, .32); }
+
+/* Le clou qui la tient. */
+.rv-pin {
+  position: absolute;
+  left: 50%;
+  top: -11px;
+  width: 14px;
+  height: 14px;
+  translate: -50% 0;
+  background: linear-gradient(135deg, #D8D8D8 0 40%, #6A6A6A 40%);
+  border: 2px solid #1E1E1E;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, .35);
+}
+.rv-demo {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  z-index: 2;
+  padding: 3px 7px;
+  background: #B84A38;
+  border: 2px solid #1E0F04;
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  color: #FFFFFF;
+  rotate: 4deg;
+}
+.rv-top { display: flex; align-items: center; gap: 10px; }
+.rv-top .stars { --st-empty: rgba(0, 0, 0, .5); }
+.rv-score {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 1;
+  color: #FFFFFF;
+}
+.rv-score small { font-size: 14px; opacity: .6; }
+.rv-text {
+  flex: 1;
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.55;
+  color: #E6E1D4;
+}
+/* Les guillemets a la couleur de la bete, eclaircie si elle se perdait dans
+   le fond (--ink-t, js/community.js). */
+.rv-text::before { content: '«\202F'; font-family: var(--font-display); color: var(--ink-t, var(--accent)); }
+.rv-text::after { content: '\202F»'; font-family: var(--font-display); color: var(--ink-t, var(--accent)); }
+.rv-foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 2px dashed rgba(255, 255, 255, .14);
+}
+.rv-beast {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: rgba(0, 0, 0, .35);
+  border: 2px solid;
+  border-color: #0E120E rgba(255, 255, 255, .16) rgba(255, 255, 255, .16) #0E120E;
+}
+.rv-who { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.rv-who b { font-family: var(--font-condensed); font-weight: 700; font-size: 16px; letter-spacing: .04em; text-transform: uppercase; color: #FFFFFF; }
+.rv-who small { font-size: 12.5px; color: var(--text-muted); }
+
+/* ===========================================================================
+   Le carrousel de l'accueil
+   =========================================================================== */
+
+.home-reviews[hidden] { display: none; }
+.rv-head { align-items: flex-end; }
+.rv-summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 18px;
+  background: rgba(12, 20, 15, .66);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 2px solid var(--border-strong);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1), 0 5px 0 rgba(5, 6, 4, .55);
+  rotate: -1deg;
+}
+.rv-avg {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 54px;
+  line-height: .9;
+  color: #FFFFFF;
+  text-shadow: 3px 3px 0 #0B120C;
+}
+.rv-summary small { font-size: 14px; color: var(--text-body); }
+
+.rv-track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(280px, calc((100% - 2 * 22px) / 3));
+  gap: 22px;
+  padding: 18px 4px 22px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+.rv-track::-webkit-scrollbar { display: none; }
+.rv-track > .rv-card { scroll-snap-align: start; }
+.rv-track:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+
+.rv-controls { display: flex; align-items: center; justify-content: center; gap: 14px; }
+.is-static .rv-controls { display: none; }
+.rv-arrow {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  background: rgba(12, 20, 15, .7);
+  border: 2px solid var(--border-strong);
+  box-shadow: 0 3px 0 rgba(5, 6, 4, .55);
+  color: var(--accent-soft);
+  font-size: 16px;
+  cursor: var(--cur-point);
+  transition: background 120ms ease-out, translate 140ms var(--ease-snap);
+}
+.rv-arrow:hover { background: var(--accent); color: #171A16; translate: 0 -2px; }
+.rv-dots { display: flex; gap: 6px; }
+.rv-dot {
+  width: 12px;
+  height: 12px;
+  padding: 0;
+  background: rgba(0, 0, 0, .45);
+  border: 2px solid var(--border-strong);
+  cursor: var(--cur-point);
+  transition: background 160ms ease-out, width 220ms var(--ease-snap);
+}
+.rv-dot[aria-current='true'] { width: 28px; background: var(--accent); }
+
+@media (max-width: 900px) {
+  .rv-track { grid-auto-columns: minmax(260px, 82%); }
+  .rv-head { align-items: flex-start; }
+}
+
+/* ===========================================================================
+   La page Communaute
+   =========================================================================== */
+
+.cm-hero { --hero-a: #3A2A18; --hero-b: #1B2A22; }
+
+/* La note moyenne et sa repartition. */
+.cm-summary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 28px;
+  align-items: center;
+  padding: 24px 28px;
+  background: rgba(12, 20, 15, .66);
+  -webkit-backdrop-filter: blur(9px) saturate(1.15);
+  backdrop-filter: blur(9px) saturate(1.15);
+  border: 2px solid var(--border-strong);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1), 0 6px 0 rgba(5, 6, 4, .55);
+}
+.cm-score { display: flex; flex-direction: column; align-items: center; gap: 8px; padding-right: 28px; border-right: 2px solid rgba(255, 255, 255, .1); }
+.cm-score > b {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 76px;
+  line-height: .9;
+  color: #FFFFFF;
+  text-shadow: 4px 4px 0 #0B120C;
+}
+.cm-score small { font-family: var(--font-pixel); font-size: 9px; color: var(--text-faint); }
+.cm-dist { display: flex; flex-direction: column; gap: 8px; }
+.cm-dist-row { display: grid; grid-template-columns: 44px minmax(0, 1fr) 30px; align-items: center; gap: 10px; }
+.cm-dist-key { display: inline-flex; align-items: center; gap: 5px; font-family: var(--font-condensed); font-weight: 700; font-size: 15px; color: #FFE27A; }
+.cm-dist-bar {
+  position: relative;
+  height: 14px;
+  background: rgba(0, 0, 0, .45);
+  border: 2px solid var(--border-strong);
+}
+.cm-dist-bar i { display: block; height: 100%; background: linear-gradient(180deg, #FFE27A 0 45%, #F2A32C 45%); }
+.cm-dist-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(90deg, transparent 0 calc(10% - 2px), rgba(5, 6, 4, .75) calc(10% - 2px) 10%);
+}
+.cm-dist-n { font-family: var(--font-condensed); font-weight: 700; font-size: 15px; color: var(--text-body); text-align: right; }
+
+.cm-sort, .cm-types { margin-bottom: 26px; }
+/* Les avis en colonnes : des notes de longueurs differentes s'empilent sans
+   trou, comme sur un panneau d'affichage. */
+.cm-reviews { columns: 3 300px; column-gap: 24px; padding-top: 12px; }
+.cm-reviews > .rv-card { break-inside: avoid; margin: 0 0 30px; }
+
+/* La galerie des creations. */
+.cm-works {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+.cm-work {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: rgba(12, 20, 15, .82);
+  border: 2px solid var(--border-strong);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1), 0 6px 0 rgba(5, 6, 4, .6);
+  color: #FFFFFF;
+  text-decoration: none;
+  transition: translate 240ms var(--ease-snap), box-shadow 220ms ease-out;
+}
+a.cm-work:hover { translate: 0 -5px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 11px 0 rgba(5, 6, 4, .6), 0 0 26px rgba(242, 163, 44, .3); }
+.cm-work.is-featured { grid-column: span 2; }
+.cm-work-media { position: relative; display: block; aspect-ratio: 16 / 9; overflow: hidden; background: #0B0F0C; }
+.cm-work.is-featured .cm-work-media { aspect-ratio: 21 / 9; }
+.cm-work-media img { width: 100%; height: 100%; object-fit: cover; transition: scale 600ms cubic-bezier(.22, 1, .36, 1); }
+a.cm-work:hover .cm-work-media img { scale: 1.05; }
+.cm-work-empty { position: absolute; inset: 0; background: repeating-linear-gradient(135deg, rgba(255, 255, 255, .04) 0 10px, transparent 10px 20px); }
+.cm-type, .cm-feat {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  padding: 4px 8px;
+  background: rgba(8, 12, 9, .82);
+  border: 2px solid var(--border-strong);
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  color: #FFE3A3;
+}
+.cm-feat { left: auto; right: 10px; bottom: auto; top: 10px; background: var(--accent); color: #171A16; }
+.cm-work.is-demo .cm-feat { top: 38px; }
+.cm-play {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  translate: -50% -50%;
+  background: rgba(184, 74, 56, .92);
+  border: 3px solid #1E0F04;
+  box-shadow: 0 5px 0 rgba(0, 0, 0, .45);
+  font-size: 22px;
+  color: #FFFFFF;
+}
+.cm-work-body { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px 16px; }
+.cm-work-title { font-family: var(--font-display); font-weight: 400; font-size: 22px; line-height: 1.05; text-transform: uppercase; }
+.cm-work.is-featured .cm-work-title { font-size: 30px; }
+.cm-work-text { font-size: 14.5px; color: var(--text-muted); }
+.cm-work-meta { font-family: var(--font-pixel); font-size: 8px; color: var(--text-faint); }
+
+/* L'appel a participer, quand une liste est vide. */
+.cm-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 28px 24px 26px;
+  text-align: center;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .05), transparent 45%),
+    #15221B;
+  color: var(--text-body);
+  border: 2px solid var(--border-strong);
+  border-top: 5px solid var(--accent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 6px 0 rgba(5, 6, 4, .6);
+  rotate: -.6deg;
+}
+.cm-empty-icon { width: 64px; height: 46px; background-size: contain; background-repeat: no-repeat; background-position: center; }
+.cm-empty b { font-family: var(--font-display); font-weight: 400; font-size: 26px; text-transform: uppercase; color: #FFFFFF; }
+.cm-empty p { margin: 0; font-size: 15.5px; line-height: 1.5; }
+
+/* Participer : deux panneaux, comme ceux de l'atelier. */
+.cm-join { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.cm-join-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 22px 22px 20px;
+  background: rgba(12, 20, 15, .72);
+  border: 2px solid var(--border-strong);
+  border-left: 6px solid var(--c, var(--accent));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1), 0 6px 0 rgba(5, 6, 4, .6);
+}
+.cm-join-card b { font-family: var(--font-display); font-weight: 400; font-size: 26px; text-transform: uppercase; color: #FFFFFF; }
+.cm-join-card p { margin: 0; color: var(--text-body); }
+.cm-join-card .btn { align-self: flex-start; margin-top: 6px; }
+
+@media (max-width: 760px) {
+  .cm-summary { grid-template-columns: 1fr; }
+  .cm-score { padding: 0 0 18px; border-right: 0; border-bottom: 2px solid rgba(255, 255, 255, .1); }
+  .cm-work.is-featured { grid-column: auto; }
+  .cm-join { grid-template-columns: 1fr; }
+}
+
+:root[data-theme='light'] :is(.rv-summary, .cm-summary, .cm-work, .cm-join-card) {
+  background: var(--paper-glass);
+  border-color: var(--line);
+  box-shadow: var(--paper-shadow);
+}
+:root[data-theme='light'] :is(.rv-avg, .cm-score > b, .cm-work-title, .cm-join-card b) { color: var(--ink); text-shadow: none; }
+:root[data-theme='light'] :is(.rv-summary small, .cm-dist-n, .cm-join-card p) { color: #5A5347; }
+:root[data-theme='light'] .cm-work { color: var(--ink); }
+/* En theme clair, l'avis redevient une note de papier. */
+:root[data-theme='light'] :is(.rv-card, .cm-empty) {
+  background: var(--paper-glass-hi);
+  color: var(--parchment-ink);
+  border-color: var(--line);
+  border-top-color: var(--ink, var(--accent));
+  box-shadow: var(--paper-shadow), 0 10px 22px rgba(66, 52, 26, .12);
+}
+:root[data-theme='light'] .cm-empty { border-top-color: var(--accent); }
+:root[data-theme='light'] :is(.rv-score, .rv-text, .rv-who b, .cm-empty b) { color: var(--parchment-ink); }
+:root[data-theme='light'] .rv-who small { color: var(--parchment-muted); }
+:root[data-theme='light'] .rv-top .stars { --st-empty: rgba(58, 42, 24, .22); }
+:root[data-theme='light'] .rv-text::before,
+:root[data-theme='light'] .rv-text::after { color: var(--ink, var(--accent)); }
+:root[data-theme='light'] .rv-foot { border-top-color: rgba(58, 42, 24, .25); }
+:root[data-theme='light'] .rv-beast { background-color: rgba(58, 42, 24, .12); border-color: rgba(58, 42, 24, .35); }
+
+@media (prefers-reduced-motion: reduce) {
+  .stars.is-filling :is(.st b, .st u) { animation: none; }
+}

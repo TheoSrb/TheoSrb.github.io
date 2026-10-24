@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="fr" data-theme="dark" data-booting>
+<head>
+<meta charset="utf-8">
+<!-- En local, les assets viennent du depot GitHub (js/remote-assets.js) : en premier. -->
+<script src="js/remote-assets.js?v=20261001l"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Biome - Operation W.I.L.D</title>
+<meta name="description" content="La fiche d'un biome d'Operation W.I.L.D : ses habitants, sa flore, ses blocs, ses recettes et sa palette.">
+<link rel="icon" href="assets/logo.png" type="image/png">
+<meta name="theme-color" content="#0B0F0C">
+<link rel="apple-touch-icon" href="assets/logo.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Operation W.I.L.D">
+<meta property="og:title" content="Biome - Operation W.I.L.D">
+<meta property="og:description" content="La fiche d'un biome d'Operation W.I.L.D : ses habitants, sa flore, ses blocs, ses recettes et sa palette.">
+<meta property="og:image" content="https://operation-wild-wiki.netlify.app/assets/og/site.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://operation-wild-wiki.netlify.app/assets/og/site.png">
+<script>
+  /* Theme, effets et langue avant le premier rendu : ni flash de fond, ni flash de texte.
+     La traduction elle-meme (js/i18n.js) leve le voile des qu'elle est prete. */
+  try {
+    var t = localStorage.getItem('ow-theme');
+    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+    var p = localStorage.getItem('ow-perf');
+    if (p === 'full' || p === 'lite') document.documentElement.setAttribute('data-perf', p);
+  } catch (e) {}
+  (function () {
+    var codes = ['fr', 'en', 'es', 'pt', 'ru'], l = null;
+    try { l = localStorage.getItem('ow-lang'); } catch (e) {}
+    if (codes.indexOf(l) < 0) {
+      l = 'en';
+      var list = navigator.languages || [navigator.language || 'en'];
+      for (var i = 0; i < list.length; i++) {
+        var k = String(list[i] || '').slice(0, 2).toLowerCase();
+        if (codes.indexOf(k) >= 0) { l = k; break; }
+      }
+    }
+    document.documentElement.lang = l;
+    if (l !== 'fr') {
+      document.documentElement.setAttribute('data-i18n-pending', '');
+      setTimeout(function () { document.documentElement.removeAttribute('data-i18n-pending'); }, 1800);
+    }
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=Barlow+Condensed:wght@600;700&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="css/tokens.css?v=20261001l">
+<link rel="stylesheet" href="css/base.css?v=20261021c">
+<link rel="stylesheet" href="css/motion.css?v=20261001l">
+<link rel="stylesheet" href="css/components.css?v=20261001l">
+<link rel="stylesheet" href="css/icons.css?v=20261001l">
+<link rel="stylesheet" href="css/search.css?v=20261001l">
+<link rel="stylesheet" href="css/pages.css?v=20261001l">
+<link rel="stylesheet" href="css/creature-card.css?v=20261023a">
+<link rel="stylesheet" href="css/biome-world.css?v=20261021g">
+<link rel="stylesheet" href="css/biome.css?v=20261001l">
+<link rel="stylesheet" href="css/wild.css?v=20261024b">
+<link rel="stylesheet" href="css/ux.css?v=20261022a">
+<link rel="stylesheet" href="css/billy.css?v=20261020e">
+<link rel="stylesheet" href="css/theme-light.css?v=20261024b">
+<script src="js/loader.js?v=20261021c"></script>
+<!-- Apres les feuilles de style, jamais avant : un script lent a arriver ne doit
+     pas laisser la page s'afficher sans elles (sans @view-transition, css/ux.css,
+     la transition entre pages est abandonnee). Le decor de biome est ici, dans
+     l'en-tete : il se pose avant la premiere image, pour que la transition ait
+     toujours de quoi glisser. -->
+<script src="js/biome-config.js?v=20261010x"></script>
+<script src="js/biome-world.js?v=20261024b"></script>
+</head>
+
+<body data-page="biomes" data-header-overlay data-biome-start="redwood" data-biome-only>
+
+<div data-site-header></div>
+
+<main class="bf">
+  <!-- ===================================================================
+       Le panorama : le biome vivant derriere, la carte postale, le panneau
+       =================================================================== -->
+  <section class="bf-hero" id="panorama">
+    <div class="wrap bf-hero-inner">
+      <div class="bf-sign" data-bf-sign>
+        <span class="bf-post bf-post-a" aria-hidden="true"></span>
+        <span class="bf-post bf-post-b" aria-hidden="true"></span>
+        <div class="bf-plank">
+          <span class="bf-id" data-bf-id></span>
+          <h1 class="bf-name" data-bf-name>Biome</h1>
+          <p class="bf-tagline" data-bf-tagline></p>
+          <div class="bf-chips" data-bf-chips></div>
+          <div class="bf-cta">
+            <a class="btn btn-accent" href="#inhabitants">Explorer le biome ↓</a>
+            <a class="btn" href="biomes.html">Tous les biomes</a>
+          </div>
+        </div>
+      </div>
+      <figure class="bf-postcard" data-bf-postcard data-tilt>
+        <span class="bf-postcard-photo" data-bf-photo role="img"></span>
+        <figcaption>
+          <span class="bf-stamp" aria-hidden="true"></span>
+          <b data-bf-caption></b>
+          <small>Capture en jeu</small>
+        </figcaption>
+      </figure>
+    </div>
+    <div class="wrap bf-signs" data-bf-signs></div>
+  </section>
+
+  <!-- Le sommaire : colle sous l'en-tete, il suit la lecture. -->
+  <nav class="bf-nav no-scrollbar" data-bf-nav aria-label="Chapitres du biome">
+    <a href="#generation" data-bf-link="generation"><b>01</b>Génération</a>
+    <a href="#inhabitants" data-bf-link="inhabitants"><b>02</b>Habitants</a>
+    <a href="#flora" data-bf-link="flora"><b>03</b>Flore &amp; blocs</a>
+    <a href="#crafting" data-bf-link="crafting"><b>04</b>Du bloc à l’ouvrage</a>
+    <a href="#palette" data-bf-link="palette"><b>05</b>Palette</a>
+    <a href="#technical" data-bf-link="technical"><b>06</b>Fiche technique</a>
+    <span class="bf-nav-bar" data-bf-nav-bar aria-hidden="true"></span>
+  </nav>
+
+  <div class="wrap bf-chapters">
+    <!-- 01 · GENERATION : ou le biome nait dans le monde (js/biome-map.js) -->
+    <section class="bf-chap" id="generation" data-bf-generation hidden>
+      <header class="bf-chap-head">
+        <span class="bf-chap-num">01</span>
+        <div>
+          <h2 class="bf-chap-title">Génération</h2>
+          <p class="bf-chap-lead" data-bf-gen-lead></p>
+        </div>
+      </header>
+      <div data-bf-gen></div>
+    </section>
+
+    <!-- 02 · HABITANTS -->
+    <section class="bf-chap" id="inhabitants">
+      <header class="bf-chap-head">
+        <span class="bf-chap-num">02</span>
+        <div>
+          <h2 class="bf-chap-title">Habitants</h2>
+          <p class="bf-chap-lead">Les créatures que le mod fait apparaître ici, et à quelle fréquence.</p>
+        </div>
+      </header>
+      <div class="bf-dwellers" data-bf-dwellers></div>
+    </section>
+
+    <!-- 03 · FLORE ET BLOCS -->
+    <section class="bf-chap" id="flora">
+      <header class="bf-chap-head">
+        <span class="bf-chap-num">03</span>
+        <div>
+          <h2 class="bf-chap-title">Flore &amp; blocs</h2>
+          <p class="bf-chap-lead">Tout ce que le biome apporte en blocs. Chaque case ouvre la fiche du bloc.</p>
+        </div>
+      </header>
+      <div class="bf-flora">
+        <div class="bf-inv" data-bf-inv></div>
+        <div class="bf-block" data-bf-block aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- 04 · DU BLOC A L'OUVRAGE — vide, le chapitre disparaît (js/biome.js) -->
+    <section class="bf-chap" id="crafting" data-bf-crafting>
+      <header class="bf-chap-head">
+        <span class="bf-chap-num">04</span>
+        <div>
+          <h2 class="bf-chap-title">Du bloc à l’ouvrage</h2>
+          <p class="bf-chap-lead" data-bf-craft-lead></p>
+        </div>
+      </header>
+      <div class="bf-tree" data-bf-tree></div>
+      <div class="bf-bench" data-bf-bench></div>
+    </section>
+
+    <!-- 05 · PALETTE -->
+    <section class="bf-chap" id="palette">
+      <header class="bf-chap-head">
+        <span class="bf-chap-num">05</span>
+        <div>
+          <h2 class="bf-chap-title">Palette</h2>
+          <p class="bf-chap-lead">Les couleurs que le jeu donne à ce biome : ciel, brouillard, herbe, feuillage et eau. Un clic sur une teinte copie son code.</p>
+        </div>
+      </header>
+      <div class="bf-palette" data-bf-palette></div>
+    </section>
+
+    <!-- 06 · FICHE TECHNIQUE -->
+    <section class="bf-chap" id="technical">
+      <header class="bf-chap-head">
+        <span class="bf-chap-num">06</span>
+        <div>
+          <h2 class="bf-chap-title">Fiche technique</h2>
+          <p class="bf-chap-lead">Les identifiants du mod, pour les joueurs qui écrivent des commandes ou des datapacks.</p>
+        </div>
+      </header>
+      <div class="bf-tech" data-bf-tech></div>
+      <div class="bf-others" data-bf-others></div>
+    </section>
+  </div>
+</main>
+
+<div data-site-footer></div>
+
+<script src="js/attack-profiles.js?v=20261010x"></script>
+<script src="js/wiki-data.js?v=20261020a"></script>
+<script src="js/asset-list.js?v=20261023a"></script>
+<script src="js/site.js?v=20261024a"></script>
+<script src="js/site-config.js?v=20261010x"></script>
+<script src="js/assets-config.js?v=20261001l"></script>
+<script src="js/ux.js?v=20261024d"></script>
+<script src="js/player.js?v=20261001l"></script>
+<script src="js/theme.js?v=20261001l"></script>
+<script src="js/perf.js?v=20261001l"></script>
+<script src="js/i18n.js?v=20261001l"></script>
+<script src="js/favorites.js?v=20261001l"></script>
+<script src="js/reveal.js?v=20261022a"></script>
+<script src="js/interactions.js?v=20261001l"></script>
+<script src="js/footer.js?v=20261001l"></script>
+<script src="js/search.js?v=20261024a"></script>
+<script src="js/header.js?v=20261001l"></script>
+<script src="js/billy.js?v=20261024a"></script>
+<script src="js/swing.js?v=20261021f"></script>
+<script src="js/wild.js?v=20261001l"></script>
+<script src="js/block-icons.js?v=20261009a"></script>
+<script src="js/creature-card.js?v=20261023a"></script>
+<script src="js/biome-map.js?v=20261001l"></script>
+<script src="js/biome.js?v=20261001l"></script>
+</body>
+</html>
