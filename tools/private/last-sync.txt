@@ -1,0 +1,125 @@
+
+== Dossier des assets ==========================================
+dossier : C:\Users\Tiew_37\Desktop\Operation W.I.L.D Wiki Assets
+
+== JSON du wiki ================================================
+export : C:\Users\Tiew_37\IdeaProjects\Operation-W.I.L.D\src\generated\resources\wiki_data.json
+
+== Textures du mod =============================================
+
+== Sons et musiques du mod =====================================
+  son sans fichier : tiger_sniff : absent de sounds.json
+  son sans fichier : tiger_sniff_virus : absent de sounds.json
+  son sans fichier : tiger4 : fichier .ogg introuvable dans le mod
+  son sans fichier : tiger4_virus : fichier .ogg introuvable dans le mod
+  son sans fichier : tiger_sniffing : fichier .ogg introuvable dans le mod
+  son sans fichier : tiger_sniffing_virus : fichier .ogg introuvable dans le mod
+
+== Dossier du Bureau (Operation W.I.L.D) =======================
+
+== Textures de Minecraft =======================================
+
+== Modeles 3D ==================================================
+
+== Livre du manuel, icones de Mecaniques =======================
+
+== Skins (nom, rarete, prix, deblocage, lus dans le code du mod) ===
+
+== Quetes quotidiennes (recompenses par palier, lues dans le code du mod) ===
+
+== Vignettes floues ============================================
+
+== Vignettes des rendus solo (1280 px, pour les cartes) ========
+
+== Apercus de partage ==========================================
+
+== Inventaire des fichiers =====================================
+
+== Compte rendu ================================================
+  objets                 76 a jour
+  blocs                  35 a jour
+  textures des betes     152 a jour
+  calques de skins       5 a jour
+  icones d'effets        7 a jour
+  arenes                 2 a jour
+  tribus                 2 a jour
+  pieces et XP           8 a jour
+  sons des betes         60 a jour
+  musiques               7 a jour
+  autres sons            10 a jour
+  wallpapers             10 a jour
+  logo, titre, theme     3 a jour
+  Minecraft : objets     792 a jour
+  Minecraft : blocs      1111 a jour
+  ecartes (secrets, especes non publiees) : 12 objets, 4 blocs
+
+Mise a jour terminee en 14 s. Dossier des assets : C:\Users\Tiew_37\Desktop\Operation W.I.L.D Wiki Assets
+
+== Bilan : ce qui manque par rapport au tigre ==============
+  Modele : Tigre — 4 variantes, 7 skins, 4 GIF, 6 captures, 22/24 sons.
+  Au tigre lui-meme, il manque :
+    - sons 22/24 (sans fichier : tiger_sniff, tiger_sniff_virus)
+
+  Kodiak (1)
+    - captures 0/6
+
+  Crocodile (1)
+    - captures 0/6
+
+  Boa (3)
+    - GIF 0/4
+    - captures 0/6
+    - donnees du mod : nourriture d'apprivoisement
+
+  Orque (4)
+    - skins — sans modele 3D : orca_gold · pas decrit dans le code du mod : orca_gold
+    - GIF 2/4
+    - captures 0/6
+    - donnees du mod : texte du manuscrit, nourriture d'apprivoisement, Piste Sauvage, sons declares
+
+  Éléphant (3)
+    - GIF 1/4
+    - captures 0/6
+    - donnees du mod : texte du manuscrit, butin, Piste Sauvage, utilisations en fabrication
+
+  Kangourou (4)
+    - skins — sans modele 3D : kangaroo_gold
+    - GIF 0/4
+    - captures 0/6
+    - donnees du mod : texte du manuscrit, nourriture d'apprivoisement, recette de selle, Piste Sauvage, sons declares, nom de chapitre
+
+  Panda Roux (4)
+    - skins — sans modele 3D : red_panda_gold
+    - GIF 0/4
+    - captures 0/6
+    - donnees du mod : texte du manuscrit, butin, recette de selle, sons declares, utilisations en fabrication
+
+  Gorille (3)
+    - GIF 0/4
+    - captures 0/6
+    - donnees du mod : texte du manuscrit, comportements sauvages, butin, recette de selle, Piste Sauvage, sons declares, utilisations en fabrication, skins
+
+  Hippopotame (5)
+    - variantes 0/1 (manque : DEFAULT)
+    - GIF 0/4
+    - captures 0/6
+    - selle : pages/<bete>/saddle.png
+    - donnees du mod : texte du manuscrit, comportements sauvages, butin, recette de selle, Piste Sauvage, sons declares, utilisations en fabrication, skins
+
+  Lion (6)
+    - manque : wallpaper
+    - variantes 0/2 (manque : DEFAULT, ALBINO)
+    - GIF 0/4
+    - captures 0/6
+    - selle : pages/<bete>/saddle.png
+    - donnees du mod : lieu d'apparition, texte du manuscrit, comportements sauvages, butin, recette de selle, Piste Sauvage, sons declares, utilisations en fabrication, skins
+
+  Boss Impératrice Végétale : manque : fond (bosses/wallpapers/plant_empress.png)
+
+  Objets du mod sans image : teddy_bear, animal_carcass, bear_trap
+  Oeufs d'apparition sans image (11) : le jeu teinte un oeuf generique, rien a copier du mod
+  Textures de Minecraft a deposer (7) : chest, enchanted_golden_apple, ender_chest, shield, snow_block, trapped_chest, wither_skeleton_skull
+    (dans mcitems/<nom>.png, ou mcblocks/<nom>.png pour un bloc)
+
+== Publication sur GitHub ======================================
+  aucun fichier change depuis la derniere publication

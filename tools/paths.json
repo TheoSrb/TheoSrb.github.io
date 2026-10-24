@@ -1,0 +1,8 @@
+{
+  "_lisez-moi": "Les dossiers utilises par les outils (tools/paths.py). La tache Gradle runWikiDatas du mod passe les siens, ceux-ci servent quand on lance un outil a la main.",
+  "assets": "C:/Users/Tiew_37/Desktop/Operation W.I.L.D Wiki Assets",
+  "mod": "C:/Users/Tiew_37/IdeaProjects/Operation-W.I.L.D",
+  "studio": "C:/Users/Tiew_37/Desktop/Operation W.I.L.D",
+  "minecraft": "C:/Users/Tiew_37/Desktop/Minecraft Textures 1.21.1",
+  "pages_url": "https://theosrb.github.io/Operation-W.I.L.D-Wiki-Assets/"
+}

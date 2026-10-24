@@ -1,0 +1,92 @@
+{
+  "_lisez-moi": [
+    "Ce qui ne doit JAMAIS apparaitre sur le site, ni a l'ecran ni dans le code.",
+    "Ce fichier reste prive : le dossier tools/ n'est pas servi (voir _redirects).",
+    "Apres chaque modification, et apres chaque nouvel export du mod :",
+    "    python tools/publish-data.py",
+    "Le script retire tout cela de data/wiki_data.json (l'entite, ses objets, ses sons,",
+    "ses succes, ses lignes de tribu...) et refait les silhouettes des betes a venir.",
+    "Pour reveler une bete : l'enlever de 'entities' (et de 'upcoming'), relancer le script,",
+    "puis remettre ses reglages notes dans 'a_leur_sortie'."
+  ],
+  "_ids": "Blocs, objets (ou sons) masques, par identifiant exact. Leurs recettes disparaissent avec eux.",
+  "ids": [
+    "ow:medal_0",
+    "ow:medal_1",
+    "ow:medal_2",
+    "ow:medal_3",
+    "ow:peacock_idle",
+    "ow:manuscript_fragment"
+  ],
+  "_entities": "Especes secretes SANS carte mystere (les betes de 'upcoming' sont cachees d'office). Chaque nom efface de l'export tout element qui le cite (ow:walrus_tamed_advancement, ow:jellyfish_electrified...).",
+  "entities": [
+    "walrus",
+    "mandrill",
+    "tiger_shark",
+    "colossal_squid"
+  ],
+  "_upcoming": [
+    "Les betes « prochainement » : une carte mystere a l'accueil et au bestiaire (silhouette noire,",
+    "nom de fichier sans rapport avec la bete, decor de biome de la carte). Pour en ajouter une :",
+    "  1. deposer sa tete dans assets/heads/<slug>.png (comme d'habitude) ;",
+    "  2. ajouter une ligne ci-dessous, ex. { \"slug\": \"walrus\", \"biome\": \"frozen\" } ;",
+    "  3. lancer : python tools/publish-data.py",
+    "Le script met la tete a l'abri (tools/private/heads/), fait la silhouette et cache la bete partout.",
+    "Biomes possibles : jungle, bamboo, forest, redwood, cherry, snow, frozen, savanna, badlands,",
+    "desert, swamp, mangrove, ocean, abyss, cave."
+  ],
+  "upcoming": [
+    {
+      "slug": "hyena",
+      "biome": "savanna"
+    },
+    {
+      "slug": "jellyfish",
+      "biome": "ocean"
+    },
+    {
+      "slug": "walrus",
+      "biome": "frozen"
+    },
+    {
+      "slug": "colossal_squid",
+      "biome": "abyss"
+    },
+    {
+      "slug": "tiger_shark",
+      "biome": "ocean"
+    },
+    {
+      "slug": "peacock",
+      "biome": "forest"
+    },
+    {
+      "slug": "manta",
+      "biome": "lukewarm"
+    }
+  ],
+  "_boss_mysteres": [
+    "Les boss « scelles » de la page Boss (bosses.html) : meme principe que 'upcoming'.",
+    "Une silhouette noire tiree du rendu COMPLET de la bete (assets/entities/<slug>.png ou assets/bosses/solo/<slug>.png,",
+    "ou tools/private/assets/entities/<slug>.png s'il est deja a l'abri), sous un nom sans rapport.",
+    "  - menace : 1 a 5 tetes de mort sur la fiche scellee (facultatif, 5 par defaut) ;",
+    "  - indice : une phrase d'accroche SANS le nom de la bete (facultatif). Le script la refuse",
+    "    si elle cite un secret.",
+    "Pour reveler le boss : l'enlever d'ici ET de 'entities', remettre son rendu dans assets/entities/,",
+    "puis relancer le script sur l'export du mod : python tools/publish-data.py <export.json>"
+  ],
+  "boss_mysteres": [],
+  "_a_leur_sortie": "Reglages retires du code public, a remettre quand la bete sort.",
+  "a_leur_sortie": {
+    "js/biome-config.js, animalWithoutSpawn": {
+      "jellyfish": [
+        "ocean"
+      ],
+      "hyena": [
+        "savanna"
+      ]
+    },
+    "js/hero-config.js, cadrage du bandeau": {},
+    "fichiers a l'abri": "tools/private/assets/... : chaque image au meme chemin qu'avant (assets/...). La remettre a sa place quand la bete sort."
+  }
+}

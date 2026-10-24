@@ -1,0 +1,23 @@
+{
+  "_lisez-moi": [
+    "Le jour ou chaque bete est sortie sur le wiki : c'est lui qui la rend « Nouveau ! »",
+    "(accueil, bestiaire, tri recent), pendant SITE_CONFIG.news.months mois.",
+    "Rempli tout seul par tools/publish-data.py : une espece qui apparait pour la premiere",
+    "fois dans data/wiki_data.json (une bete revelee) prend la date du jour.",
+    "Une date se corrige a la main ; supprimer une ligne la refait au prochain passage."
+  ],
+  "sorties": {
+    "tiger": "2025-08-02T16:51:38+02:00",
+    "kodiak": "2025-08-05T20:40:40+02:00",
+    "crocodile": "2025-08-05T20:40:40+02:00",
+    "boa": "2025-08-02T16:51:38+02:00",
+    "orca": "2026-05-01T22:30:01+02:00",
+    "elephant": "2025-08-05T20:40:40+02:00",
+    "kangaroo": "2026-06-09T16:10:50+02:00",
+    "red_panda": "2025-08-05T20:40:40+02:00",
+    "gorilla": "2026-08-30T15:04:02+02:00",
+    "hippopotamus": "2026-10-09T19:34:05+02:00",
+    "lion": "2026-10-10T13:07:39+02:00",
+    "plant_empress": "2025-08-02T16:51:38+02:00"
+  }
+}
